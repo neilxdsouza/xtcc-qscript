@@ -50,6 +50,10 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 	fprintf (tab_drv_func, "#include \"my_axes.h\"\n");
 	fprintf (tab_drv_func, "#include \"%s_my_table.C\"\n", session_id.c_str());
 	fprintf (tab_drv_func, "void tab_compute(){\n");
+	// specifying no of threads - end result was much slower
+	// seemed optimum at 4 - which is how many cores I have = 4
+	// at 8 - the number of context switches went up exponentially
+	//fprintf (tab_drv_func, "#pragma omp parallel sections num_threads(8)\n");
 	fprintf (tab_drv_func, "#pragma omp parallel sections\n");
 	fprintf (tab_drv_func, "{\n");
 	set <string> ax_defns;
