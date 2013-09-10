@@ -476,7 +476,7 @@ clear_stmt: CLEAR '(' NAME ')' ';' {
 	| CLEAR '(' NAME '[' expression ']' ',' TEXT ')'';' {
 		using qscript_parser::nest_lev;
 		using qscript_parser::flagIsAForBody_;
-		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3, $8);
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3, $5, $8);
 	}
 	|  CLEAR '(' NAME  ',' TEXT ')' ';' {
 		// free($3); ? is this required here
@@ -1131,7 +1131,6 @@ stub_manip_stmts:
 		using qscript_parser::xs;
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, $3, xs);
-		using qscript_parser::xs;
 		xs.reset();
 	}
 	| UNSET '(' NAME ')' ';' {
