@@ -1886,7 +1886,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	//20-jun-2013 commented out for now
 	// seems like variable file gets cleared out
-	//PrintXtccRecodeEdit (xtcc_recode_edit);
+	PrintXtccRecodeEdit (xtcc_recode_edit);
 	compute_flat_map_code.program_code
 		<< "{" << xtcc_recode_edit.program_code.str() << "}"
 		<< endl;
@@ -1949,8 +1949,9 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 {
 	recode_edit.program_code
 		<< "//PrintXtccRecodeEdit\n"
+		<< "\tif (write_xtcc_data_file_flag) {\t\n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
-		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::app);\n"
+		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-recode-edit.qin\"));\n"
 		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-recode-edit.qax\"));\n"
@@ -2265,6 +2266,8 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 			}
 		}
 	}
+	recode_edit.program_code
+		<< "\t}\t\n";
 }
 
 

@@ -2283,7 +2283,7 @@ yyreduce:
     {
 		using qscript_parser::nest_lev;
 		using qscript_parser::flagIsAForBody_;
-		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, (yyvsp[(3) - (10)].name), (yyvsp[(8) - (10)].text_buf));
+		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, (yyvsp[(3) - (10)].name), (yyvsp[(5) - (10)].expr), (yyvsp[(8) - (10)].text_buf));
 	}
     break;
 
