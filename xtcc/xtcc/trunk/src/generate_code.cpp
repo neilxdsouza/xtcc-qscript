@@ -1483,10 +1483,12 @@ void	generate_edit_section_code()
 	fprintf (edit_out, "string xtcc_stdout_fname(\"xtcc_stdout.log\");\n");
 	fprintf (edit_out, "FILE * xtcc_stdout=0;\n");
 	fprintf (edit_out, "#include <sys/types.h>\n" );
-	fprintf (edit_out, "int8_t c[%d];\n", rec_len );
 	fprintf (edit_out, "#include \"global.h\"\n" );
 	cout << "printing edit:" << endl;
+	fprintf (edit_out, "struct EditDataStruct {\n", rec_len );
+	fprintf (edit_out, "int8_t c[%d];\n", rec_len );
 	tree_root->GenerateCode(edit_out);
+	fprintf (edit_out, "};\n");
 	fclose (edit_out);
 
 	string list_fname = work_dir + string("/print_list_counts.C");

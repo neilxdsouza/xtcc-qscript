@@ -106,7 +106,11 @@ void FunctionDeclarationStatement::GenerateCode(FILE * & fptr)
 {
 	fflush(fptr);
 	if(fptr){
-		funcInfo_->print(fptr);
+		if (funcInfo_ -> funcName_ == "edit_data") {
+
+		} else {
+			funcInfo_->print(fptr);
+		}
 		if(next_) next_->GenerateCode(fptr);
 	}
 }
