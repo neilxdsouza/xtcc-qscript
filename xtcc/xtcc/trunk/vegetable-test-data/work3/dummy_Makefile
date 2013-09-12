@@ -1,0 +1,21 @@
+CC=g++ -g 
+OBJS = main_loop.o my_axes_drv_func.o dummy_my_tab_drv_func.o edit_out.o global.o
+
+dummy_test.exe: $(OBJS)
+	$(CC)  -o $@ $(OBJS)
+
+main_loop.o: main_loop.C
+	$(CC)  -c $<
+
+my_axes_drv_func.o: my_axes_drv_func.C
+	$(CC)  -c $<
+
+dummy_my_tab_drv_func.o: dummy_my_tab_drv_func.C
+	$(CC)  -c $<
+
+edit_out.o: edit_out.c
+	$(CC)  -c $<
+
+global.o: global.C
+	$(CC)  -c $<
+

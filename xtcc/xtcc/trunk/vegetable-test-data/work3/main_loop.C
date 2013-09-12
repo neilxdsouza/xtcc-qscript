@@ -7,8 +7,11 @@
 #include <iostream>
 #include <sstream>
 #include "ax_stmt_type.h"
-#include "global.h"
+//#include "global.h"
 //#include <sys/mman.h>
+#include "edit_out.h"
+#include "my_axes.h"
+#include "dummy_my_table.h"
 
 int32_t edit_data();
 void ax_compute();
@@ -31,10 +34,10 @@ int main(int argc, char * argv[]){
 		cerr << "Unable to open " << xtcc_stdout_fname.c_str() << " as stdout exiting" << endl;
 		exit(1);
 	}
-	
+
 	//int fd=open(argv[1], O_RDONLY);
 	if(argc !=3) {
-		cout << "Usage: " << argv[0] << " <datafile_name> <reclen>"  << endl; 
+		cout << "Usage: " << argv[0] << " <datafile_name> <reclen>"  << endl;
 		exit(1);
 	}
 	FILE * inp_data_file=fopen(argv[1], "rb");
@@ -77,6 +80,9 @@ int main(int argc, char * argv[]){
 		exit(1);
 	}
 	//fread_data(inp_data_file, file_info_stat, rec_len);
+	EditDataStruct ed;
+	AxesGroup ag;
+	TableGroup tg (ag, ed);
 	fread_data(inp_data_file, file_size, rec_len);
 	//mmap_read_data (fd, file_info_stat, rec_len);
 	print_list_counts();
@@ -90,15 +96,15 @@ int read_data(int fd, struct stat &file_info_stat, int rec_len){
 	cout << "read_data" << endl;
 	//int8_t* buffer=new int8_t[sizeof(int8_t)* rec_len];
 	int r_val=0;
-		
+
 	while(1){
 		//memset(buffer,0, rec_len);
-		int n_read=read(fd, c, rec_len); 
+		int n_read=read(fd, c, rec_len);
 		if(n_read==0){
 			r_val=0;
 			break;
 		} else if(n_read<0 || n_read!=rec_len){
-			cerr<< "Error reading file: check record size" 
+			cerr<< "Error reading file: check record size"
 				<< "n_read: " << n_read
 				<< "rec_len: " << rec_len
 				<< endl;
@@ -134,7 +140,7 @@ int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 	char * src_ptr=char_src;
 	while(src_ptr<char_src+file_info_stat.st_size){
 		//memset(buffer,0, rec_len);
-		//int n_read=read(fd, buffer, rec_len); 
+		//int n_read=read(fd, buffer, rec_len);
 		memcpy(c,src_ptr, rec_len);
 		src_ptr+=rec_len;
 		cout << ".";
@@ -146,7 +152,7 @@ int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 	cout << "END mmap_read_data" << endl;
 	return r_val;
 }
-//#endif  UNIX_H 
+//#endif  UNIX_H
 */
 
 // -- new : 23-jul-2012
@@ -162,7 +168,7 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 	cout << "total_records: " << total_records << endl;
 	stringstream  total_records_str;
 	total_records_str << total_records;
-		
+
 	int n_records = 0;
 	int sample_size = 1; // prevent divide by 0
 	if (total_records == 1) {
@@ -181,7 +187,7 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 			r_val=0;
 			break;
 		} else if(n_read<0 || n_read!=rec_len){
-			cerr	<< "Error reading file: check record size" 
+			cerr	<< "Error reading file: check record size"
 				<< "n_read: " << n_read
 				<< "rec_len: " << rec_len
 				<< endl;
@@ -194,18 +200,18 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 			tab_compute();
 			++n_records;
 		}
-		//if (n_records % 100 == 0) 
+		//if (n_records % 100 == 0)
 		if (n_records % sample_size == 0) {
 			cout << ".";
 		}
 		if (n_records % (sample_size * 60) == 0) {
-			cout << " n_records : " 
+			cout << " n_records : "
 				<< n_records << " / " << total_records_str.str()
 				<< endl;
 		}
 	}
 #endif /* 0 */
-	cout << "\nTotal records: " << n_records << endl; 
+	cout << "\nTotal records: " << n_records << endl;
 	cout << endl;
 	//delete [] buffer;
 	cout << "END read_data" << endl;
