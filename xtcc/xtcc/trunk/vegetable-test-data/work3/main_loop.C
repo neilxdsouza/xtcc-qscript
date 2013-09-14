@@ -9,16 +9,21 @@
 #include "ax_stmt_type.h"
 //#include "global.h"
 //#include <sys/mman.h>
+#include "global.h"
 #include "edit_out.h"
 #include "my_axes.h"
 #include "dummy_my_table.h"
 
 int32_t edit_data();
-void ax_compute();
-void tab_compute();
+//void ax_compute();
+void ax_compute( AxesGroup & ag, EditDataStruct & ed);
+void tab_compute(TableGroup & tg, EditDataStruct & ed, AxesGroup & ag);
 
 using namespace std;
-int fread_data(FILE * & inp_data_file , long file_size, int rec_len);
+int fread_data(FILE * & inp_data_file , long file_size, int rec_len,
+			EditDataStruct & ed, AxesGroup & ag
+			, TableGroup & tg
+			);
 FILE * runtime_errors = 0;
 extern FILE * xtcc_stdout;
 extern string xtcc_stdout_fname;
@@ -26,7 +31,7 @@ extern int8_t c[];
 int read_data(int fd, struct stat &file_info_stat, int rec_len);
 int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len);
 void print_list_counts();
-void tab_summ();
+void tab_summ(TableGroup & tg);
 int main(int argc, char * argv[]){
 	xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), "w");
 	runtime_errors = fopen("runtime_errors.log", "w");
@@ -81,12 +86,31 @@ int main(int argc, char * argv[]){
 	}
 	//fread_data(inp_data_file, file_info_stat, rec_len);
 	EditDataStruct ed;
-	AxesGroup ag;
+	AxesGroup ag(ed);
 	TableGroup tg (ag, ed);
-	fread_data(inp_data_file, file_size, rec_len);
+	printf ("address ed.q1_data : %x\n", &ed.q1_data);
+	printf ("address ed.q2_arr : %x\n", ed.q2_arr);
+	printf ("address ag.ax_q1.q1_data : %x\n", &ag.ax_q1.q1_data);
+	printf ("address ag.ax_q2.q2_arr : %x\n", ag.ax_q2.q2_arr);
+	printf ("address tg.ag.ax_q1.q1_data : %x\n", &tg.ag.ax_q1.q1_data);
+	printf ("address tg.ag.ax_q2.q2_arr : %x\n", tg.ag.ax_q2.q2_arr);
+
+	ag.ax_q1.flag[0] = 51;
+	ag.ax_q1.flag[1] = 52;
+	ag.ax_q1.flag[2] = 53;
+
+	printf(" tg.ag.ax_q1.flag[0], [1], [2]: %d, %d, %d\n",
+		tg.ag.ax_q1.flag[0],
+		tg.ag.ax_q1.flag[1],
+		tg.ag.ax_q1.flag[2]
+			);
+
+	//fread_data(inp_data_file, file_size, rec_len, ed, ag, tg);
+	fread_data(inp_data_file, file_size, rec_len, ed, ag , tg
+			);
 	//mmap_read_data (fd, file_info_stat, rec_len);
 	print_list_counts();
-	tab_summ();
+	tab_summ(tg);
 
 }
 
@@ -159,7 +183,11 @@ int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 #include "list_summ_template.C"
 #include "print_list_counts.C"
 /*#include "../stubs/list_summ_template.C"*/
-int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
+int fread_data(FILE * & inp_data_file , long file_size, int rec_len,
+		EditDataStruct & ed, AxesGroup & ag
+		, TableGroup & tg
+		)
+{
 	cout << "read_data" << endl;
 	//char* buffer=new char[sizeof(char)* rec_len];
 	int seek_res=fseek(inp_data_file, 0, SEEK_SET);
@@ -180,9 +208,15 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 	}
 	cout << "Each dot('.') represents" << sample_size << "records read\n";
 #if 1
+	int counter = 0;
 	while(1){
 		//memset(buffer,0, rec_len);
-		int n_read= fread(c ,  sizeof(char), rec_len,  inp_data_file);
+		int n_read = fread(ed.c ,  sizeof(char), rec_len,  inp_data_file);
+		cout << "in while\n";
+		//if (counter == 1) {
+		//	cout << "breaking\n";
+		//	break;
+		//}
 		if(n_read==0){
 			r_val=0;
 			break;
@@ -195,9 +229,10 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 			break;
 		} else{
 			//cout << "rec_no: " << ++rec_no << endl;
-			edit_data();
-			ax_compute();
-			tab_compute();
+			ed.edit_data();
+			printf("ed.q1_data: %d\n", ed.q1_data);
+			ax_compute(ag, ed);
+			tab_compute(tg, ed, ag);
 			++n_records;
 		}
 		//if (n_records % 100 == 0)
@@ -209,6 +244,7 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 				<< n_records << " / " << total_records_str.str()
 				<< endl;
 		}
+		++ counter;
 	}
 #endif /* 0 */
 	cout << "\nTotal records: " << n_records << endl;

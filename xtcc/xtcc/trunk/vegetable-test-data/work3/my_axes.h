@@ -5,9 +5,12 @@
 #include <vector>
 #include <sys/types.h>
 #include "ax_stmt_type.h"
+#include "edit_out.h"
 using namespace std;
 struct axis_q1 {
-	bitset<3> flag;
+	EditDataStruct & ed;
+	//bitset<3> flag;
+	char flag[3];
 	vector<string> ttl_stmt_text;
 	vector<string> count_stmt_text;
 	vector<int> tot_elem_pos_vec;
@@ -16,13 +19,15 @@ struct axis_q1 {
 	vector<Table::axstmt_type> axis_stmt_type_count;
 	void reset();
 	void compute();
-int32_t & q1_data;
-	axis_q1(int32_t & p_q1_data, const char * p_text_ttls[])
+	int32_t & q1_data;
+	axis_q1(/* int32_t & p_q1_data, */ const char * p_text_ttls[], EditDataStruct & ed)
 ;
 };
 
 struct axis_q2 {
-	bitset<6> flag;
+	EditDataStruct & ed;
+	//bitset<6> flag;
+	char flag[6];
 	vector<string> ttl_stmt_text;
 	vector<string> count_stmt_text;
 	vector<int> tot_elem_pos_vec;
@@ -32,7 +37,7 @@ struct axis_q2 {
 	void reset();
 	void compute();
 int32_t (& q2_arr) [6];
-	axis_q2(int32_t (& p_q2_arr) [6], const char * p_text_ttls[])
+	axis_q2(/* int32_t (& p_q2_arr) [6], */ const char * p_text_ttls[], EditDataStruct & ed)
 ;
 };
 
@@ -159,22 +164,24 @@ int32_t & all;
 /* ======================================  */
 struct AxesGroup {
 /* =============== DECL ==================  */
+EditDataStruct & ed;
 struct axis_q1 ax_q1;
 struct axis_q2 ax_q2;
-struct axis_q2 ax_q3;
-struct axis_q4 ax_q4;
-struct axis_q5_0 ax_q5_0;
-struct axis_q5_0 ax_q5_1;
-struct axis_q5_0 ax_q5_2;
-struct axis_q5_0 ax_q5_3;
-struct axis_q6_0 ax_q6_0;
-struct axis_q6_1 ax_q6_1;
-struct axis_q6_2 ax_q6_2;
-struct axis_q6_3 ax_q6_3;
-struct axis_q6_4 ax_q6_4;
-struct axis_tot_ax ax_tot_ax;
+//struct axis_q2 ax_q3;
+//struct axis_q4 ax_q4;
+//struct axis_q5_0 ax_q5_0;
+//struct axis_q5_0 ax_q5_1;
+//struct axis_q5_0 ax_q5_2;
+//struct axis_q5_0 ax_q5_3;
+//struct axis_q6_0 ax_q6_0;
+//struct axis_q6_1 ax_q6_1;
+//struct axis_q6_2 ax_q6_2;
+//struct axis_q6_3 ax_q6_3;
+//struct axis_q6_4 ax_q6_4;
+//struct axis_tot_ax ax_tot_ax;
 /* =============== CONS INIT ==================  */
-AxesGroup(); 
+AxesGroup(EditDataStruct & p_ed);
+
 
 };
 

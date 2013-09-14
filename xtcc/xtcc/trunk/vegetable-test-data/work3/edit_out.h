@@ -18,9 +18,11 @@
 #ifndef edit_out_h
 #define edit_out_h
 #include <iostream>
+#include <cstdio>
 
 using std::cerr;
 using std::endl;
+extern FILE * runtime_errors ;
 
 struct EditDataStruct {
 int8_t c[89];
@@ -56,6 +58,7 @@ if(tmp2-tmp1==sizeof(int)-1){
 	void * v_ptr = buff;
 	int *i_ptr = static_cast<int *>(v_ptr);
 	ser_no=*i_ptr;
+	printf ("ser_no: %d\n", ser_no);
 }else { 
 	cerr << "runtime error: line_no : AbstractExpression out of bounds" <<39 ;}
 }
@@ -73,6 +76,7 @@ if(tmp2-tmp1==sizeof(int)-1){
 	void * v_ptr = buff;
 	int *i_ptr = static_cast<int *>(v_ptr);
 	q1_data=*i_ptr;
+	printf ("q1_data: %d\n", q1_data);
 }else { 
 	cerr << "runtime error: line_no : AbstractExpression out of bounds" <<39 ;}
 }

@@ -1,5 +1,6 @@
 CC=g++ -g 
-OBJS = main_loop.o my_axes_drv_func.o dummy_my_tab_drv_func.o edit_out.o global.o
+#OBJS = main_loop.o my_axes_drv_func.o dummy_my_tab_drv_func.o edit_out.o global.o
+OBJS = main_loop.o my_axes_drv_func.o edit_out.o global.o dummy_my_tab_drv_func.o
 
 dummy_test.exe: $(OBJS)
 	$(CC)  -o $@ $(OBJS)
@@ -7,15 +8,15 @@ dummy_test.exe: $(OBJS)
 main_loop.o: main_loop.C
 	$(CC)  -c $<
 
-my_axes_drv_func.o: my_axes_drv_func.C
+my_axes_drv_func.o: my_axes_drv_func.C my_axes.C my_axes.h
 	$(CC)  -c $<
 
-dummy_my_tab_drv_func.o: dummy_my_tab_drv_func.C
+dummy_my_tab_drv_func.o: dummy_my_tab_drv_func.C  global.h my_axes.h dummy_my_table.C dummy_my_table.h 
 	$(CC)  -c $<
 
-edit_out.o: edit_out.c
+edit_out.o: edit_out.c edit_out.h
 	$(CC)  -c $<
 
-global.o: global.C
+global.o: global.C global.h
 	$(CC)  -c $<
 

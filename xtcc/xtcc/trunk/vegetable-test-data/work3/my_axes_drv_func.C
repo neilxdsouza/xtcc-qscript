@@ -1,19 +1,23 @@
+#include <cstdio>
 #include "global.h"
 #include "my_axes.C"
 #include "edit_out.h"
 void ax_compute( AxesGroup & ag, EditDataStruct & ed) {
 #pragma omp parallel sections
 {
+	printf ("ag.ax_q1.q1_data: %d\n", ag.ax_q1.q1_data);
 #pragma omp section
 {
 if ( ed.q1_data>0 ) { 
 	ag.ax_q1.compute();
-} else { ax_q1.reset(); }
+	printf (" if ag.ax_q1.q1_data: %d\n", ag.ax_q1.q1_data);
+} else { ag.ax_q1.reset(); }
 
 if ( ed.q2_arr[0]>0 ) { 
 	ag.ax_q2.compute();
-} else { ax_q2.reset(); }
+} else { ag.ax_q2.reset(); }
 
+#if 0
 if ( ed.q3_arr[0]>0 ) { 
 	ag.ax_q3.compute();
 } else { ag.ax_q3.reset(); }
@@ -21,8 +25,10 @@ if ( ed.q3_arr[0]>0 ) {
 if ( ed.q4_data>0 ) { 
 	ag.ax_q4.compute();
 } else { ag.ax_q4.reset(); }
+#endif /*  0  */
 
 	}
+#if 0
 #pragma omp section
 {
 if ( ed.q5_0_data>0 ) { 
@@ -70,5 +76,6 @@ if ( ed.q6_4_data>0 ) {
 /* axis DOES NOT have a filter  */
 	ag.ax_tot_ax.compute();
 	} /*  close last omp section */
+#endif /*  0 */
 } /*  omp sections end */
 }
