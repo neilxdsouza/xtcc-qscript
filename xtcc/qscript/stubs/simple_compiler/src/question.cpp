@@ -1104,6 +1104,43 @@ get_data_again:
 }
 #endif /* 0 */
 
+
+string PrintQuestionTitleCode (vector <TextExpression*> & textExprVec)
+{
+	stringstream quest_decl;
+	quest_decl << "/* Enter: " << __PRETTY_FUNCTION__ << "*/" << endl;
+	for (int i=0; i < textExprVec.size(); ++i) {
+		if (textExprVec[i]->teType_ == TextExpression::simple_text_type) {
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec[i]->text_
+				<< "\")));\n";
+		} else if (textExprVec[i]->teType_ == TextExpression::question_type) {
+			if (textExprVec[i]->questionIndexExpr_ ) {
+				ExpressionCompiledCode expr_code;
+				textExprVec[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
+						<< textExprVec[i]->pipedQuestion_->questionName_
+						<< ", "
+						<< expr_code.code_expr.str()
+						<< ") ); /*  -NxD- */\n";
+			} else {
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
+						<< textExprVec[i]->pipedQuestion_->questionName_
+						<< ") ); /*  -NxD- */\n";
+			}
+		} else {
+			ExpressionCompiledCode expr_code;
+			textExprVec[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		}
+	}
+	quest_decl << "/* Exit: " << __PRETTY_FUNCTION__ << "*/" << endl;
+	return quest_decl.str();
+}
+
+
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 {
 	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
@@ -1147,6 +1184,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	quest_decl << "{\n";
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 
+#if 0
 	for (int i=0; i < textExprVec_.size(); ++i) {
 		/*
 		if (textExprVec_[i]->nameExpr_ == 0) {
@@ -1194,6 +1232,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		}
 
 	}
+#endif /* 0 */
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
 
 	if (array_mode) {
 		quest_decl << "RangeQuestion * " << questionName_;
@@ -1299,6 +1340,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 
 	quest_decl << "{\n";
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+#if 0
 	for (int i=0; i < textExprVec_.size(); ++i) {
 		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) {
 			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
@@ -1327,6 +1369,9 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 				<< "));\n";
 		}
 	}
+#endif /* 0 */
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
 
 	if (array_mode)
 		quest_decl << "NamedStubQuestion * " << questionName_;
@@ -1716,6 +1761,20 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< ")"
 		<< ") "
 		<< "{\n";
+	code.program_code
+		<<  "cout << \"reached here because: \" << " << endl
+		<< "\""
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
+		<< ":\" " << endl
+		<< "<< ("
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
+		<< " << endl << "
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_"
+		<<" << endl;"
+		<< endl;
+
 	code.program_code << "label_eval_" << questionName_ << ":\n";
 	code.program_code << "if( jumpToQuestion == \"" << questionName_
 		<< "\" && jumpToIndex == "
@@ -3216,6 +3275,89 @@ string RangeQuestion::PrintSelectedAnswers(int code_index)
 // TextExpression::TextExpression()
 // 	: text_(), nameExpr_(0)
 // { }
+//
+void VideoQuestion:: GenerateCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "VideoQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new VideoQuestion("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec"
+		<< ", QuestionAttributes(false, false)"
+		;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << file_path << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* VideoQuestion::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "VideoQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");\n";
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		code.program_code
+			<< "if ((" << questionName_ << "->isAnswered_ == false) || "
+			<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && "
+			<< questionName_
+			<< "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||"
+			<< "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
+			<< questionName_
+			<< ") == p_jump_to_index)) )" << endl
+
+			<< "{" << endl
+			<< "last_question_visited = " << questionName_ << ";" << endl
+			<< "fprintf(qscript_stdout, \"last_question_visited:" << questionName_ << "\\n\");\n"
+			<< "\treturn " << questionName_ << ";" << endl
+			<< "}"
+			<< endl;
+	}
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
 
 #if 0
 bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
@@ -3249,4 +3391,42 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 		return false;
 	}
 }
+
+
 #endif /* 0 */
+
+void VideoQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			 , /*qs_ncurses::*/WINDOW* stub_list_window
+			 , /*qs_ncurses::*/WINDOW* data_entry_window)
+{ }
+
+void VideoQuestion::WriteDataToDisk(ofstream& data_file)
+{ }
+
+string VideoQuestion::PrintSelectedAnswers()
+{
+	return string();
+}
+
+string VideoQuestion::PrintSelectedAnswers(int code_index)
+{
+
+	return string();
+}
+
+VideoQuestion::VideoQuestion(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		, const string& path_to_media)
+	:
+	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes),
+	file_path (path_to_media)
+{
+
+}

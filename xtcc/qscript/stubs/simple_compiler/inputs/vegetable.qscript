@@ -7,6 +7,13 @@ vegetable {
 q1 	"Do you Eat Vegetables?"
 	sp int32_t yn;
 
+q2_1		"Here is a Video of a few Vegetables. Please have a look at these and let me know which are you aware of?"
+		video	
+		"/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4"
+		//"https://www.youtube.com/watch?v=VHnuFmrQtMU"
+		//"/home/nxd/Progs/xtcc-wq2/xtcc/qscript/stubs/simple_compiler/inputs/Count-Duckula-Who-might-you-be.mp4"
+		;
+
 q1_1 	"Why do you Eat Vegetables?"
 	mp(10) int32_t (1-500);
 
@@ -47,6 +54,7 @@ stubs agree_5 =
 q2 		"Here is a list of some common vegetables. Which of these vegetables are you aware of?"
 		mp(15) int32_t veg;
 
+
 		unset(veg);
 		setadd(veg, q2);
 q3_1 		"And which of these Vegetables have you ever eaten?"
@@ -65,7 +73,7 @@ q4 		"And, could you please tell us, Which of these vegetables is your favourite
 
 		int32_t sum=0;
 		int32_t iter_no=0;
-		for (i1=0; i1<5; i1=i1+1) {
+		for (i1=0; i1<12; i1=i1+1) {
 			int32_t code = i1+1;
 
 			if (code in q3_2) {
