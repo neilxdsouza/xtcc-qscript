@@ -87,7 +87,7 @@ q5				"In a week what percentage of your veggies are : "
 			}
 		}
 		if (sum != 100) {
-			clear (q5[iter_no]);
+			clear (q5[iter_no], "Percentage should add up to 100");
 		}
 
 
