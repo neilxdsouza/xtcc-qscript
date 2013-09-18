@@ -1,10 +1,10 @@
 mqpp {
 
 stubs age =
-	"18 to 21" 1
-	"22 to 25" 2
-	"26 to 30" 3
-	"31 to 35" 4
+	"18 to 21" 1,
+	"22 to 25" 2,
+	"26 to 30" 3,
+	"31 to 35" 4,
 	"36 to 40" 5;
 
 	// test case for numeric range questions
@@ -44,7 +44,7 @@ q1	 "Age"
 	sp int32_t  age;
 
 stubs gen=
-	"Male " 1
+	"Male " 1,
 	"Female " 2;
 
 q2 	"Gender"
@@ -60,10 +60,10 @@ q2 	"Gender"
 	}
 
 stubs educ=
-	"High School" 1
-	"Higher Secondary School" 2
-	"Bachelors Degree" 3
-	"Masters Degree" 4
+	"High School" 1,
+	"Higher Secondary School" 2,
+	"Bachelors Degree" 3,
+	"Masters Degree" 4,
 	"Phd " 5;
 
 
@@ -72,11 +72,11 @@ q3 	"Please tell us the highest level of Education that you have achieved"
 
 
 stubs agree_5 = 
-	"Agree strongly" 5
-	"Agree somewhat" 4
-	"Neutral" 3
-	"Disagree " 2
-	"Disagree strongly" 1;
+	"5 Agree strongly" 5,
+	"4 Agree somewhat" 4,
+	"3 Neutral" 3,
+	"2 Disagree " 2,
+	"1 Disagree strongly" 1;
 
 	named_attribute veg_seg_att = " Vegetables are good for health",
 				" I buy fresh vegetables often",
@@ -144,11 +144,11 @@ q4			"Please state your agreement with these statements" : veg_seg_att[i1]
 		"Uses sustainable farming methods";
 
 	stubs org_veg_brds=
-		"Org 1 Brand" 1
-		"Org 2 Brand" 2
-		"Org 3 Brand" 3
-		"Org 4 Brand" 4
-		"Org 5 Brand" 5
+		"Org 1 Brand" 1,
+		"Org 2 Brand" 2,
+		"Org 3 Brand" 3,
+		"Org 4 Brand" 4,
+		"Org 5 Brand" 5,
 		"Org 6 Brand" 6;
 
 q5_0		"Which of these brands would you associate with these statements"
