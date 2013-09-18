@@ -229,10 +229,16 @@ typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 // Any control flow logic that appears here is a mistake in my programming
 // and needs to be fixed
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
+	void (*callback_ui_input) (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+	const vector<AbstractRuntimeQuestion *> & q_vec,
+	struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
+	cerr << "FIXME: add conditions for all questions in input vector, right now we are checking only 1st question "
+		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	AbstractRuntimeQuestion * q = q_vec[0];
 	cout << __PRETTY_FUNCTION__ << endl;
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
@@ -256,7 +262,7 @@ void GetUserInput (
 			cout << "Got SAVE_DATA from user" << endl;
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
-			user_input.questionResponseData_ = current_response;
+			user_input.questionResponseDataVec_.push_back( current_response);
 		}
 
 		cout << "reached here" << endl;
@@ -294,13 +300,13 @@ void GetUserInput (
 				// this call will return really fast
 				//  (if you consider io fast)
 				//  but what I mean is we wont add much to the call stack
-				callback_ui_input (user_input, q, theQuestionnaire, nest_level);
-				GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+				callback_ui_input (user_input, q_vec, theQuestionnaire, nest_level);
+				GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
 			} else {
 				cout << "reached here: "
 					<< __PRETTY_FUNCTION__ << endl;
-				callback_ui_input (user_input, q, theQuestionnaire, nest_level);
+				callback_ui_input (user_input, q_vec, theQuestionnaire, nest_level);
 				cout << "callback_ui_input has returned"
 					<< __PRETTY_FUNCTION__ << endl;
 			}
@@ -322,7 +328,7 @@ void GetUserInput (
 #endif /*  0 */
 		} else {
 			// we should be passing an error message too
-			GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+			GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 		}
 		/*
 		else {
@@ -335,7 +341,7 @@ void GetUserInput (
 	} else {
 		// nxd: 19-feb-2013
 		// I have to change this
-		GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+		GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 	}
 }
 
@@ -354,21 +360,32 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 	cout << end_marker << endl;
 }
 
-void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
-					struct TheQuestionnaire * theQuestionnaire,
-					int nest_level),
+void stdout_eval (const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire,
+	void (*callback_ui_input)
+		(UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec,
+		 struct TheQuestionnaire * theQuestionnaire,
+		 int nest_level),
 	int nest_level
 	)
 {
 	cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
 	ClearPreviousView ();
+	// 11-aug-2013
+	// begin testing by using just the first question
+	// in the returned array
+	// this way we can change the functions signatures slowly
+	// 1st Assumption - we are called by question_eval_loop2
+	// it already checks if the vector size is 0 and returns end of qnre
+	// hence we safely pull out the first question from the vector
+	// assuming that we are never 0 size
+	AbstractRuntimeQuestion * q= q_vec[0];
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
 	DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
 	DisplayStubs (q);
 	DisplayCurrentAnswers (q);
-	GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+	GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 }
 
 int process_options(int argc, char * argv[]);

@@ -211,11 +211,11 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
 	if (qscript_debug::DEBUG_IfStatement) {
 		code.array_quest_init_area << "/* ENTER " << __PRETTY_FUNCTION__ << ", "
-				<< __FILE__ << ", " << __LINE__ 
+				<< __FILE__ << ", " << __LINE__
 				<< " source lineNo_: " << lineNo_
 				<< " */\n";
 	}
-		
+
 	static vector<IfStatementStackElement*> ifStatementStack;
 	static int32_t if_nest_level =0;
 	bool if_nest_level_was_increased = false;
@@ -392,8 +392,8 @@ void IfStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	if (qscript_parser::flag_dynamic_base_text == false) {
 		code.program_code << "base_text_vec.push_back(BaseText(\"" << base_text.str() << "\"));\n";
 	} else {
-		code.program_code 
-			<< "BaseText btxt(\"" << base_text.str() << "\", true," 
+		code.program_code
+			<< "BaseText btxt(\"" << base_text.str() << "\", true,"
 			<< qscript_parser::dynamic_base_text_question->questionName_ << " );\n"
 			<< "base_text_vec.push_back(btxt);\n";
 	}
@@ -472,7 +472,7 @@ CompoundStatement::CompoundStatement(
 void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 {
 	//cout << "ENTER CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	// old code: if (flagIsAForBody_ && counterContainsQuestions_) 
+	// old code: if (flagIsAForBody_ && counterContainsQuestions_)
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		ostringstream consolidated_loop_counter;
 		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
@@ -511,7 +511,7 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 	StatementCompiledCode &code)
 {
 	if (qscript_debug::DEBUG_CompoundStatement) {
-		code.array_quest_init_area << "// ENTER " << __PRETTY_FUNCTION__ 
+		code.array_quest_init_area << "// ENTER " << __PRETTY_FUNCTION__
 			<< " source line no: " << lineNo_ <<  "\n";
 	}
 	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
@@ -657,13 +657,13 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_) {
 			if (qscript_debug::DEBUG_CompoundStatement) {
 				code.array_quest_init_area << "/* invoking GenerateQuestionArrayInitLoopOpen: "
-					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " */\n";
 			}
 			GenerateQuestionArrayInitLoopOpen(code);
 			if (qscript_debug::DEBUG_CompoundStatement) {
 				code.array_quest_init_area << "/* finished call to GenerateQuestionArrayInitLoopOpen: "
-					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " */\n";
 			}
 		}
@@ -671,8 +671,11 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	}
 #endif /* 0 */
 	code.program_code << "{" << endl;
-	/* Warning - duplicated code block - also present in 
+	/* Warning - duplicated code block - also present in
 	 * CompoundStatement::Generate_ComputeFlatFileMap */
+	//cout    << "ConsolidatedForLoopIndexStack_.size():"
+	//	<< ConsolidatedForLoopIndexStack_.size()
+	//	<< endl;
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
 			<< " = ";
@@ -682,8 +685,8 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	/* End of duplicated code block */
 	if (compoundBody_) {
 		compoundBody_->GetQuestionsInBlock(questionsInBlock_, this);
-		code.program_code << "/* compound statement on line no: " 
-			<< lineNo_ << " questionsInBlock_, size:" 
+		code.program_code << "/* compound statement on line no: "
+			<< lineNo_ << " questionsInBlock_, size:"
 			<< questionsInBlock_.size() << " ";
 		for (int i=0; i< questionsInBlock_.size(); ++i) {
 			code.program_code << questionsInBlock_[i]->questionName_ << ", ";
@@ -696,6 +699,21 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		GenerateQuestionArrayInitLoopClose(code);
 	}
 #endif /* 0 */
+	if (flagIsAForBody_ && qscript_parser::page_nest_lev == 1) {
+		code.program_code << "/* flagIsAForBody_ && page_nest_lev == 1  */"
+			<< endl;
+		code.program_code
+			<< "if (vec_page_" << qscript_parser::globalActivePageName_
+			<< "_ret_val.size() == "
+			<< qscript_parser::globalActivePageSize_
+			<< ") {"
+			<< "last_question_visited =  "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val;"
+			<< "return "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val"
+			<< ";" << endl
+			<< "}" << endl;
+	}
 	code.program_code << "}" << endl;
 	if (next_)
 		next_->GenerateCode(code);
@@ -708,7 +726,7 @@ void CompoundStatement::Generate_ComputeFlatFileMap(StatementCompiledCode &code)
 	}
 
 	code.program_code << "{" << endl;
-	/* Warning - duplicated code block - also present in 
+	/* Warning - duplicated code block - also present in
 	 * CompoundStatement::GenerateCode */
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
@@ -830,7 +848,7 @@ void ForStatement::CheckNestedIndexUsage()
 		}
 	}
 	using qscript_parser::for_loop_max_counter_stack;
-	
+
 	//cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", "
 	//	<< "for_loop_max_counter_stack.size(): "
 	//	<< for_loop_max_counter_stack.size()  << endl;
@@ -1037,18 +1055,22 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 
 	if (forBody_->counterContainsQuestions_) {
 		if (qscript_debug::DEBUG_ForStatement) {
-			code.quest_defns << "// " << __PRETTY_FUNCTION__ 
+			code.quest_defns << "// " << __PRETTY_FUNCTION__
 				<< "// Generating array declarations\n";
 			code.array_quest_init_area << "// invoking GenerateQuestionArrayInitLoopOpen: "
-					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " \n";
 		}
 		GenerateQuestionArrayInitLoopOpen(code);
 		if (qscript_debug::DEBUG_ForStatement) {
 			code.array_quest_init_area << "// finished call to GenerateQuestionArrayInitLoopOpen: "
-					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " \n";
 		}
+	}
+
+	if (qscript_parser::page_nest_lev > 0) {
+		code.program_code << "/* page_nest_lev > 0 */" << endl;
 	}
 
 	ExpressionCompiledCode expr_code;
@@ -1371,7 +1393,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "->input_data.end(); ++set_iter){" << endl;
 			code.program_code << "\tfor (int32_t "
 				<< qscript_parser::temp_name_generator.GetNewName();
-			code.program_code 
+			code.program_code
 				<< " = 0; "
 				<< qscript_parser::temp_name_generator.GetCurrentName()
 				<< " < "
@@ -1434,19 +1456,19 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
 				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".stubs.size(); ++xtcc_i2) {\n"
 				<< "\t\tif ("
-				<< "*xtcc_set_iter1  == " 
+				<< "*xtcc_set_iter1  == "
 				<< namedStub_
 				<< ".stubs[xtcc_i2].code) {\n";
-			
+
 			if (type_ == STUB_MANIP_DEL) {
-				code.program_code 
+				code.program_code
 					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
 			} else if (type_ == STUB_MANIP_ADD) {
-				code.program_code 
+				code.program_code
 					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
 			}
 
-			code.program_code 
+			code.program_code
 				<< "\t\t}\n"
 				<< "\t}\n"
 				<< "}\n"
@@ -1466,18 +1488,18 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\tfor (int32_t xtcc_i2=0; xtcc_i2<"
 				<< namedStub_
 				<< ".stubs.size(); ++xtcc_i2) {\n"
-				<< "\t\t\tif (set_member == " 
-				<< namedStub_ 
+				<< "\t\t\tif (set_member == "
+				<< namedStub_
 				<< ".stubs[xtcc_i2].code) {\n"
 				<< "\t\t\t\t";
 			if (type_ == STUB_MANIP_DEL){
-				code.program_code 
+				code.program_code
 					<< namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
 			} else if (type_ == STUB_MANIP_ADD) {
-				code.program_code 
+				code.program_code
 					<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
 			}
-			code.program_code	
+			code.program_code
 				<< "\t\t\t}\n"
 				<< "\t\t}\n"
 				<< "\t}\n"
@@ -1490,7 +1512,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			//s << "/* not yet programmed : "
 			//	<< __FILE__ << ", " << __LINE__ << ", "
 			//	<< __PRETTY_FUNCTION__ << " */" << endl;
-			//s << "This should cause an ERROR in the generated code: " 
+			//s << "This should cause an ERROR in the generated code: "
 			//	<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			//code.program_code << s.str();
 			if (xtccSet_ . isEmpty() ) {
@@ -1507,10 +1529,10 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 						++it) {
 					if (lhs_->IsValid(*it)) {
 						if (type_ == STUB_MANIP_DEL) {
-							code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+							code.program_code << lhs_->questionName_ << "->input_data.erase("
 								<< *it << ");\n";
 						} else if (type_ == STUB_MANIP_ADD) {
-							code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+							code.program_code << lhs_->questionName_ << "->input_data.insert("
 								<< *it << ");\n";
 						}
 						//	lhs->input_data.insert(*it);
@@ -1526,7 +1548,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 						if (type_ == STUB_MANIP_DEL) {
 							if (lhs_->IsValid(set_member)) {
 								//lhs->input_data.insert(set_member);
-								code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+								code.program_code << lhs_->questionName_ << "->input_data.insert("
 									<< set_member << ");\n";
 							} else {
 								stringstream err_msg;
@@ -1535,7 +1557,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 							}
 						} else if (type_ == STUB_MANIP_ADD) {
 							if (lhs_->IsValid(set_member)) {
-								code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+								code.program_code << lhs_->questionName_ << "->input_data.erase("
 									<< set_member << ");\n";
 							} else {
 								stringstream err_msg;
@@ -1556,8 +1578,8 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	} else if (type_ == STUB_MANIP_UNSET_ALL || type_ == STUB_MANIP_SET_ALL) {
 		code.program_code << "for(int32_t "
 			<< qscript_parser::temp_name_generator.GetNewName();
-		code.program_code 
-			<< " = 0; " 
+		code.program_code
+			<< " = 0; "
 			<< qscript_parser::temp_name_generator.GetCurrentName()
 			<< " < "
 			<< namedStub_ << ".stubs.size(); ++"
@@ -1864,7 +1886,7 @@ void ErrorStatement::GenerateCode(StatementCompiledCode & code)
 GotoStatement::GotoStatement(DataType l_type, int32_t l_line_number
 			     , string l_gotoLabel)
 	: AbstractStatement(l_type, l_line_number)
-	, gotoLabel_(l_gotoLabel) 
+	, gotoLabel_(l_gotoLabel)
 {
 	if (find_in_question_list(gotoLabel_)){
 		// I think this check ensures that we never do a forward jump
@@ -1888,25 +1910,6 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
-#if 0
-ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
-				string l_question_name)
-	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0)
-{
-	VerifyForClearStatement(l_question_name, 0);
-}
-
-ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_array_question_name,
-			AbstractExpression *arr_index)
-	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0),
-	  errorMessage_()
-{
-	VerifyForClearStatement(l_array_question_name, arr_index);
-}
-#endif /*  0 */
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			const vector <Unary2Expression *> & expr_vec, string err_msg)
@@ -1950,134 +1953,10 @@ vector<bool> ClearStatement::VerifyForClearStatement (const vector<Unary2Express
 	return res_vec;
 }
 
-#if 0
-bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index)
-{
-	if (arr_index == 0) {
-		map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
-		if (sym_it == active_scope->SymbolTable.end()){
-			std::stringstream s;
-			s << "Could not find question " << l_question_name 
-				<<"  in symbol table:  ";
-			print_err(compiler_sem_err, s.str()
-					, qscript_parser::line_no, __LINE__, __FILE__);
-			return false;
-		} else {
-			symbolTableEntry_ = sym_it->second;
-			if (symbolTableEntry_->question_) {
-				if (!symbolTableEntry_->question_->type_ == QUESTION_TYPE) {
-					std::stringstream s;
-					s << l_question_name  << " must be of QUESTION_TYPE ";
-					print_err(compiler_sem_err, s.str()
-							, qscript_parser::line_no, __LINE__, __FILE__);
-					return false;
-				} else {
-					return true;
-				}
-			} else {
-				std::stringstream s;
-				s << l_question_name  << " must be of QUESTION_TYPE ";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-				return false;
-			}
-		}
-	} else {
 
-		map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
-		if (sym_it == active_scope->SymbolTable.end()){
-			std::stringstream s;
-			s << "Could not find question " << l_question_name 
-				<<"  in symbol table: ";
-			print_err(compiler_sem_err, s.str()
-					, qscript_parser::line_no, __LINE__, __FILE__);
-			return false;
-		} else {
-			symbolTableEntry_ = sym_it->second;
-			if (symbolTableEntry_->question_) {
-				if (!symbolTableEntry_->question_->type_ == QUESTION_ARR_TYPE) {
-					std::stringstream s;
-					s << l_question_name  << " must be of QUESTION_ARR_TYPE ";
-					print_err(compiler_sem_err, s.str()
-							, qscript_parser::line_no, __LINE__, __FILE__);
-					return false;
-				}
-			} else {
-				std::stringstream s;
-				s << l_question_name  << " must be of QUESTION_ARR_TYPE ";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-				return false;
-			}
-			DataType l_e_type = arr_index->type_;
-			if (is_of_int_type(l_e_type)){
-				DataType nametype =arr_deref_type(symbolTableEntry_->type_);
-				if (nametype == ERROR_TYPE) {
-					std::stringstream s;
-					s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type " << "\n";
-					print_err(compiler_sem_err, s.str()
-							, qscript_parser::line_no, __LINE__, __FILE__);
-					return false;
-				} else {
-					type_ = nametype;
-					arrIndex_ = arr_index;
-					return true;
-				}
-			} else {
-				stringstream s;
-				s << "ERROR: Array index not of Type Int \b" ;
-				print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
-				return false;
-			}
-			return false;
-		}
-	}
-}
-#endif /*  0 */
-
-
-#if 0
-ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_question_name, string err_msg)
-	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0), errorMessage_ (err_msg)
-{
-	VerifyForClearStatement(l_question_name, 0);
-}
-
-ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_array_question_name,
-			AbstractExpression *e, string err_msg)
-	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0), errorMessage_ (err_msg)
-{
-	VerifyForClearStatement(l_array_question_name, e);
-}
-#endif /* 0 */
 
 void ClearStatement::GenerateCode(StatementCompiledCode & code)
 {
-	/*
-	if (arrIndex_==0) {
-		code.program_code 
-			<< symbolTableEntry_->question_->questionName_ << "->isAnswered_ = false;\n";
-		code.program_code << "stopAtNextQuestion = false;\n";
-		code.program_code << "goto start_of_questions;\n";
-	} else {
-		stringstream mesg;
-		mesg << " put runtime check on array access bounds " << endl;
-		LOG_MAINTAINER_MESSAGE(mesg.str());
-		code.program_code << symbolTableEntry_->question_->questionName_
-			<< "_list.questionList[";
-		ExpressionCompiledCode code1;
-		arrIndex_->PrintExpressionCode(code1);
-		code.program_code << code1.code_bef_expr.str()
-				   << code1.code_expr.str();
-		code.program_code << "]->isAnswered_ = false;\n";
-		code.program_code << "stopAtNextQuestion = false;\n";
-		code.program_code << "goto start_of_questions;\n";
-	}
-	*/
 	code.program_code << " /*  Clear statement code */ " 
 		<< endl;
 	for (int i = 0; i < questionExprVec_.size(); ++i) {
@@ -2106,6 +1985,7 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 	}
 
 	code.program_code << "stopAtNextQuestion = false;\n"
+		<< "error_messages_vec.push_back(\"" << errorMessage_ << "\");\n"
 		<< "goto start_of_questions;\n"
 		<< endl;
 
@@ -2128,7 +2008,7 @@ bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
 	// we want to allow expressions which contain lvalues which are for
 	// loop indices
 	// but for now just allow plain numbers
-	
+
 	Unary2Expression * un2_expr = dynamic_cast<Unary2Expression*> (col_stmt->columnExpression_);
 	if (un2_expr == 0) {
 		stringstream s;
@@ -2141,11 +2021,11 @@ bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
 			s << " Currently only numbers are allowed as column expressions";
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
 			return false;
-		} 
+		}
 		return true;
-		// else all ok 
+		// else all ok
 	}
-	
+
 }
 
 bool RunNewCardExpressionChecks(NewCardStatement * newcard_stmt)
@@ -2153,7 +2033,7 @@ bool RunNewCardExpressionChecks(NewCardStatement * newcard_stmt)
 	// we want to allow expressions which contain lvalues which are for
 	// loop indices
 	// but for now just allow plain numbers
-	
+
 	Unary2Expression * un2_expr = dynamic_cast<Unary2Expression*> (newcard_stmt->cardExpression_);
 	if (un2_expr == 0) {
 		stringstream s;
@@ -2166,11 +2046,11 @@ bool RunNewCardExpressionChecks(NewCardStatement * newcard_stmt)
 			s << " Currently only numbers are allowed as column expressions";
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
 			return false;
-		} 
+		}
 		return true;
-		// else all ok 
+		// else all ok
 	}
-	
+
 }
 
 void ColumnStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
@@ -2222,3 +2102,54 @@ void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+PageStatement::PageStatement (DataType dtype, int32_t l_line_no,
+		string l_page_name, CompoundStatement * l_page_body,
+		int l_page_size)
+	: AbstractStatement(dtype, l_line_no),
+	  pageName_ (l_page_name), pageBody_ (l_page_body),
+	  pageSize_ (l_page_size)
+{
+	cout
+		<< "pageName_: " << pageName_
+		<< ", pageSize_: " << pageSize_
+		<< endl;
+}
+
+
+void PageStatement::GenerateCode(StatementCompiledCode & code)
+{
+	qscript_parser::globalActivePageName_ = pageName_;
+	qscript_parser::globalActivePageSize_ = pageSize_;
+	code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	code.program_code << "vector <AbstractRuntimeQuestion*> vec_page_"
+		<< pageName_ << "_ret_val;" << std::endl;
+	qscript_parser::page_nest_lev = 1;
+	qscript_parser::flag_first_question_in_page = true;
+	pageBody_->GenerateCode(code);
+
+	code.program_code
+		<< "if (vec_page_" << pageName_ << "_ret_val.size() > 0) {"
+		<< " last_question_visited =  vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl
+		<< " return vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl
+		<< "}" << endl
+		;
+
+
+	qscript_parser::page_nest_lev = 0;
+	code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	if (next_) {
+		next_->GenerateCode (code);
+	}
+}
+
+void PageStatement::GenerateConsolidatedForLoopIndexes()
+{
+	pageBody_->GenerateConsolidatedForLoopIndexes();
+	if (next_) {
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+}
+

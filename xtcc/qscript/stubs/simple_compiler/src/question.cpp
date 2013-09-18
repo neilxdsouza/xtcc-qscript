@@ -213,6 +213,7 @@ void AbstractQuestion::GetQuestionsInBlock(
 }
 #endif /* 0 */
 
+#if 0
 void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 {
 	// hard coded for now
@@ -255,7 +256,9 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		<< "last_question_answered = " << questionName_ << ";\n"
 		<< "}\n";
 }
+#endif /* 0 */
 
+#if 0
 void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_code)
 {
 	program_code << "if(user_navigation == NAVIGATE_PREVIOUS){\n\
@@ -303,6 +306,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 		<< "]" << ";\n"
 		<< "}\n";
 }
+#endif /* 0 */
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
@@ -327,7 +331,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		//<< "stopAtNextQuestion ||" << endl
 		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
-		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||" << endl
+		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited.size() == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited[last_question_visited.size()-1]-> questionNoIndex_ )) ||" << endl
 		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
@@ -354,7 +358,9 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
 		<< "\t// " << questionName_
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n"
-		<< "\tlast_question_visited = " << questionName_ << ";" << endl;
+		// moved down - near return statement
+		//<< "\tlast_question_visited = " << questionName_ << ";"
+		<< endl;
 	if (program_options_ns::emscripten_flag) {
 		program_code
 			<< "\t//fprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n";
@@ -362,9 +368,39 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		program_code
 			<< "\tfprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n";
 	}
-	program_code
-		<< "\treturn " << questionName_ << ";" << endl
-		<< "\t}\n";
+
+	if (qscript_parser::page_nest_lev > 0) {
+		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
+			<< qscript_parser::page_nest_lev << " | INSIDE A PAGE */" << endl;
+		program_code
+			//<< "\treturn " << questionName_ << ";" << endl
+			<< "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val.push_back("
+			<< questionName_ << ");" << endl
+			<< "\t}\n";
+		if (qscript_parser::flag_first_question_in_page) {
+			program_code << "last_question_visited.clear();" << std::endl;
+			qscript_parser::flag_first_question_in_page = false;
+		}
+	} else {
+		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
+			<< qscript_parser::page_nest_lev << " | NOT INSIDE A PAGE */" << endl;
+		program_code
+			<< "\t vector<AbstractRuntimeQuestion*> ret_vec;" << endl
+			<< "\t ret_vec.push_back(" << questionName_ << ");" << endl
+			<< "\t last_question_visited.clear();" << endl
+			<< "\t last_question_visited.push_back(" << questionName_ << ");" << endl
+			<< "\t EvalReturnValue ev_ret_val; " << endl
+			<< "\t ev_ret_val.qVec_ = ret_vec; " << endl 
+			<< "\t ev_ret_val.errMessageVec_ = error_messages_vec; " << endl 
+			<< "\t //return ret_vec;" << endl
+			<< "\t return ev_ret_val;" << endl
+			<< "\t}\n";
+	}
+
+	// NxD: 11-Aug-2013 original place of return statement
+	//program_code
+	//	<< "\treturn " << questionName_ << ";" << endl
+	//	<< "\t}\n";
 	// PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -1735,15 +1771,15 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< "//}\n"
 			<< endl;
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
-	code.program_code << "if ("
+	code.program_code << "if (" << endl
 		<< "("
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
 		<< " stopAtNextQuestion ||" << endl
-		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || "
-		<< "  (p_navigation_mode == NAVIGATE_NEXT && "
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->questionNoIndex_ > last_question_visited->questionNoIndex_"
+		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited.size() == 0) || " << endl
+		<< "  (p_navigation_mode == NAVIGATE_NEXT && " << endl
+		<< "  " << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->questionNoIndex_ > last_question_visited[last_question_visited.size()-1]->questionNoIndex_"
 		<< ")) ||" << endl
 		//<< "(jumpToQuestion == \"" << questionName_ << "\""
 		//<< " && " << "jumpToIndex ==  "
@@ -1752,7 +1788,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< ") == p_jump_to_index)) ||"  << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
 		<< "  && !("
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< "->question_attributes.isAllowBlank()) && "
@@ -1785,7 +1821,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "}\n";
 
 	code.program_code
-		<< "if (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
+		<< "if (p_navigation_mode == NAVIGATE_NEXT && last_question_visited[last_question_visited.size()-1] == "
 		<< questionName_  << "_list.questionList["
 		<< consolidated_for_loop_index << "]"
 		<< " &&  "
@@ -1805,17 +1841,39 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "}";
 	code.program_code	<< " else if ( " << questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "] ->question_attributes.hidden_==false) {\n";
-	code.program_code << "\t\t//" << questionName_ << "_list.questionList[";
-	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n";
-	code.program_code << "\t\tlast_question_visited = " << questionName_ << "_list.questionList[";
-	code.program_code << consolidated_for_loop_index;
-	code.program_code << "];\n";
-	code.program_code << "stopAtNextQuestion = false;\n";
-	code.program_code << "\t\treturn " << questionName_ << "_list.questionList[";
-	code.program_code << consolidated_for_loop_index;
-	code.program_code << "];\n\t}\n";
-	//PrintUserNavigationArrayQuestion(code.program_code);
+
+	if (qscript_parser::page_nest_lev > 0) {
+		code.program_code 
+			<< "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val.push_back("
+			<< questionName_ << "_list.questionList["
+			<< consolidated_for_loop_index
+			<< "]"
+			<< ");" << endl;
+		code.program_code << "\n\t}\n";
+	} else {
+		code.program_code << "\t vector<AbstractRuntimeQuestion*> ret_vec;" << endl
+			<< "ret_vec.push_back (" << questionName_ << "_list.questionList["
+			<< consolidated_for_loop_index
+			<< "]);\n";
+		code.program_code << "\t\tlast_question_visited = ret_vec;" << endl;
+		code.program_code << "\t\tstopAtNextQuestion = false;\n";
+		//code.program_code << "\t\treturn ret_vec;" << endl;
+
+		code.program_code 
+			<< "\t last_question_visited.clear();" << endl
+			<< "\t last_question_visited.push_back("
+			//<< questionName_ 
+			<< questionName_ << "_list.questionList["
+			<< consolidated_for_loop_index
+			<< "]"
+			<< ");" << endl
+			<< "\t EvalReturnValue ev_ret_val; " << endl
+			<< "\t ev_ret_val.qVec_ = ret_vec; " << endl 
+			<< "\t ev_ret_val.errMessageVec_ = error_messages_vec; " << endl 
+			<< "\t return ev_ret_val;" << endl;
+		code.program_code << "\n\t}\n";
+		//PrintUserNavigationArrayQuestion(code.program_code);
+	}
 
 	code.program_code << "}\n";
 	//code.program_code << "*/\n";

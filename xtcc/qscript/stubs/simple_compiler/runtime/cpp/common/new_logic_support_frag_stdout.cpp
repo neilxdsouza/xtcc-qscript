@@ -1,27 +1,14 @@
-#include "question_logic.h"
-/* ============= new_logic_support_frag event driven =========*/
+/* ============= new_logic_support_frag stdout =========*/
 //void question_eval_loop2 (
 //	UserInput p_user_input,
 //	const vector<AbstractRuntimeQuestion *> & last_question_visited,
 //	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
-// nxd: this is a global variable - has to be eliminated at some point
-//TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
-int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire, int nest_level )
+int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 {
+	// now its not :-) // nxd: this is a global variable - has to be eliminated at some point
+	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
 	cout << "received serial no : " << p_ser_no << "from ui";
-
-	int exists = check_if_reg_file_exists(jno, p_ser_no);
-	if (exists == 1) {
-		map <string, question_disk_data*>  qdd_map;
-		load_data (jno, p_ser_no, &qdd_map);
-		//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);
-		merge_disk_data_into_questions2 (qscript_stdout,
-				theQuestionnaire-> last_question_answered,
-				theQuestionnaire-> last_question_visited,
-				theQuestionnaire->question_list,
-				&qdd_map);
-	}
 
 	theQuestionnaire->ser_no = p_ser_no;
 	theQuestionnaire->base_text_vec.push_back(BaseText("All Respondents"));
@@ -39,8 +26,8 @@ int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQues
 	question_eval_loop2 (
 				l_user_input, /* last_question_visited */ empty_vec,
 				/* jump_to_question */ 0, theQuestionnaire, nest_level + 1);
-	//cout << "finished qnre: exiting ..." << endl;
-	//prompt_user_for_serial_no (callback_get_ser_no_from_ui);
+	cout << "finished qnre: exiting ..." << endl;
+	prompt_user_for_serial_no (callback_get_ser_no_from_ui, nest_level + 1);
 	return 0;
 }
 
@@ -49,9 +36,9 @@ void parse_input_data(vector<int> * data_ptr, int & success);
 //void callback_ui_input (UserInput p_user_input,
 //		const vector<AbstractRuntimeQuestion *> & q_vec,
 //		struct TheQuestionnaire * theQuestionnaire, int nest_level);
-//void eval_single_question_logic_with_input (UserInput p_user_input,
-//		const vector<AbstractRuntimeQuestion *> & q_vec,
-//		struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void eval_single_question_logic_with_input (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 void callback_ui_input (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
@@ -66,27 +53,8 @@ void callback_ui_input (UserInput p_user_input,
 				p_user_input,
 				/* last_question_visited */ q_vec,
 				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
-	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
-		vector <string> err_mesg_vec;
-		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
-		//eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
-		vector <string> err_mesg_vec;
-		bool all_questions_success =
-			eval_single_question_logic_with_input (p_user_input,
-				q_vec, theQuestionnaire,
-				nest_level + 1, err_mesg_vec);
-		if (all_questions_success) {
-			question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
-			cout << __PRETTY_FUNCTION__ << " - case UserEnteredData - success, invoking question_eval_loop2"
-					<< endl;
-		} else {
-			// in the event driven loop - just return
-			// we need to pass the error messages back
-			// so should make that a parameter to this
-			// function
-			return;
-		}
+		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
 			<< "but under ncurses or other guis - it's possible to enter data" << endl
@@ -98,9 +66,7 @@ void callback_ui_input (UserInput p_user_input,
 		//      function to be present here
 		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
 	} else {
-		cerr << __PRETTY_FUNCTION__
-			<< ", " << __LINE__ << ", " <<  __FILE__
-			<< " unhandled case theUserResponse_" << endl;
+		cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
 	}
 }
 
@@ -136,15 +102,9 @@ void question_eval_loop2 (
 	}
 
 
-	cerr << "FIXME: " << "create a function in UserInput to print the current responses"
-		<< endl
-		<< __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
-		<< endl ;
-	/*
 	cout
 		<< "p_user_input.questionResponseData_:"
 		<< p_user_input.questionResponseData_ << endl;
-	*/
 
 	if (last_question_visited.size() > 0) {
 		cout << "last_question_visited->questionName_:"
@@ -170,12 +130,11 @@ void question_eval_loop2 (
 					theQuestionnaire->eval2 (
 					NAVIGATE_PREVIOUS, last_question_visited, target_question);
 				if (target_question == 0) {
-					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+ 1);
+					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+1);
 				} else {
-					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level+ 1);
+					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level+1);
 				}
 #endif /* 0 */
-				return;
 			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 				// do nothing
 				// once we exit this major block == last_question_visited
@@ -194,19 +153,8 @@ void question_eval_loop2 (
 			// if we have reached back again here - it means it's
 			// time to get the next question
 
-		} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
-			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list,
-				theQuestionnaire->jno, theQuestionnaire->ser_no);
-		} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
-				// do nothing
-				// once we exit this major block == last_question_visited
-				// the bottom of this function will handle it
 		} else {
-			cout << "Unhandled case userNavigation_ ... exiting: "
-				<< __FILE__ << ", "
-				<< __LINE__ << ", "
-				<< __PRETTY_FUNCTION__ << ", "
-				<< endl;
+			cout << "Unhandled case userNavigation_ ... exiting" << endl;
 			exit(1);
 		}
 	} // else {
@@ -224,8 +172,4 @@ void question_eval_loop2 (
 	//}
 }
 
-void write_messages()
-{
-	TheQuestionnaire theQuestionnaire("dummy");
-	exit(0);
-}
+/* ============= END new_logic_support_frag stdout =========*/

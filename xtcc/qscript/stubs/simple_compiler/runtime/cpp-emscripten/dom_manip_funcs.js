@@ -3,14 +3,21 @@ mergeInto(LibraryManager.library, {
 print_to_question_area: function (question_text_ptr)
 {
 	//alert("print_to_question_area: " + i );
+	my_log("Enter: print_to_question_area: ");
 	var the_question_text = Pointer_stringify (question_text_ptr);
+	my_log(" question_text_ptr:" + the_question_text);
 	var v = document.getElementById("question_text_area");
 	var html = "<span deftext=\"true\" data-deftext=\"true\" id=\"lang_qtxt\" lang=\"en\">" + the_question_text + "</span>";
-	v.innerHTML = html;
+	if (v !== null) {
+		v.innerHTML = html;
+	} else {
+		my_log ("failed to get html element question_text_area");
+	}
+	my_log("Exit: print_to_question_area: ");
 	//alert(v.innerHTML);
 },
 
-print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
+print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter, ptr_err_msg)
 {
 	my_log ("Enter: print_to_stub_area");
 	//alert ("print_to_stub_area");
@@ -19,6 +26,8 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 	var question_type = Pointer_stringify (ptr_question_type);
 	var stubs_form_div = document.getElementById("stubs_form_div");
 	var the_stub_data = Pointer_stringify (ptr_stub_info);
+	var err_msg = Pointer_stringify (ptr_err_msg);
+	my_log ("err_msg: " + err_msg);
 
 	var clear_prev_node_sub_child = function (node) {
 		var n_child_nodes = node.childNodes.length;
@@ -184,6 +193,28 @@ show_end_of_qnre_page: function() {
 	question_view.style.display = "none";
 	var thank_you_screen = document.getElementById("thank_you_screen");
 	thank_you_screen.style.display = "block";
+},
+
+create_question_form: function(question_json_ptr, stubs_json_ptr) {
+	my_log ("Entered: create_question_form");
+	var question_data = Pointer_stringify (question_json_ptr);
+	my_log ("question_data: " + question_data);
+	var stubs_data = Pointer_stringify (stubs_json_ptr);
+	var stubs_obj_arr , questions_obj_arr;
+	my_log ("stub_data: " + stubs_data);
+	try {
+		questions_obj_arr = JSON.parse(question_data);
+		my_log ("parsed question_data");
+	} catch (error) {
+		my_log("Could not JSON.parse (question_data):" + error.message);
+	}
+	try {
+		stubs_obj_arr = JSON.parse(stubs_data);
+		my_log ("parsed stub_data");
+	} catch (error) {
+		my_log("Could not JSON.parse (stubs_data):" + error.message);
+	}
+	ui_create_question_form (questions_obj_arr, stubs_obj_arr);
 }
 
 });

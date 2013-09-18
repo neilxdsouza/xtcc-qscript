@@ -16,6 +16,7 @@
 #include <Wt/WGroupBox>
 #include <Wt/WString>
 #include <Wt/WStringUtil>
+#include "ui_return_value.h"
 
 #include "question.h"
 struct TheQuestionnaire;
@@ -44,15 +45,16 @@ struct Session
 	char last_question_visited[200];
 	char question_response[200];
 	char user_navigation[200];
-	AbstractRuntimeQuestion * last_question_served;
-	AbstractRuntimeQuestion * ptr_last_question_answered;
-	AbstractRuntimeQuestion * ptr_last_question_visited;
+	//AbstractRuntimeQuestion * last_question_served;
+	//AbstractRuntimeQuestion * ptr_last_question_answered;
+	//AbstractRuntimeQuestion * ptr_last_question_visited;
 	Session()
 		: start(time(NULL)),
 		  theQuestionnaire_(make_questionnaire()),
-		  rc(1), last_question_served(0),
-		  ptr_last_question_answered(0),
-		  ptr_last_question_visited(0)
+		  rc(1) //,
+		  //last_question_served(0),
+		  //ptr_last_question_answered(0),
+		  //ptr_last_question_visited(0)
 	{
 		snprintf (sid,
 		    sizeof (sid),
@@ -71,31 +73,55 @@ struct Session
 	}
 };
 
+struct QuestionUITemplate
+{
+	Wt::WContainerWidget * questionContainer_;
+	Wt::WText * wt_questionNo_;
+	Wt::WText * wt_questionText_;
+	Wt::WGroupBox * wt_cb_rb_container_;
+	Wt::WButtonGroup * wt_rb_container_;
+	Wt::WLineEdit * le_data_;
+	vector<Wt::WRadioButton*> vec_rb;
+	vector<Wt::WCheckBox*> vec_cb;
+	std::map<int, int> map_cb_code_index;
+	QuestionUITemplate ()
+		: questionContainer_(0), wt_questionNo_(0), wt_questionText_(0),
+		  wt_cb_rb_container_(0), wt_rb_container_(0)
+	{ }
+};
 
-using namespace Wt;
-class QuestionnaireApplication: public WApplication
+
+class QuestionnaireApplication: public Wt::WApplication
 {
 public:
 	int ser_no;
 	Session * this_users_session;
 	string sess_id ;
-	WContainerWidget * serialPage_;
-	std::vector<WText *> languageSelects_;
-	WText * wt_debug_;
+	Wt::WContainerWidget * serialPage_;
+	std::vector<Wt::WText *> languageSelects_;
+	Wt::WContainerWidget * formContainer_;
+	Wt::WContainerWidget * currentForm_;
+	Wt::WText * wt_SerialNo_;
+	Wt::WLineEdit * le_SerialNo_;
+	Wt::WText * wt_debug_;
+	Wt::WText * wt_lastQuestionVisited_;
+	Wt::WText * wtxt_err_mesg_;
+#if 0
 	WText * wt_questionText_;
 	WText * wt_questionNo_;
 	WLineEdit * le_data_;
-	WContainerWidget * formContainer_;
-	WContainerWidget * currentForm_;
-	WText * wt_lastQuestionVisited_;
 	WGroupBox * wt_cb_rb_container_;
 	WButtonGroup * wt_rb_container_;
 	vector<WRadioButton*> vec_rb;
 	vector<WCheckBox*> vec_cb;
-	bool flagSerialPageRemoved_;
 	std::map<int, int> map_cb_code_index;
-	QuestionnaireApplication (const WEnvironment &env);
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+#endif /* 0 */
+	vector <QuestionUITemplate *> question_ui_vec;
+	bool flagSerialPageRemoved_;
+	QuestionnaireApplication (const Wt::WEnvironment &env);
+	void (*callback_ui_input) (UserInput p_user_input,
+		const vector <AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 	void changeLanguage();
 	void setLanguage(const std::string lang);
 	void ValidateSerialNo();
@@ -104,25 +130,30 @@ public:
 	void set_callback_ui_input (
 		void (*p_callback_ui_input)
 				(UserInput p_user_input,
-				AbstractRuntimeQuestion * q,
+				const vector <AbstractRuntimeQuestion *> & q_vec,
 				struct TheQuestionnaire * theQuestionnaire,
 				int nest_level)
 	);
-	void ConstructQuestionForm( AbstractRuntimeQuestion *q );
-	void DisplayQuestionTextView (const vector <string> & qno_and_qtxt);
-	void setCentralWidget(WContainerWidget * new_question_form);
-	void DisplayStubs (AbstractRuntimeQuestion * q);
-	void PrepareMultiCodedStubDisplay (NamedStubQuestion * nq);
-	void PrepareSingleCodedStubDisplay (NamedStubQuestion * nq);
+	void ConstructQuestionForm(const vector<AbstractRuntimeQuestion *> & q_vec);
+	void DisplayQuestionTextView (QuestionUITemplate * p_q_ui_form,
+			const vector <string> & qno_and_qtxt);
+	void setCentralWidget(Wt::WContainerWidget * new_question_form);
+	void DisplayStubs (QuestionUITemplate * p_q_ui_form,
+			AbstractRuntimeQuestion * q);
+	void PrepareMultiCodedStubDisplay (
+		QuestionUITemplate* p_q_ui_form, NamedStubQuestion * nq);
+	void PrepareSingleCodedStubDisplay (
+		QuestionUITemplate* p_q_ui_form, NamedStubQuestion * nq);
 	void ClearStubsArea();
 	void handleDataInput();
 	void handleSave();
-	void handleRBDataInput (int nest_level);
-	void handleCBDataInput (int nest_level);
+	UIReturnValue handleRBDataInput (int nest_level, int form_index);
+	UIReturnValue handleCBDataInput (int nest_level, int form_index);
 	void handleRangeQuestionData (int nest_level);
 	void DisplayVideo (AbstractRuntimeQuestion * q);
 	void DisplayAudio (AbstractRuntimeQuestion * q);
-	void DisplayImage (AbstractRuntimeQuestion * q, WContainerWidget * parent);
+	void DisplayImage (AbstractRuntimeQuestion * q, Wt::WContainerWidget * parent);
+	void print_ui_error_message (string & err_mesg);
 
 };
 
