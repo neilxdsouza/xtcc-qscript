@@ -709,9 +709,11 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 			<< ") {"
 			<< "last_question_visited =  "
 			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val;"
-			<< "return "
-			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val"
-			<< ";" << endl
+			//<< "return " <<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val" << ";" << endl
+			<< "EvalReturnValue ev_ret_val;" << endl
+	 		<< "ev_ret_val.errMessageVec_ = error_messages_vec; " << endl
+	 		<< "ev_ret_val.qVec_ = "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val;" << endl
 			<< "}" << endl;
 	}
 	code.program_code << "}" << endl;
@@ -2132,7 +2134,12 @@ void PageStatement::GenerateCode(StatementCompiledCode & code)
 		<< "if (vec_page_" << pageName_ << "_ret_val.size() > 0) {"
 		<< " last_question_visited =  vec_page_" << pageName_ << "_ret_val;"
 		<< std::endl
-		<< " return vec_page_" << pageName_ << "_ret_val;"
+		//<< " return vec_page_" << pageName_ << "_ret_val;"
+		<< "EvalReturnValue ev_ret_val;" << endl
+	 	<< "ev_ret_val.qVec_ = "
+		<< " vec_page_" << pageName_ << "_ret_val;"
+	 	<< "ev_ret_val.errMessageVec_ = error_messages_vec; " << endl
+	 	<< "return ev_ret_val;" << endl
 		<< std::endl
 		<< "}" << endl
 		;
