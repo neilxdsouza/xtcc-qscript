@@ -119,7 +119,6 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 		//wrefresh(question_window);
 		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 	//mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
-	stringstream question_text;
 	//question_text << q->textExprVec_[0]->text_;
 	//result.push_back (question_text.str());
 	//for (int i=1; i<q->textExprVec_.size(); ++i) {
@@ -128,6 +127,7 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 	//}
 	for (int i=0; i<q->textExprVec_.size(); ++i) {
         	//question_text << "<p>";
+		stringstream question_text;
         	if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
         	{
         		//stringstream mesg_id;
@@ -153,9 +153,10 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 			//question_text << "pipedQuestion_" << endl;
         	}
         	//question_text << "</p>";
+		result.push_back (question_text.str());
+		question_text.str().clear();
         }
 
-	result.push_back (question_text.str());
 	return result;
 
 }
