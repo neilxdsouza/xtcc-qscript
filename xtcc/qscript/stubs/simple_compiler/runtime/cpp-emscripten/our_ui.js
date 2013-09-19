@@ -235,6 +235,13 @@
 					my_li.appendChild(input_label);
 					my_li.setAttribute("data-dojo-type", "dojox/mobile/ListItem");
 					doc_frag2.appendChild(my_li);
+
+					if (res2.stubs[i].url_image.length > 0) {
+						var img = new Image();
+						img.src =  res2.stubs[i].url_image;
+						my_li.appendChild (img);
+					}
+					//img.src =  "http://www.example.com/test?name=Nicholas";
 				}
 			}
 
