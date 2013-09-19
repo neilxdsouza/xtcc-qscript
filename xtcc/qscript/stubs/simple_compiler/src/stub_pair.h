@@ -9,6 +9,7 @@
 
 #include <sys/types.h>
 #include <string>
+#include <sstream>
 using std::string;
 struct	stub_pair
 {
@@ -46,6 +47,21 @@ struct	stub_pair
 		return *this;
 	}
 	*/
+
+	void toString(std::stringstream & s) const
+	{
+	using std::endl;
+		s 	<< "{"
+			<< "\"stub_text\":" << "\"" << stub_text << "\"" << ","
+			<< "\"stub_code\":" << code << ","
+			<< "\"mask\":" << mask << ","
+			<< "\"is_mutex\":" << is_mutex << ","
+			<< "\"url_image\":" << "\"" << url_image << "\""
+			//<< ","
+			<< "}"
+			<< endl;
+	}
+
 };
 
 struct stub_pair_order_asc
