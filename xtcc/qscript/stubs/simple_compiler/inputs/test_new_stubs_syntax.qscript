@@ -1,0 +1,9 @@
+test_new_stubs {
+
+	stubs my_stub_list = 
+			//"stub 1" 1,
+	      			"stub 2" 2 : image "here/image1.jpeg",
+	      			"stub 3" 3 : image "here/image2.jpeg"
+			;
+
+}

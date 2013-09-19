@@ -30,6 +30,7 @@
 #include "QuestionAttributes.h"
 
 #include "qscript_parser.h"
+#include "stub_pair_options.h"
 
 	//using qscript_parser::yyerror;
 	//using qscript_parser::yylex;
@@ -47,6 +48,7 @@
 	vector<TextExpression*> text_expr_vec;
 	vector<string> vec_named_attribute_list;
 	vector<Unary2Expression*> clear_questions_list;
+	stub_pair_options current_stub_pair_options;
 
 
 %}
@@ -91,6 +93,7 @@
 %token HIDDEN
 %token ALLOW_BLANK
 %token MUTEX
+%token OTHER
 %token CLEAR
 %token COLUMN
 %token ISANSWERED
@@ -1068,10 +1071,40 @@ stub_list: stub
 	| stub_list ',' stub
 	;
 
+
+stub_options_list: stub_option {
+		 current_stub_pair_options.reset();
+		 }
+		 | stub_options_list '|' stub_option
+		 ;
+
+stub_option: MUTEX {
+		current_stub_pair_options.is_mutex = true;
+	   }
+	   | OTHER {
+		current_stub_pair_options.is_other_specify = true;
+	   }
+	   | IMAGE TEXT {
+	   	current_stub_pair_options.stub_media_type = stub_pair_options::image;
+	   	current_stub_pair_options.url = $2;
+	   }
+	   | AUDIO TEXT {
+	   	current_stub_pair_options.stub_media_type = stub_pair_options::audio;
+	   	current_stub_pair_options.url = $2;
+		}
+
+	   | VIDEO TEXT {
+	   	current_stub_pair_options.stub_media_type = stub_pair_options::video;
+	   	current_stub_pair_options.url = $2;
+		}
+	   ;
+
 stub:	TEXT INUMBER {
+		string s1 = $1;
+		int32_t code = $2;
+		qscript_parser::do_stub_pair_checks (s1, code, current_stub_pair_options);
+		/*
 		using qscript_parser::stub_list;
-		string s1=$1;
-		int32_t code=$2;
 		struct stub_pair pair1(s1,code);
 		stub_list.push_back(pair1);
 
@@ -1097,7 +1130,15 @@ stub:	TEXT INUMBER {
 		} else {
 			set_duplicate_stub_entry_check.insert(code);
 		}
+		*/
 	}
+	| TEXT INUMBER ':' stub_options_list {
+		string s1 = $1;
+		int32_t code = $2;
+		cout << "parsed stub with options" << endl;
+		qscript_parser::do_stub_pair_checks (s1, code, current_stub_pair_options);
+	}
+	/*
 	| TEXT INUMBER MUTEX {
 		using qscript_parser::stub_list;
 		string s1=$1;
@@ -1160,6 +1201,9 @@ stub:	TEXT INUMBER {
 			set_duplicate_stub_entry_check.insert(code);
 		}
 	}
+	| TEXT INUMBER OTHER {
+	}
+	*/
 	;
 
 stub_manip_stmts:
@@ -1582,6 +1626,38 @@ AbstractStatement * ProcessVideoQuestion (const string &name
 	return q;
 
 }
+
+	void do_stub_pair_checks (const string & stub_text, int code, const stub_pair_options & current_stub_pair_options)
+	{
+		using qscript_parser::stub_list;
+		string s1=stub_text;
+		//int32_t code=$2;
+		struct stub_pair pair1(s1,code);
+		stub_list.push_back(pair1);
+
+		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);
+		//cout << "searching for : " << s1 << " in map" << endl;
+		if (map_iter != map_duplicate_stub_entry_check.end()) {
+			std::stringstream err_msg;
+			err_msg << "the stub text: \"" << s1
+				<< "\" with code: " << code
+				<< " already exists with a code value of : "
+				<< map_iter->second;
+			print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			map_duplicate_stub_entry_check[s1] = code;
+		}
+
+		set<int>::iterator set_iter = set_duplicate_stub_entry_check.find (code);
+		if (set_iter != set_duplicate_stub_entry_check.end()) {
+			std::stringstream err_msg;
+			err_msg << "the code: " << code
+				<< " already exists in the stub list: ";
+			print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			set_duplicate_stub_entry_check.insert(code);
+		}
+	}
 
 // Close namespace
 }

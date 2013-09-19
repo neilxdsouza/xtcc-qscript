@@ -60,31 +60,32 @@
      HIDDEN = 278,
      ALLOW_BLANK = 279,
      MUTEX = 280,
-     CLEAR = 281,
-     COLUMN = 282,
-     ISANSWERED = 283,
-     NEWCARD = 284,
-     PAGE = 285,
-     GRID_SIZE = 286,
-     CONST = 287,
-     LOGOR = 288,
-     LOGAND = 289,
-     NOEQ = 290,
-     ISEQ = 291,
-     GEQ = 292,
-     LEQ = 293,
-     NOT = 294,
-     UMINUS = 295,
-     COUNT = 296,
-     FUNC_CALL = 297,
-     IF = 298,
-     ELSE = 299,
-     STUBS_LIST = 300,
-     NAMED_ATTRIBUTES = 301,
-     SETDEL = 302,
-     SETADD = 303,
-     UNSET = 304,
-     SETALL = 305
+     OTHER = 281,
+     CLEAR = 282,
+     COLUMN = 283,
+     ISANSWERED = 284,
+     NEWCARD = 285,
+     PAGE = 286,
+     GRID_SIZE = 287,
+     CONST = 288,
+     LOGOR = 289,
+     LOGAND = 290,
+     NOEQ = 291,
+     ISEQ = 292,
+     GEQ = 293,
+     LEQ = 294,
+     NOT = 295,
+     UMINUS = 296,
+     COUNT = 297,
+     FUNC_CALL = 298,
+     IF = 299,
+     ELSE = 300,
+     STUBS_LIST = 301,
+     NAMED_ATTRIBUTES = 302,
+     SETDEL = 303,
+     SETADD = 304,
+     UNSET = 305,
+     SETALL = 306
    };
 #endif
 
@@ -95,7 +96,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 55 "src/q.ypp"
+#line 57 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int32_t ival;
@@ -113,7 +114,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 117 "src/q.hpp"
+#line 118 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

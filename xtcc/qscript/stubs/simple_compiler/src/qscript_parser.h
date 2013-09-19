@@ -139,6 +139,7 @@ namespace qscript_parser
 	string ExtractBaseFileName(const string & fname);
 
 	extern vector<TextExpression*> text_expr_vec;
+	void do_stub_pair_checks (const string & stub_text, int code, const stub_pair_options & current_stub_pair_options);
 
 }
 
