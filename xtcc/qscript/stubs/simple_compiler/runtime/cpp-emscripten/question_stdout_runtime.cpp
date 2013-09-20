@@ -399,7 +399,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 	cout << end_marker << endl;
 }
 
-void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
+void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
 	stringstream question_json_string;
 	question_json_string << "[" << endl;
@@ -469,10 +469,20 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
 	stub_json_string << "]" << endl;
 	printf ("question_json_string: %s\n", question_json_string.str().c_str());
 	printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
+	stringstream err_json_string;
+
+	err_json_string << "[" << endl;
+	for (int i=0; i < p_error_messages_vec.size(); ++i ) {
+		if (i > 0 ) {
+			err_json_string << "," ;
+		}
+		err_json_string << "\"" << p_error_messages_vec[i] << "\"";
+	}
+	err_json_string << "]" << endl;
 
 	printf ("before call to create_question_form\n");
 	create_question_form (question_json_string.str().c_str(),
-				stub_json_string.str().c_str());
+				stub_json_string.str().c_str(), err_json_string.str().c_str());
 	printf ("after call to create_question_form\n");
 }
 
@@ -496,7 +506,7 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	PrepareStubs (q);
 	DisplayStubs (q);
 	DisplayCurrentAnswers (q);
-	print_to_question_area (question_display_text.c_str());
+	//print_to_question_area (question_display_text.c_str());
 
 
 	stringstream s;
@@ -514,9 +524,9 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	for (int i = 0; i < p_error_messages_vec.size(); ++i) {
 		err_msg += p_error_messages_vec[i];
 	}
-	print_to_stub_area (question_type.c_str(),
-		q->no_mpn,
-		s.str().c_str(), ++counter, err_msg.c_str());
+	//print_to_stub_area (question_type.c_str(),
+	//	q->no_mpn,
+	//	s.str().c_str(), ++counter, err_msg.c_str());
 
 	void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited);
 	// I couldnt be bothered to make this a virtual function
@@ -533,7 +543,7 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 
 	//static int i;
 	//i += 10;
-	ConstructQuestionForm (q_vec);
+	ConstructQuestionForm (q_vec, p_error_messages_vec);
 	printf ("Exit: %s\n", __PRETTY_FUNCTION__);
 }
 

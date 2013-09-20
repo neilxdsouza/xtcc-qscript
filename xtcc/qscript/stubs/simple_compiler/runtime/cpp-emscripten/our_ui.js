@@ -2,6 +2,7 @@
 	my_log ("Started loading our_ui.js");
 
 	/* Next Question Button {{{2 */
+	/*
 	var nextQ = document.getElementById("nextQ");
 	EventUtil.addHandler (nextQ, "click", function(event) {
 		//event = EventUtil.getEvent (event);
@@ -18,6 +19,7 @@
 		//Module.setValue (data_for_cpp, returnValue, "i8*");
 		called_from_the_dom(returnValue);
 	});
+	*/
 	/* Next Question Button }}}2 */
 
 	/* newNextQ Button {{{2 */
@@ -27,7 +29,7 @@
 		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
 		//console.log("newNextQ called");
 		var returnValue = new_serialize ();
-		my_log ("new_serialize done");
+		my_log ("new_serialize done: " + returnValue);
 		called_from_the_dom(returnValue.join("|"));
 		my_log ("Exit newNextQ");
 	});
@@ -278,7 +280,7 @@
 	}
 
 
-	function ui_create_question_form (questions_obj_arr, stubs_obj_arr) {
+	function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
 		my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
 
 		var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
@@ -295,7 +297,7 @@
 	}
 
 
-	function serialize (form) {
+	function serialize (form, my_question_obj) {
 		my_log("Enter: serialize");
 		var parts = new Array();
 		var field = null;
@@ -316,37 +318,40 @@
 			break;
 			case "text":
 				my_log ("case text");
-				if (global_survey_related_info.question_type != "nq" &&
-					global_survey_related_info.no_mpn == 1) {
-					parts.push(field.value);
-				} else {
-					my_log ("trying to save verbatim file: verbatim is:" + field.value);
-					parts.push("96"); // dummy value
-					// Initiate file saving here
-					/* Comment out - when running in browser
-					 * enable for cordova
-					global_survey_related_info.current_verbatim_data = field.value;
-					if (save_verbatim_data) {
-						my_log ("save_verbatim_data:" + save_verbatim_data);
-					}
-					if (fail_to_write_file) {
-						my_log ("fail_to_write_file:" + fail_to_write_file);
-					}
-					my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
-					if (global_survey_related_info.verbatim_data_file_handle) {
-						my_log ("verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
-						my_log ("testing for createWriter:");
-						if (global_survey_related_info.verbatim_data_file_handle.createWriter) {
-							my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: exists");
-						} else {
-							my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: does not exist");
-						}
-						my_log ("after createWriter:");
+				if (my_question_obj.question_type === "rq") {
+					if ( my_question_obj.no_mpn == 1) {
+						parts.push(field.value);
 					} else {
-						my_log ("verbatim_data_file_handle: is null");
+						my_log ("trying to save verbatim file: verbatim is:" + field.value);
+
+						//parts.push(field.value); // dummy value
+						parts.push("96"); // dummy value
+						// Initiate file saving here
+						/* Comment out - when running in browser
+						 * enable for cordova
+						global_survey_related_info.current_verbatim_data = field.value;
+						if (save_verbatim_data) {
+							my_log ("save_verbatim_data:" + save_verbatim_data);
+						}
+						if (fail_to_write_file) {
+							my_log ("fail_to_write_file:" + fail_to_write_file);
+						}
+						my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+						if (global_survey_related_info.verbatim_data_file_handle) {
+							my_log ("verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+							my_log ("testing for createWriter:");
+							if (global_survey_related_info.verbatim_data_file_handle.createWriter) {
+								my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: exists");
+							} else {
+								my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: does not exist");
+							}
+							my_log ("after createWriter:");
+						} else {
+							my_log ("verbatim_data_file_handle: is null");
+						}
+						global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
+						*/
 					}
-					global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
-					*/
 				}
 			break;
 			}
@@ -362,7 +367,7 @@
 		my_log("Enter: new_serialize");
 		var form_data_arr = [];
 		for (var i = 0; i < document.forms.length;  ++i) {
-			var form_serialized_data = serialize (document.forms[i]);
+			var form_serialized_data = serialize (document.forms[i], global_survey_related_info.questions_obj_arr[i] );
 			//console.log ("form_serialized_data:" );
 			my_log ("form_serialized_data:" + form_serialized_data);
 			form_data_arr.push (form_serialized_data);

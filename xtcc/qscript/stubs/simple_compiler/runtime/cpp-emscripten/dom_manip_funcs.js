@@ -195,13 +195,16 @@ show_end_of_qnre_page: function() {
 	thank_you_screen.style.display = "block";
 },
 
-create_question_form: function(question_json_ptr, stubs_json_ptr) {
+create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr) {
 	my_log ("Entered: create_question_form");
 	var question_data = Pointer_stringify (question_json_ptr);
 	my_log ("question_data: " + question_data);
 	var stubs_data = Pointer_stringify (stubs_json_ptr);
-	var stubs_obj_arr , questions_obj_arr;
 	my_log ("stub_data: " + stubs_data);
+	var err_data = Pointer_stringify (err_json_ptr);
+	my_log ("err_data: " + err_data);
+
+	var stubs_obj_arr , questions_obj_arr, err_obj_arr;
 	try {
 		questions_obj_arr = JSON.parse(question_data);
 		my_log ("parsed question_data");
@@ -214,7 +217,18 @@ create_question_form: function(question_json_ptr, stubs_json_ptr) {
 	} catch (error) {
 		my_log("Could not JSON.parse (stubs_data):" + error.message);
 	}
-	ui_create_question_form (questions_obj_arr, stubs_obj_arr);
+
+	try {
+		err_obj_arr = JSON.parse(err_data);
+		my_log ("parsed err_data:" + err_obj_arr);
+	} catch (error) {
+		my_log("Could not JSON.parse (err_data):" + error.message);
+	}
+	global_survey_related_info.questions_obj_arr = questions_obj_arr;
+	global_survey_related_info.stubs_obj_arr = stubs_obj_arr;
+	global_survey_related_info.err_obj_arr = err_obj_arr;
+
+	ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr);
 }
 
 });
