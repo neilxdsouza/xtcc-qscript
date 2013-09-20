@@ -59,11 +59,11 @@ struct TheQuestionnaire;
 
 void callback_ui_input (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level);
+		struct TheQuestionnaire * theQuestionnaire, int nest_level, vector <string> & err_mesg_vec);
 void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input)
 		(UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec,
-		 struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		 struct TheQuestionnaire * theQuestionnaire, int nest_level, vector <string> & err_mesg_vec),
 		 int nest_level,
 		 const vector<string> & error_messages_vec
 		);
@@ -76,7 +76,7 @@ void parse_input_data(string input_string, vector<int> * data_ptr, int & success
 void GetUserInput (
 	void (*callback_ui_input)
 		(UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec,
-		 struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		 struct TheQuestionnaire * theQuestionnaire, int nest_level, vector <string> & err_mesg_vec),
 	 const vector<AbstractRuntimeQuestion *> & q_vec,
 	 struct TheQuestionnaire * theQuestionnaire, int nest_level);
 

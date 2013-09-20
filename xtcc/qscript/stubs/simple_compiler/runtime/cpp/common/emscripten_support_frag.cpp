@@ -45,8 +45,8 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_dat
 	question_eval_loop2 (
 				l_user_input, /* last_question_visited */ empty_vec,
 				/* jump_to_question */ 0, theQuestionnaire, nest_level + 1);
-	cout << "finished qnre: exiting ..." << endl;
-	cout << "commented out prompt_user_for_serial_no" << endl;
+	//cout << "finished qnre: exiting ..." << endl;
+	//cout << "commented out prompt_user_for_serial_no" << endl;
 	//prompt_user_for_serial_no (callback_get_ser_no_from_ui, nest_level + 1);
 	return 0;
 }
@@ -59,7 +59,8 @@ void parse_input_data(vector<int> * data_ptr, int & success);
 
 void callback_ui_input (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level)
+		struct TheQuestionnaire * theQuestionnaire, int nest_level,
+		vector <string> & err_mesg_vec)
 {
 	//cout << __PRETTY_FUNCTION__ << endl;
 	printf ("%s\n", __PRETTY_FUNCTION__);
@@ -87,6 +88,17 @@ void callback_ui_input (UserInput p_user_input,
 			// we need to pass the error messages back
 			// so should make that a parameter to this
 			// function
+
+			stringstream err_json_string;
+			err_json_string << "[" << endl;
+			for (int i=0; i < err_mesg_vec.size(); ++i ) {
+				if (i > 0 ) {
+					err_json_string << "," ;
+				}
+				err_json_string << "\"" << err_mesg_vec[i] << "\"";
+			}
+			err_json_string << "]" << endl;
+			current_question_errors (err_json_string.str().c_str());
 			return;
 		}
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
@@ -215,8 +227,8 @@ void question_eval_loop2 (
 						theQuestionnaire->ser_no,
 						buffer_start_ptr,
 						n_left);
+			save_qnre_data (buffer);
 			*/
-			//save_qnre_data (buffer);
 			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1, eval_ret_val.errMessageVec_);
 		}
 	//}
@@ -240,9 +252,12 @@ void callback_return_serial (int serial_no, char * survey_data)
 
 void called_from_the_dom (char * data)
 {
+	char * ptr ="testing current_question_errors";
+	current_question_errors (ptr);
 	//emscripten_pause_main_loop();
 	//emscripten_resume_main_loop();
 	//printf ("data from the browser dom callback: %s\n", data);
+	//char err_mesg_buffer[4000];
 	printf ("Enter: called_from_the_dom: data %s\n", data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
@@ -341,17 +356,24 @@ void called_from_the_dom (char * data)
 		}
 	}
 	if (all_questions_answered == false)  {
-		printf("Please answer all the questions on the page: %s\n",
-				not_answered_question_list.str().c_str()
-		      );
+		//printf("Please answer all the questions on the page: %s\n",
+		//		not_answered_question_list.str().c_str()
+		//      );
+		stringstream err_mesg;
+		err_mesg << "Please answer all the questions on the page: "
+			<< not_answered_question_list.str();
+		current_question_errors (err_mesg.str().c_str());
+		return;
 	} else {
 		// send question for back end verification
 		AbstractQuestionnaire * abs_qnre_ptr = AbstractQuestionnaire::qnre_ptr;
 		TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+		vector <string> err_mesg_vec;
 		callback_ui_input (user_input,
 			abs_qnre_ptr->last_question_visited,
-			l_qnre_ptr, 1);
+			l_qnre_ptr, 1, err_mesg_vec);
 	}
+
 
 	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
 }

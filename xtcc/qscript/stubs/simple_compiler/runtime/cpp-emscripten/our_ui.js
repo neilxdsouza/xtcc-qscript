@@ -31,7 +31,6 @@
 		var returnValue = new_serialize ();
 		my_log ("new_serialize done: " + returnValue);
 		called_from_the_dom(returnValue.join("|"));
-		my_log ("Exit newNextQ");
 	});
 	//my_log ("created submit handler function");
 	/* newNextQ Button }}}2 */

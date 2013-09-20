@@ -229,6 +229,12 @@ create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr) 
 	global_survey_related_info.err_obj_arr = err_obj_arr;
 
 	ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr);
+},
+
+current_question_errors: function (err_json_ptr) {
+	var err_mesg = Pointer_stringify (err_json_ptr);
+	my_log ("current_question_errors:" +  err_mesg);
 }
+
 
 });

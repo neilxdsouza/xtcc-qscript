@@ -82,9 +82,9 @@ int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int, int), int nest_l
 
 void setup_ui (int argc, char * argv[] )
 {
-	cout 	<< "Welcome to the simplest possible qscript runtime"
-		<< endl;
-
+	//cout 	<< "Welcome to the simplest possible qscript runtime"
+	//	<< endl;
+	printf ("Welcome to the simplest possible qscript runtime\n");
 }
 
 
@@ -266,7 +266,7 @@ typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 void GetUserInput (
 	void (*callback_ui_input) (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		struct TheQuestionnaire * theQuestionnaire, int nest_level, vector <string> & err_mesg_vec),
 	const vector <AbstractRuntimeQuestion *> & q_vec,
 	struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
@@ -491,7 +491,7 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input)
 		(UserInput p_user_input, const vector <AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		struct TheQuestionnaire * theQuestionnaire, int nest_level, vector<string> & err_mesg_vec),
 	int nest_level,
 	const vector<string> & p_error_messages_vec
 	)
@@ -582,7 +582,7 @@ int32_t main(int argc, char * argv[])
 #endif /* 0 */
 	//qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
 	using namespace std;
-	SetupSignalHandler();
+	//SetupSignalHandler();
 	setup_ui (argc, argv);
 	//prompt_user_for_serial_no (callback_get_ser_no_from_ui, 1);
 } /* close main */
