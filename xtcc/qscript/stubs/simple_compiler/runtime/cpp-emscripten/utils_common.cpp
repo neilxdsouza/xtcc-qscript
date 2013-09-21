@@ -12,6 +12,9 @@ using std::stringstream;
 using std::vector;
 using qscript_parser::no_errors;
 
+// disable below if to test split_on_char function and compile
+// this file independently.
+#if 1
 void print_err(compiler_err_category cmp_err, string err_msg,
 	int32_t line_no, int32_t compiler_line_no, string compiler_file_name)
 {
@@ -85,6 +88,7 @@ unsigned long djb_hash(const char *str)
 	    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 	return hash;
 }
+#endif /*  0 */
 
 
 vector <std::string> split_on_char (const string &s, char ch)
@@ -92,18 +96,22 @@ vector <std::string> split_on_char (const string &s, char ch)
 	vector<std::string> result;
 	size_t start_pos = 0;
 	size_t found_ch = s.find (ch, start_pos);
-	while (found_ch != string::npos) {
-		cout << "start_pos: " << start_pos << ", found_ch: " << found_ch << endl;
-		cout << "s.substr: " << s.substr(start_pos, (found_ch-start_pos)) << endl;
-		result.push_back (s.substr(start_pos, (found_ch-start_pos)));
-		start_pos = found_ch+1;
-		found_ch = s.find (ch, start_pos);
+	if (found_ch != string::npos) {
+		while (found_ch != string::npos) {
+			cout << "start_pos: " << start_pos << ", found_ch: " << found_ch << endl;
+			cout << "s.substr: " << s.substr(start_pos, (found_ch-start_pos)) << endl;
+			result.push_back (s.substr(start_pos, (found_ch-start_pos)));
+			start_pos = found_ch+1;
+			found_ch = s.find (ch, start_pos);
+		}
+		result.push_back (s.substr(start_pos, s.length()-1));
+	} else {
+		result.push_back (s);
 	}
-	result.push_back (s.substr(start_pos, s.length()-1));
 	return result;
 }
 
-/*
+/* 
 int main() {
 	string s = "1|2|3";
 	vector<std::string> split_vec = split_on_char(s, '|');
@@ -117,5 +125,12 @@ int main() {
 	for (int i=0; i < split_vec.size(); ++i) {
 		std::cout << "split: " << split_vec[i] << endl;
 	}
+	//===========
+	s = "1";
+	cout << "======: s" << s << endl;
+	split_vec = split_on_char(s, '|');
+	for (int i=0; i < split_vec.size(); ++i) {
+		std::cout << "split: " << split_vec[i] << endl;
+	}
 }
-*/
+ */

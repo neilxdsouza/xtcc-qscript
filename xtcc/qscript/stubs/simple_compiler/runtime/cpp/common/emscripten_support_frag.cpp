@@ -252,13 +252,13 @@ void callback_return_serial (int serial_no, char * survey_data)
 
 void called_from_the_dom (char * data)
 {
-	char * ptr ="testing current_question_errors";
-	current_question_errors (ptr);
+	//current_question_errors (ptr);
 	//emscripten_pause_main_loop();
 	//emscripten_resume_main_loop();
 	//printf ("data from the browser dom callback: %s\n", data);
 	//char err_mesg_buffer[4000];
 	printf ("Enter: called_from_the_dom: data %s\n", data);
+	my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
 #if 0

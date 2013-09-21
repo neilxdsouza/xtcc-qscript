@@ -234,7 +234,11 @@ create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr) 
 current_question_errors: function (err_json_ptr) {
 	var err_mesg = Pointer_stringify (err_json_ptr);
 	my_log ("current_question_errors:" +  err_mesg);
-}
+},
 
+my_log_from_cpp: function (log_mesg_ptr) {
+	var log_mesg = Pointer_stringify (log_mesg_ptr);
+	my_log ("cpp_log:" +  log_mesg);
+}
 
 });
