@@ -2,7 +2,7 @@
 #include "new_named_range-v2.h"
 #include "utils.h"
 
-void display_flat_named_range(const string & name, const vector<stub_pair>  nr_vec)
+void display_flat_named_range(const string & name, const vector<stub_pair> &  nr_vec)
 {
 	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	cout	<< "NamedRange info: "

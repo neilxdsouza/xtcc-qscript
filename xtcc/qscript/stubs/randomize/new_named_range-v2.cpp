@@ -274,8 +274,19 @@ string NamedRangeGroup::SaveFlatRandomizedOrderToDisk (int nest_level)
 	randomized_order_str << " size " << flat_display_nr_after_rnd.size()
 		<< " : ";
 	for (int i=0; i<flat_display_nr_after_rnd.size(); ++i) {
-		randomized_order_str << " " << flat_display_nr_after_rnd[i].code;
+		//randomized_order_str << " " << flat_display_nr_after_rnd[i].code;
+		if (i > 0) {
+			randomized_order_str << ", ";
+		}
+		for (int j=0; j < flat_display_nr_normal_order.size(); ++j) {
+			if (flat_display_nr_after_rnd[i].code == flat_display_nr_normal_order[j].code) {
+				randomized_order_str << j << " -> " << i;
+			}
+		}
 	}
+	//for (int i = 0; i < randomized_order.size(); ++i) {
+	//	randomized_order_str << " " << randomized_order[i];
+	//}
 	randomized_order_str << endl;
 	return randomized_order_str.str();
 }

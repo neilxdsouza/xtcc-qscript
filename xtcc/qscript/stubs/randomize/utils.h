@@ -5,4 +5,4 @@ void PrintNamedRange2 (AbstractNamedRange * nr, vector <string> & group_str,
 	vector<stub_pair> & flat_display_nr
 	);
 
-void display_flat_named_range(const string & name, const vector<stub_pair>  nr_vec);
+void display_flat_named_range(const string & name, const vector<stub_pair>  & nr_vec);
