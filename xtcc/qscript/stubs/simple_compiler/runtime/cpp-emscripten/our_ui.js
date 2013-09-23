@@ -104,6 +104,7 @@
 			div_serial_no.style.display = "none";
 			//return_serial_no_button.disabled = true;
 			callback_return_serial (txt_serial_no.value, "");
+			document.getElementById("newNextQDiv").style.display = "block";	// enable next button
 		} else {
 			my_log ("Could not find callback_return_serial in Module.cwrap");
 		}
@@ -129,58 +130,178 @@
 		return result;
 	}
 
-	function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr) {
-		my_log ("Enter:  create_multiple_questions_view" );
-		var new_question_view = document.getElementById("new_question_view");
-		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
+	function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
+		//alert(questions_obj_arr[0].question_type);
+		if (questions_obj_arr[0].question_type == 'nqq') {
+			var new_question_view = "";
 
-		var questions_view_frag = document.createDocumentFragment();
-		var a_question_div, question_title_div, question_stubs_div, curr_question_obj, question_stubs_form;
-		for (var i = 0; i < questions_obj_arr.length;  ++i) {
-			curr_question_obj = questions_obj_arr[i];
+			for (var i=0; i<questions_obj_arr.length; i++) {
+				var curr_question_obj = questions_obj_arr[i];
+				
+				new_question_view += "<p>" + curr_question_obj.question_text_arr[0] + "</p>";
+				new_question_view += "<form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' ><fieldset data-role='controlgroup'>";			
+				
+				for (var j=0; j<stubs_obj_arr.length; j++) {
+					if(curr_question_obj.stub_name == stubs_obj_arr[j].name) {
 
-			question_title_div = document.createElement("div");
-			question_title_div.innerHTML = "<p>" + curr_question_obj.qno + "</p>";
-			my_log ("curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
-			for (var j = 0; j < curr_question_obj.question_text_arr.length; ++j) {
-				var question_text = curr_question_obj.question_text_arr[j];
-				question_title_div.innerHTML += "<p>" + question_text + "</p>";
+						for (var k=0; k<stubs_obj_arr[j].stubs.length; k++) {
+							var name = "radio-choice-" + curr_question_obj.qno;
+							var id = name + "-" + k;
+							var text = stubs_obj_arr[j].stubs[k].stub_text;
+							var value = stubs_obj_arr[j].stubs[k].stub_code;
+
+							new_question_view += "<div><input name='" + name + "' id='" + id + "' value='" + value + "' type='radio'>";
+							new_question_view += "<label for='" + id + "'>" + text + "</label></div>";
+						}
+
+						j = stubs_obj_arr.length;	//break if stub found
+					}
+
+				}
+
+				new_question_view += "</fieldset></form>";
 			}
-			my_log ("after curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
-			question_stubs_div = document.createElement("div");
-			//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
-			var stubs_doc_frag = get_stubs_display_view (curr_question_obj, stubs_obj_arr);
-			question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
-			//question_stubs_div.innerHTML += "<p>" + stubs_doc_frag + "</p>";
-			question_stubs_div.appendChild (stubs_doc_frag);
-			question_stubs_form = document.createElement("form");
-			question_stubs_form.name = "form_" + curr_question_obj.qno;
-			question_stubs_form.id = "id_form_" + curr_question_obj.qno;
-			question_stubs_form.appendChild (question_stubs_div);
-			// my_log ("stubs_doc_frag: " + stubs_doc_frag);
-			// my_log ("question_stubs_div: " + question_stubs_div);
-			// my_log ("question_stubs_div.outerHTML: " + question_stubs_div.outerHTML);
-			// my_log ("question_stubs_div.outerText: " + question_stubs_div.outerTEXT);
-			
-			a_question_div = document.createElement("div");
-			my_log ("after create a_question_div" );
-			//a_question_div.innerHTML = question_title_div.outerHTML + question_stubs_div.outerHTML;
-			a_question_div.appendChild (question_title_div);
-			a_question_div.appendChild (question_stubs_form);
-			questions_view_frag.appendChild(a_question_div);
+
+			if (err_obj_arr[0]) {
+				new_question_view +=  "<p style='color:red;'>" + err_obj_arr.join("</p><p style='color:red;'>") + "</p>";
+			}
+
+			document.getElementById("new_question_view").innerHTML = new_question_view;	
 		}
-		new_question_view.appendChild (questions_view_frag);
-		//$( '#stubs_form_div' ).trigger( 'create' );
-		$( '#new_question_view' ).trigger( 'create' );
-		my_log ("Exit: create_multiple_questions_view");
+
+		else if (questions_obj_arr[0].question_type == 'rq') {
+			var is_question_text_same = true;
+			for (var i=1; i<questions_obj_arr.length; i++) {
+				if( questions_obj_arr[i].question_text_arr[0] != questions_obj_arr[0].question_text_arr[0]) {
+					is_question_text_same = false;
+					break;
+				}
+			}
+			//is_question_text_same = false;
+			var new_question_view = "";
+
+			new_question_view = "<table>";
+			if(is_question_text_same) {
+				new_question_view += "<tr><th>" + questions_obj_arr[0].question_text_arr[0] + "</th></tr>";
+			}
+			for (var i=0; i<questions_obj_arr.length; i++) {
+				var curr_question_obj = questions_obj_arr[i];
+				if(!is_question_text_same) {
+					new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[0] + "</td></tr>";
+				}
+				new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[1] + "</td>";
+				new_question_view += "<td><form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' >";			
+				new_question_view += "<input cols='40' rows='8' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
+				new_question_view += "</form></td></tr>";
+			}
+			new_question_view += "</table>";
+
+			if (err_obj_arr[0]) {
+				new_question_view +=  "<p style='color:red;'>" + err_obj_arr.join("</p><p style='color:red;'>") + "</p>";
+			}
+
+			document.getElementById("new_question_view").innerHTML = new_question_view;	
+		}
+
+		else {
+			my_log ("Enter:  create_multiple_questions_view" );
+			var new_question_view = document.getElementById("new_question_view");
+			//new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
+			new_question_view.innerHTML = "";
+
+			var questions_view_frag = document.createDocumentFragment();
+			var a_question_div, question_title_div, question_stubs_div, curr_question_obj, question_stubs_form, question_stubs_form_fieldset;
+			for (var i = 0; i < questions_obj_arr.length;  ++i) {
+				curr_question_obj = questions_obj_arr[i];
+
+				question_title_div = document.createElement("div");
+				//question_title_div.innerHTML = "<p>" + curr_question_obj.qno + "</p>";
+				my_log ("curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
+				for (var j = 0; j < curr_question_obj.question_text_arr.length; ++j) {
+					var question_text = curr_question_obj.question_text_arr[j];
+					question_title_div.innerHTML += "<p>" + question_text + "</p>";
+				}
+				my_log ("after curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
+				question_stubs_div = document.createElement("div");
+				//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
+				var stubs_doc_frag = get_stubs_display_view (curr_question_obj, stubs_obj_arr);
+				//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
+				question_stubs_div.innerHTML = "";
+				//question_stubs_div.innerHTML += "<p>" + stubs_doc_frag + "</p>";
+				question_stubs_div.appendChild (stubs_doc_frag);
+				question_stubs_form = document.createElement("form");
+				question_stubs_form.name = "form_" + curr_question_obj.qno;
+				question_stubs_form.id = "id_form_" + curr_question_obj.qno;
+				question_stubs_form_fieldset = document.createElement("fieldset");
+				question_stubs_form_fieldset.setAttribute("data-role","controlgroup");
+				question_stubs_form_fieldset.appendChild(question_stubs_div);
+				question_stubs_form.appendChild(question_stubs_form_fieldset);
+				// my_log ("stubs_doc_frag: " + stubs_doc_frag);
+				// my_log ("question_stubs_div: " + question_stubs_div);
+				// my_log ("question_stubs_div.outerHTML: " + question_stubs_div.outerHTML);
+				// my_log ("question_stubs_div.outerText: " + question_stubs_div.outerTEXT);
+				
+				a_question_div = document.createElement("div");
+				my_log ("after create a_question_div" );
+				//a_question_div.innerHTML = question_title_div.outerHTML + question_stubs_div.outerHTML;
+				a_question_div.appendChild (question_title_div);
+				a_question_div.appendChild (question_stubs_form);
+				questions_view_frag.appendChild(a_question_div);
+			}
+			new_question_view.appendChild (questions_view_frag);
+			//$( '#stubs_form_div' ).trigger( 'create' );
+			if (err_obj_arr[0]) {
+				alert("err");
+				//new_question_view +=  "<p style='color:red;'>" + err_obj_arr.join("</p><p style='color:red;'>") + "</p>";
+			}
+			$( '#new_question_view' ).trigger( 'create' );
+			my_log ("Exit: create_multiple_questions_view");
+		}
 	}
 
 	function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
-		my_log ("Enter: create_multiple_questions_view" );
+		/*my_log ("Enter: create_multiple_questions_view" );
 		var new_question_view = document.getElementById("new_question_view");
 		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
 		$( '#stubs_form_div' ).trigger( 'create' );
-		my_log ("Exit: create_multiple_questions_view"  );
+		my_log ("Exit: create_multiple_questions_view"  );*/
+
+		if (questions_obj_arr.length > 0) {
+			var gridTable = document.createElement("div");
+			gridTable.setAttribute("class","grid");
+
+			var gridTableRows = questions_obj_arr.length;
+			var gridTableColumns = stubs_obj_arr[0].stubs.length;
+
+			for (var i = 0; i <= gridTableRows; i++) {
+				var gridTableTr = document.createElement("div");
+				var gridTableForm = document.createElement("form");
+
+				for (var j = 0; j <= gridTableColumns; j++) {
+					var gridTableTd = document.createElement("div");
+
+					if (i) {
+						if (j) {
+							var id = questions_obj_arr[i-1].qno + "-" + stubs_obj_arr[0].stubs[j-1].stub_code;
+							gridTableTd.innerHTML = '<input id="' + id + '" value="' + stubs_obj_arr[0].stubs[j-1].stub_code + '" name="radio-choice-' + i + '" type="radio">';
+						}
+						else {
+							gridTableTd.innerHTML = questions_obj_arr[i-1].question_text_arr;
+						}
+					}
+					else if (j) {
+						gridTableTd.innerHTML = stubs_obj_arr[0].stubs[j-1].stub_text;
+					}
+					
+					gridTableTr.appendChild(gridTableTd);					
+				}
+				gridTableForm.appendChild(gridTableTr);
+				gridTable.appendChild(gridTableForm);
+			}
+
+			document.getElementById("new_question_view").innerHTML = "";
+			document.getElementById("new_question_view").appendChild(gridTable);
+		}
 	}
 
 
@@ -212,10 +333,8 @@
 					//my_log ("after document.createElement i = " + i);
 					if (question_obj.no_mpn == 1) {
 						input.type  = "radio";
-						input.setAttribute("data-dojo-type", "dojox/mobile/RadioButton");
 					} else {
 						input.type  = "checkbox";
-						input.setAttribute("data-dojo-type", "dojox/mobile/CheckBox");
 						input.style.class="custom";
 					}
 					//my_log ("created input i = " + i);
@@ -231,10 +350,10 @@
 					var input_label   = document.createElement("label");
 					input_label.innerHTML = res2.stubs[i].stub_text;
 					input_label.setAttribute("for", id_text);
-					my_li = document.createElement("li");
+					my_li = document.createElement("span");
 					my_li.appendChild(input);
 					my_li.appendChild(input_label);
-					my_li.setAttribute("data-dojo-type", "dojox/mobile/ListItem");
+					//my_li.setAttribute("data-dojo-type", "dojox/mobile/ListItem");
 					doc_frag2.appendChild(my_li);
 
 					if (res2.stubs[i].url_image.length > 0) {
@@ -284,9 +403,9 @@
 
 		var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 		if (result == "single_question") {
-			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr);
+			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr);
 		} else if (result == "multiple_questions_per_page") {
-			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr);
+			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr);
 		} else if (result == "grid_question") {
 			create_grid_questions_view (questions_obj_arr, stubs_obj_arr);
 		} else {
