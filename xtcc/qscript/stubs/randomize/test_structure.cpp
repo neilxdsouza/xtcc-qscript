@@ -15,12 +15,18 @@
 	extern AbstractStatement * root;
 	extern int no_errors;
 	void simple_compile(string group_name, stringstream & named_group_creation_order);
-int main()
+int main (int argc, char * argv[])
 {
 	cout << "Enter:" << __PRETTY_FUNCTION__ << endl;
+	if (argc != 2) {
+		cout << "Usage: " << endl << argv[0] << " <input_file_name_with_stubs_for_randomization>" << endl
+			<< endl;
+		exit (1);
+	}
 
-	FILE * yyin = fopen("random_test4.input", "rb");
-	if (!yyin){
+	//FILE * yyin = fopen("random_test4.input", "rb");
+	FILE * yyin = fopen(argv[1], "rb");
+	if (!yyin) {
 		cerr << " Unable to open: random_test.input "  << " for read ... exiting" << endl;
 		exit(1);
 	}

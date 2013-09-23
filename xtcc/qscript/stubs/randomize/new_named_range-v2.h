@@ -124,6 +124,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	vector <AbstractNamedRange *> stub_grp_vec;
 	vector <int> randomized_order;
 	vector <stub_pair> flat_display_nr_after_rnd;
+	vector <stub_pair> flat_display_nr_normal_order;
 	int index_in_group;
 	NamedRangeGroup(string p_groupName, int p_index_in_group):
 		AbstractNamedRange(),
@@ -169,6 +170,13 @@ struct NamedRangeGroup: public AbstractNamedRange
 
 	//void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
 	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) ;
+	void VectorizePrintNormalOrder (AbstractNamedRange * invoker, int nest_level)
+	{
+		for (int i=0; i < stub_grp_vec.size(); ++i) {
+			stub_grp_vec[i]->VectorizePrint(nest_level+1,invoker, flat_display_nr_normal_order);
+		}
+	}
+
 	void VectorizePrint (int nest_level, AbstractNamedRange * invoker,
 			vector<stub_pair> & flat_display_nr_after_rnd)
 	{
