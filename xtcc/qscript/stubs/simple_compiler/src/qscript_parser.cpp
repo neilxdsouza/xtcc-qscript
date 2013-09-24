@@ -249,7 +249,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	fprintf(script, "}\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
-	fprintf(script, "questions_start_from_here_index = question_list.size();\n");
+	fprintf(script, "\tquestions_start_from_here_index = question_list.size();\n\tint our_question_index_no = 100000;\n");
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	if (program_options_ns::data_export_flag) {

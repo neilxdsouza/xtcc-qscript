@@ -24,6 +24,7 @@
 #include "active_var_info.h"
 #include "lex_location.h"
 #include "TempNameGenerator.h"
+#include "stub_pair_options.h"
 
 using std::ofstream;
 using std::vector;

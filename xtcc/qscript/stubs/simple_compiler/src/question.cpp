@@ -1311,7 +1311,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_
-			<< ");\n";
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
 		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
@@ -1327,7 +1329,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		code.quest_defns_init_code << quest_decl.str();
 		// new
 		code.array_quest_init_area << "question_list.push_back(" << questionName_
-			<< ");\n";
+			<< "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
@@ -1442,7 +1446,9 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	//}
 
 	if (array_mode) {
-		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+		quest_decl << "question_list.push_back(" << questionName_ << "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
 		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
@@ -1455,19 +1461,21 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
-	if(for_bounds_stack.size() == 0){
+	if (for_bounds_stack.size() == 0) {
 		// code.quest_defns << quest_decl.str();
 		code.quest_defns << "NamedStubQuestion * " << questionName_ << ";\n";
 		code.quest_defns_init_code << quest_decl.str();
 		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
-			<< ");\n";
+			<< "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}
 	//program_code << "\t\t" << questionName_.c_str() << "->eval();\n";
 
-	if(for_bounds_stack.size() == 0){
+	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
 	}  else {
 		AbstractQuestion::PrintEvalArrayQuestion(code);
@@ -3405,7 +3413,9 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 		code.quest_defns << "VideoQuestion * " << questionName_ << ";\n";
 		code.quest_defns_init_code << quest_decl.str();
 		code.array_quest_init_area << "question_list.push_back(" << questionName_
-			<< ");\n";
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 		code.program_code
 			<< "if ((" << questionName_ << "->isAnswered_ == false) || "

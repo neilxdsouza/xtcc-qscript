@@ -621,6 +621,14 @@ bool AbstractRuntimeQuestion::VerifyQuestionIntegrity()
 	}
 	return has_integrity;
 }
+
+
+void AbstractRuntimeQuestion::setQuestionIndexNo (int & p_q_no_index)
+{
+	questionNoIndex_ = p_q_no_index + 1;
+	++p_q_no_index;
+}
+
 #if 0
 Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 {

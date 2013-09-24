@@ -338,6 +338,7 @@ struct AbstractRuntimeQuestion
 	//virtual Wt::WString PrintSelectedAnswers(int code_index)=0;
 	virtual string PrintSelectedAnswers()=0;
 	virtual string PrintSelectedAnswers(int code_index)=0;
+	void setQuestionIndexNo (int & p_q_no_index);
 
 	bool check_and_store_input_data_single_question
 		(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,

@@ -211,9 +211,11 @@ void question_eval_loop2 (
 		}
 	} // else {
 	// should reach here - end of :
-		vector<AbstractRuntimeQuestion *> q_vec =
+		//vector<AbstractRuntimeQuestion *> q_vec =
+		EvalReturnValue eval_ret_val =
 			theQuestionnaire->eval2 (
 				NAVIGATE_NEXT, last_question_visited, jump_to_question);
+		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
 		if (q_vec.size() == 0) {
 			cout << "End of qnre();" << endl << ">";
 		} else {
