@@ -16,18 +16,23 @@
 //#include "stmt.h"
 //#include "AbstractStatement.h"
 
-using std::string;
-using std::vector;
+//using std::string;
+//using std::vector;
 struct named_attribute_list
 	//: public AbstractStatement
 {
-	string name;
-	vector<string> attribute;
+	std::string name;
+	std::vector<std::string> attribute;
+	std::vector <int> randomized_order;
+	bool isRandomized_;
 	struct SymbolTableEntry* symbolTableEntry_;
 
-	named_attribute_list(DataType dt, int32_t lline_no,  string l_name, vector<string> l_attr);
+	named_attribute_list(DataType dt, int32_t lline_no,  const std::string & l_name, const std::vector<std::string> & l_attr);
 	named_attribute_list();
 	virtual ~named_attribute_list();
+	void randomize();
+	void load_randomized_order (const std::vector <int> & p_randomized_order);
+	std::string save_randomized_order ();
 	//virtual void GenerateCode(StatementCompiledCode & code);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);

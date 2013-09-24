@@ -1616,7 +1616,8 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 	string emscripten_cc_intermediate_file_cmd =
 		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
 		+ " -s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_callback_return_serial']\" "
-		+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
+		//+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
+		+ " -c " + intermediate_cpp_file_name2 + string(" ")
 		;
 	cout << "intermediate cpp_compile_command: " << endl << emscripten_cc_intermediate_file_cmd << endl;
 	ret_val = system(emscripten_cc_intermediate_file_cmd.c_str());
@@ -1625,7 +1626,9 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 			<< endl;
 		exit(1);
 	}
-	string emscripten_cc_cmd = "emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
+	string emscripten_cc_cmd =
+		"emcc -Wunused-function  -o " + executable_file_name + string(" ")
+		//"emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
 		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
 		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial']\" "

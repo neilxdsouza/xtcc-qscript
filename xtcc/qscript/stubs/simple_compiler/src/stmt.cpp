@@ -2160,3 +2160,24 @@ void PageStatement::GenerateConsolidatedForLoopIndexes()
 	}
 }
 
+RandomizeStatement::RandomizeStatement(DataType l_type,
+	int32_t l_line_number,
+	named_attribute_list * p_n_attr_list)
+	: AbstractStatement(l_type, l_line_number),
+	  namedAttributeList_ (p_n_attr_list)
+{
+	
+}
+
+void RandomizeStatement::GenerateCode(StatementCompiledCode & code)
+{
+	//code.program_code
+	code.quest_defns_init_code
+		<< "/* "  << __PRETTY_FUNCTION__ << " */"
+		<< namedAttributeList_ -> name
+		<< " . " << "randomize();\n"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}

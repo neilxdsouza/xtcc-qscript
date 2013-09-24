@@ -399,14 +399,20 @@ column	{
 }
 
 isanswered	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 		return ISANSWERED;
 	}
 
 count		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 		return COUNT;
 	}
 
 newcard		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 		return NEWCARD;
 	}
 
@@ -430,6 +436,13 @@ grid_size 	{
 		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 	qscript_parser::lex_location.IncrementColumn(yyleng);
 	return GRID_SIZE;
+}
+
+randomize {
+	if (qscript_parser::show_lex_error_context)
+		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+	qscript_parser::lex_location.IncrementColumn(yyleng);
+	return RANDOMIZE;
 }
 
 [0-9]+	{

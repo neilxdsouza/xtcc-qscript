@@ -624,4 +624,22 @@ struct PageStatement: public AbstractStatement
 
 };
 
+
+	struct named_attribute_list;
+struct RandomizeStatement: public AbstractStatement
+{
+	RandomizeStatement(DataType dtype, int32_t lline_number,
+			named_attribute_list * p_n_attr_list);
+	// RandomizeStatement(DataType dtype, int32_t lline_number,
+	// 		string l_page_name,
+	// 		int l_page_size,
+	// 		CompoundStatement * l_page_body);
+	named_attribute_list * namedAttributeList_;
+	void GenerateCode(StatementCompiledCode & code);
+	private:
+	RandomizeStatement& operator=(const RandomizeStatement&);
+	RandomizeStatement(const RandomizeStatement&);
+
+};
+
 #endif /* stmt_h */

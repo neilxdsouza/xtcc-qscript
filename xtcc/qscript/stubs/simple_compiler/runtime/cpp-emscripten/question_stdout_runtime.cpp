@@ -90,6 +90,7 @@ void setup_ui (int argc, char * argv[] )
 
 vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 {
+	//my_log_from_cpp ("Enter: PrepareQuestionText");
 	using std::string;
 	using std::stringstream;
 	vector <string> result;
@@ -141,7 +142,33 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
         		//named_attribute_key << q->textExprVec_[i]->naPtr_->name;
         		//named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
         		//question_text += WString::tr(named_attribute_key.str().c_str());
-			question_text << q->textExprVec_[i]->naPtr_->attribute[q->textExprVec_[i]->naIndex_];
+			//question_text 
+			//	<< "\""
+			//	<< " isRandomized_: "
+			//	<< q->textExprVec_[i]->naPtr_->isRandomized_
+			//	<< "\""
+			//	<< endl;
+			// if (q->textExprVec_[i]->naPtr_->isRandomized_) {
+			// 	question_text 
+			// 		<< "randomized_order.size(): "
+			// 		<< q->textExprVec_[i]->naPtr_->randomized_order.size()
+			// 		<< " the order is: ";
+			// }
+			//for (int j=0; j < q->textExprVec_[i]->naPtr_->randomized_order.size();
+			//		++j) {
+			//	question_text <<  " "
+			//		<< q->textExprVec_[i]->naPtr_->randomized_order[j];
+			//}
+			//question_text << "|" << endl;
+			if (q->textExprVec_[i]->naPtr_->isRandomized_) {
+				question_text << q->textExprVec_[i]->naPtr_->attribute[
+					q->textExprVec_[i]->naPtr_->randomized_order[
+						q->textExprVec_[i]->naIndex_
+						]
+				];
+			} else {
+			      question_text << q->textExprVec_[i]->naPtr_->attribute[q->textExprVec_[i]->naIndex_];
+			}
         	}
         	else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
         	{
