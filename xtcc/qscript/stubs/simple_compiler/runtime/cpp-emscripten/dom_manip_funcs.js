@@ -191,6 +191,10 @@ show_end_of_qnre_page: function() {
 	div_serial_no.style.display = "none";
 	var question_view = document.getElementById("question_view");
 	question_view.style.display = "none";
+	var new_question_view = document.getElementById("new_question_view");
+	new_question_view.style.display = "none";
+	var newNextQDiv = document.getElementById("newNextQDiv");
+	newNextQDiv.style.display = "none";
 	var thank_you_screen = document.getElementById("thank_you_screen");
 	thank_you_screen.style.display = "block";
 },

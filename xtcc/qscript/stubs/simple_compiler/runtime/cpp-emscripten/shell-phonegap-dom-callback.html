@@ -27,7 +27,7 @@
 	}
 	div.thank_you {
 		display: none;
-		//display: block;
+		/*display: block;*/
 	}
 	qscript_hidden: {
 		display: none;
@@ -105,7 +105,7 @@
 			<h1>Sample Survey</h1>
 		</div>
 		<div data-role="content">
-			<div id="langChanger">
+			<div id="langChanger" style="display:none;">
 				<!--
 				<a href="javascript:window.lang.change('en');">Switch to English</a> |
 				<a href="javascript:window.lang.change('hi');">Switch to Hindi</a>
@@ -140,24 +140,30 @@
 					-->
 				</div>
 			</div>
-			<div id="new_question_view" >
-					<p>This is new_question_view</p>
+			<div id="new_question_view">
 			</div>
-				<input  id="newNextQ" type="button" value="NewNext">
-
-			<div id="div_console_log" class="qscript-logger">
-				console-logger<br/>
+			<div id="newNextQDiv" style="display:none;">
+				<input id="newNextQ" type="button" value="Next">
 			</div>
-			<input style="display:none;" id="test_file_read_failure" type="button" value="Test File Read Failure">
-			<input style="display:none;" id="test_file_read_failure_middle_dir_missing" type="button" value="Test File Read Failure - Middle Dir Missing">
-			<input style="display:none;" id="testReadFile" type="button" value="TestReadFile" >
+			<div style="display:none;">	
+				<div id="div_console_log" class="qscript-logger">
+					console-logger<br/>
+				</div>
+			</div>
+			<div style="display:none;">
+				<input style="display:none;" id="test_file_read_failure" type="button" value="Test File Read Failure">
+				<input style="display:none;" id="test_file_read_failure_middle_dir_missing" type="button" value="Test File Read Failure - Middle Dir Missing">
+				<input style="display:none;" id="testReadFile" type="button" value="TestReadFile" >
+			</div>
 			<div>
 				<span style="display:none;" id="hard_coded_trans" lang="en">Test of translation to Hindi</span>
 			</div>
 
-			<hr/>
-			<textarea class="emscripten qscript_hidden" id="output" rows="8"></textarea>
-			<hr>
+			<div style="display:none;">
+				<hr/>
+				<textarea class="emscripten qscript_hidden" id="output" rows="8"></textarea>
+				<hr>
+			</div>
 
 			<div style="display:none;" id="div_geolocation_info" class="qscript_hidden">
 				device geolocation info
