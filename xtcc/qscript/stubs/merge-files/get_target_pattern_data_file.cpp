@@ -92,15 +92,27 @@ DataFileIterator::DataFileIterator
 
 string DataFileIterator::get_a_potential_data_file_from_subdir ()
 {
-	//cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	while (current_sub_directory_data_repository_entry = readdir (current_sub_directory_data_repository)) {
+		if (current_sub_directory_data_repository_entry->d_name[0] == '.') {
+			cout << "skipping leading '.' file" << endl;
+			continue;
+		}
+		if (!strcmp(current_sub_directory_data_repository_entry->d_name, ".")
+			|| !strcmp(current_sub_directory_data_repository_entry->d_name, "..")) {
+			cout << "skipping dirs '.' or '..' " << endl;
+			continue;
+		}
+		
 		string file_name = current_sub_directory + current_sub_directory_data_repository_entry->d_name;
 		struct stat st;
 		if (lstat(file_name.c_str(), &st) == -1) {
 			warn("Can't stat %s", file_name.c_str());
 			continue;
 		}
-		if (S_ISREG(st.st_mode) ) {
+		if (S_ISREG(st.st_mode) &&
+			(!regexec(&file_name_regex, file_name.c_str(), 0, 0, 0))
+				) {
 			//cout << "Exit: " << __PRETTY_FUNCTION__ << " file_name:" << file_name << endl;
 			return file_name;
 		}
@@ -137,6 +149,15 @@ string DataFileIterator::get_a_potential_data_file()
 		}
 	}
 	while (root_data_directory_entry = readdir (root_dir) ) {
+		if (root_data_directory_entry->d_name[0] == '.') {
+			cout << "skipping leading '.' file" << endl;
+			continue;
+		}
+		if (!strcmp(root_data_directory_entry->d_name, ".")
+			|| !strcmp(root_data_directory_entry->d_name, "..")) {
+			cout << "skipping dirs '.' or '..' " << endl;
+			continue;
+		}
 		string file_name = start_directory + string("/")
 				+ string(root_data_directory_entry->d_name);
 		//cout << "file_name: " << file_name << endl;
@@ -164,6 +185,7 @@ string DataFileIterator::get_a_potential_data_file()
 	return string();
 }
 
+/* 
 int main()
 {
 	DataFileIterator data_file_iterator (".\\.dat$", ".");
@@ -181,4 +203,4 @@ int main()
 	//	<< data_file_iterator.get_a_potential_data_file ()
 	//	<< endl;
 }
-
+ */
