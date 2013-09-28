@@ -1367,8 +1367,8 @@ test_script.o: test_script.C
 	string cpp_compile_command = cpp_invoke
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
-			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
-			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" -I%QSCRIPT_HOME%\\include") //+ config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L%QSCRIPT_HOME%\\lib") //+ config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 			+ string(" -lqscript_runtime ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
