@@ -288,6 +288,11 @@ void print_header(FILE* script, bool ncurses_flag)
 		PrintPDCursesKeysHeader(simple_pd_curses_keys_h);
 		fclose(simple_pd_curses_keys_h);
 		fprintf(script, "#include \"a_few_pd_curses_keys.h\"\n");
+		fprintf (script, "#include \"get_target_pattern_data_file.h\"\n");
+		fprintf (script, "#include \"getopt.h\"\n");
+		fprintf (script, "\n");
+
+
 	}
 
 
@@ -324,6 +329,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
+	fprintf(script, "bool write_data_new_way;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
 	fprintf(script, "bool write_xtcc_data_file_flag;\n");
 	fprintf(script, "bool only_setup_flag;\n");
@@ -716,19 +722,28 @@ int32_t check_parameters(AbstractExpression* e, VariableList* v)
 const char * file_exists_check_code()
 {
 	const char * file_check_code =
-	"\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
-	"\t	ser_no = read_a_serial_no();\n"
-	"\t	fprintf(qscript_stdout, \"Read Serial no: %d\\n\", ser_no);\n"
-	"\t	if (ser_no == 0) {\n"
-	"\t		break;\n"
-	"\t	} \n"
-	"\t} else {\n"
-	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
-	"\t\tif(exists == 1){\n"
-	"\t\t	load_data(jno,ser_no);\n"
-	"\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
-	"\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
-	"\t\t}\n\t}\n";
+	"\t\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
+	"\t\t\tif (write_data_new_way) {\n"
+	"\t\t\t\tstring new_potential_data_file_path = data_file_iterator.get_a_potential_data_file();\n"
+	"\t\t\t\tif (new_potential_data_file_path.length() == 0) {\n"
+	"\t\t\t\t\tbreak;\n"
+	"\t\t\t\t} \n"
+	"\t\t\t\tload_data_from_path (new_potential_data_file_path);\n"
+	"\t\t\t\tmerge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t\t} else {\n"
+	"\t\t\t\tser_no = read_a_serial_no();\n"
+	"\t\t\t\tfprintf(qscript_stdout, \"Read Serial no: %d\\n\", ser_no);\n"
+	"\t\t\t\tif (ser_no == 0) {\n"
+	"\t\t\t\t\tbreak;\n"
+	"\t\t\t\t}\n"
+	"\t\t\t}\n"
+	"\t\t} else {\n"
+	"\t\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
+	"\t\t\tif(exists == 1){\n"
+	"\t\t\t	load_data(jno,ser_no);\n"
+	"\t\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t\t}\n\t\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
 			<< __func__ << "FILE: " << __FILE__
@@ -1455,7 +1470,15 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
-	fprintf(script, "	while ( (c = getopt(argc, argv, \"s::x::w::q::\")) != -1) {\n");
+	fprintf(script, "\tstatic struct option long_options[] =\n");
+	fprintf(script, "\t	{\n");
+	fprintf(script, "\t		{ \"setup-only\", no_argument, 0, 's'} ,\n");
+	fprintf(script, "\t		{ \"spss-data\", no_argument, 0, 'w'} ,\n");
+	fprintf(script, "\t		{ \"qtm-data\", no_argument, 0, 'q'} ,\n");
+	fprintf(script, "\t		{ \"xtcc-data\", no_argument, 0, 'x'} ,\n");
+	fprintf(script, "\t		{ \"new-data\", required_argument, 0, 'n'} ,\n");
+	fprintf(script, "\t	};\n\n\n\n");
+	fprintf(script, "	while ( (c = getopt_long(argc, argv, \"sxwqn:\", long_options, &optind)) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
 
@@ -1499,6 +1522,24 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		break;\n");
+
+	fprintf(script, "		case 'n': {\n");
+	fprintf(script, "				string option_arg(optarg);\n");
+	fprintf(script, "				write_data_new_way = true;\n");
+	fprintf(script, "				if (option_arg == string(\"qtm\")) {\n");
+	fprintf(script, "					write_qtm_data_file_flag = true;\n");
+	fprintf(script, "				} else if (option_arg == string(\"spss\")) {\n");
+	fprintf(script, "					write_data_file_flag = true;\n");
+	fprintf(script, "				} else if (option_arg == string(\"xtcc\")) {\n");
+	fprintf(script, "					write_xtcc_data_file_flag = true;\n");
+	fprintf(script, "				} else {\n");
+	fprintf(script, "					cerr << \"invalid parameter: \" << option_arg\n");
+	fprintf(script, "						<< \" for -n can be qtm or spss or xtcc ... exiting\" << endl;\n");
+	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		break;\n");
+
 
 	fprintf(script, "		case '?' : {\n");
 	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
@@ -3326,8 +3367,10 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\t\tchar  newl; cin >> ser_no;cin.get(newl);\n");
 		fprintf(script, "\t}\n");
 	}
+	fprintf (script, "\n");
+	fprintf (script, "\tDataFileIterator data_file_iterator (\"vegetable_[1-9][0-9]*\\\\.dat$\", \".\");\n");
 
-	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)){\n");
+	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp
 
 	fprintf(script, "%s\n", file_exists_check_code());

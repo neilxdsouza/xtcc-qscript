@@ -54,6 +54,34 @@ void clear_previous_data()
 	qdd_map.erase(qdd_map.begin(), qdd_map.end());
 }
 
+int32_t load_data_from_path(string path)
+{
+	printf ("Enter: %s, path: %s\n", __PRETTY_FUNCTION__, path.c_str());
+	clear_previous_data();
+	read_disk_datain = fopen(path.c_str(), "rb");
+	read_disk_data_init();
+	if (read_disk_datain) {
+		fflush(read_disk_datain);
+		if (!read_disk_dataparse()) {
+			//return 1;
+		} else {
+			cerr << "input datafile found had errors" << endl;
+			return 0;
+		}
+	}
+	fclose (read_disk_datain);
+	//cerr << "finished loading data - here is the summary" << endl;
+	//for(int32_t i = 0; i<qdd_list.size(); ++i){
+	//	cerr << qdd_list[i]->qno;
+	//	for(int32_t j = 0; j<qdd_list[i]->data.size(); ++j){
+	//		cerr << " " << qdd_list[i]->data[j];
+	//	}
+	//	cerr << endl;
+	//}
+	printf ("Exit: %s\n", __PRETTY_FUNCTION__);
+	return 1;
+}
+
 int32_t load_data(string jno, int32_t ser_no)
 {
 	stringstream s;
