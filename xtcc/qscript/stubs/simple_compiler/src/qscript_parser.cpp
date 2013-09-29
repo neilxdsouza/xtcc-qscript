@@ -3368,7 +3368,9 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\t}\n");
 	}
 	fprintf (script, "\n");
-	fprintf (script, "\tDataFileIterator data_file_iterator (\"vegetable_[1-9][0-9]*\\\\.dat$\", \".\");\n");
+	fprintf (script, "\tstringstream filename_pattern;\n");
+	fprintf (script, "\tfilename_pattern << jno << \"_[1-9][0-9]*\\\\.dat$\";\n");
+	fprintf (script, "\tDataFileIterator data_file_iterator (filename_pattern.str().c_str(), \".\");\n");
 
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp
