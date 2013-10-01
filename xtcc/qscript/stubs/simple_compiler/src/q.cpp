@@ -606,7 +606,7 @@ static const yytype_uint16 yyrline[] =
      930,   937,   946,   952,   958,   964,   982,   983,   988,   994,
      997,  1000,  1003,  1008,  1013,  1014,  1018,  1029,  1035,  1039,
     1040,  1043,  1055,  1061,  1061,  1081,  1090,  1093,  1100,  1101,
-    1105,  1108,  1111,  1114,  1117,  1121,  1126,  1132,  1165,  1240,
+    1105,  1107,  1110,  1113,  1116,  1120,  1125,  1131,  1164,  1240,
     1244,  1248,  1252,  1256,  1262,  1268,  1271
 };
 #endif
@@ -2162,8 +2162,8 @@ yyreduce:
 		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
 			<< qscript_parser::page_nest_lev << endl
 			<< "page_name: " << qscript_parser::globalActivePageName_
-			<< endl
-	;}
+			<< endl;
+	}
     break;
 
   case 48:
@@ -3182,14 +3182,13 @@ yyreduce:
 /* Line 1806 of yacc.c  */
 #line 1105 "src/q.ypp"
     {
-		 current_stub_pair_options.reset();
 		 }
     break;
 
   case 132:
 
 /* Line 1806 of yacc.c  */
-#line 1111 "src/q.ypp"
+#line 1110 "src/q.ypp"
     {
 		current_stub_pair_options.is_mutex = true;
 	   }
@@ -3198,7 +3197,7 @@ yyreduce:
   case 133:
 
 /* Line 1806 of yacc.c  */
-#line 1114 "src/q.ypp"
+#line 1113 "src/q.ypp"
     {
 		current_stub_pair_options.is_other_specify = true;
 	   }
@@ -3207,7 +3206,7 @@ yyreduce:
   case 134:
 
 /* Line 1806 of yacc.c  */
-#line 1117 "src/q.ypp"
+#line 1116 "src/q.ypp"
     {
 	   	current_stub_pair_options.stub_media_type = stub_pair_options::image;
 	   	current_stub_pair_options.url = (yyvsp[(2) - (2)].text_buf);
@@ -3217,7 +3216,7 @@ yyreduce:
   case 135:
 
 /* Line 1806 of yacc.c  */
-#line 1121 "src/q.ypp"
+#line 1120 "src/q.ypp"
     {
 	   	current_stub_pair_options.stub_media_type = stub_pair_options::audio;
 	   	current_stub_pair_options.url = (yyvsp[(2) - (2)].text_buf);
@@ -3227,7 +3226,7 @@ yyreduce:
   case 136:
 
 /* Line 1806 of yacc.c  */
-#line 1126 "src/q.ypp"
+#line 1125 "src/q.ypp"
     {
 	   	current_stub_pair_options.stub_media_type = stub_pair_options::video;
 	   	current_stub_pair_options.url = (yyvsp[(2) - (2)].text_buf);
@@ -3237,7 +3236,7 @@ yyreduce:
   case 137:
 
 /* Line 1806 of yacc.c  */
-#line 1132 "src/q.ypp"
+#line 1131 "src/q.ypp"
     {
 		string s1 = (yyvsp[(1) - (2)].text_buf);
 		int32_t code = (yyvsp[(2) - (2)].ival);
@@ -3276,12 +3275,13 @@ yyreduce:
   case 138:
 
 /* Line 1806 of yacc.c  */
-#line 1165 "src/q.ypp"
+#line 1164 "src/q.ypp"
     {
 		string s1 = (yyvsp[(1) - (4)].text_buf);
 		int32_t code = (yyvsp[(2) - (4)].ival);
 		cout << "parsed stub with options" << endl;
 		qscript_parser::do_stub_pair_checks (s1, code, current_stub_pair_options);
+		current_stub_pair_options.reset();
 	}
     break;
 
@@ -3988,7 +3988,7 @@ AbstractStatement * ProcessVideoQuestion (const string &name
 		using qscript_parser::stub_list;
 		string s1=stub_text;
 		//int32_t code=$2;
-		struct stub_pair pair1(s1,code);
+		struct stub_pair pair1(s1, code, current_stub_pair_options);
 		stub_list.push_back(pair1);
 
 		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);

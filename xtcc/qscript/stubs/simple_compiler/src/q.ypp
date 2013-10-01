@@ -403,7 +403,7 @@ page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globa
 		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
 			<< qscript_parser::page_nest_lev << endl
 			<< "page_name: " << qscript_parser::globalActivePageName_
-			<< endl
+			<< endl;
 	}
 	|PAGE NAME {qscript_parser::globalActivePageName_ = $2;} GRID_SIZE '=' INUMBER cmpd_stmt {
 		string page_name ($2);
@@ -1103,7 +1103,6 @@ stub_list: stub
 
 
 stub_options_list: stub_option {
-		 current_stub_pair_options.reset();
 		 }
 		 | stub_options_list '|' stub_option
 		 ;
@@ -1167,6 +1166,7 @@ stub:	TEXT INUMBER {
 		int32_t code = $2;
 		cout << "parsed stub with options" << endl;
 		qscript_parser::do_stub_pair_checks (s1, code, current_stub_pair_options);
+		current_stub_pair_options.reset();
 	}
 	/*
 	| TEXT INUMBER MUTEX {
@@ -1662,7 +1662,7 @@ AbstractStatement * ProcessVideoQuestion (const string &name
 		using qscript_parser::stub_list;
 		string s1=stub_text;
 		//int32_t code=$2;
-		struct stub_pair pair1(s1,code);
+		struct stub_pair pair1(s1, code, current_stub_pair_options);
 		stub_list.push_back(pair1);
 
 		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);
