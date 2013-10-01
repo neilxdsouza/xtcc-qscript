@@ -31,6 +31,7 @@
 #include "QuestionAttributes.h"
 #include "a_few_pd_curses_keys.h"
 #include "get_target_pattern_data_file.h"
+#include "getopt.h"
 
 int ser_no = 0;
 using namespace std;
@@ -58,6 +59,7 @@ bool stopAtNextQuestion;
 string jumpToQuestion;
 int32_t jumpToIndex;
 bool write_data_file_flag;
+bool write_data_new_way;
 bool write_qtm_data_file_flag;
 bool write_xtcc_data_file_flag;
 bool only_setup_flag;
@@ -612,18 +614,21 @@ void eval()
 	DataFileIterator data_file_iterator ("vegetable_[1-9][0-9]*\\.dat$", ".");
 	while(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {
 		if (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {
-			cout << "Reached - data_file_iterator.get_a_potential_data_file()" << endl;
-			//ser_no = read_a_serial_no();
-			string new_potential_data_file_path = data_file_iterator.get_a_potential_data_file();
-			if (new_potential_data_file_path.length() == 0) {
-				break;
-			} 
-	    		load_data_from_path (new_potential_data_file_path);
-	    		merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);
-			// fprintf(qscript_stdout, "Read Serial no: %d\n", ser_no);
-			// if (ser_no == 0) {
-			// 	break;
-			// } 
+			if (write_data_new_way) {
+				cout << "Reached - data_file_iterator.get_a_potential_data_file()" << endl;
+				string new_potential_data_file_path = data_file_iterator.get_a_potential_data_file();
+				if (new_potential_data_file_path.length() == 0) {
+					break;
+				} 
+				load_data_from_path (new_potential_data_file_path);
+				merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);
+			} else {
+				ser_no = read_a_serial_no();
+				fprintf(qscript_stdout, "Read Serial no: %d\n", ser_no);
+				if (ser_no == 0) {
+					break;
+				}
+			}
 		} else {
 			int exists = check_if_reg_file_exists(jno, ser_no);
 			if(exists == 1){
@@ -1768,7 +1773,18 @@ int process_options(int argc, char * argv[])
 	extern int32_t optind, opterr, optopt;
 	extern char * optarg;
 	int c;
-	while ( (c = getopt(argc, argv, "s::x::w::q::")) != -1) {
+	static struct option long_options[] =
+		{
+			{ "setup-only", no_argument, 0, 's'} ,
+			{ "spss-data", no_argument, 0, 'w'} ,
+			{ "qtm-data", no_argument, 0, 'q'} ,
+			{ "xtcc-data", no_argument, 0, 'x'} ,
+			{ "new-data", required_argument, 0, 'n'} ,
+		};
+
+
+
+	while ( (c = getopt_long(argc, argv, "sxwqn:", long_options, &optind)) != -1) {
 		char ch = optopt;
 		switch (c) {
 		case 'w': {
@@ -1806,6 +1822,22 @@ int process_options(int argc, char * argv[])
 				  output_qtm_data_file_name = "qtm_datafile.dat";
 			  }
 		}
+		break;
+		case 'n': {
+				string option_arg(optarg);
+				write_data_new_way = true;
+				if (option_arg == string("qtm")) {
+					write_qtm_data_file_flag = true;
+				} else if (option_arg == string("spss")) {
+					write_data_file_flag = true;
+				} else if (option_arg == string("xtcc")) {
+					write_xtcc_data_file_flag = true;
+				} else {
+					cerr << "invalid parameter: " << option_arg
+						<< " for -n can be qtm or spss or xtcc ... exiting" << endl;
+					exit(1);
+				}
+			}
 		break;
 		case '?' : {
 				   cout << " invalid option, optopt:" << optopt << endl;
