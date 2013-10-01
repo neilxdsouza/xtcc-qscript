@@ -60,6 +60,12 @@ string GetRestoreVariableContainerNameArray(
 	ActiveVariableInfo * av_info, string & questionName_, string map_key);
 extern vector<string> consolidated_for_loop_index_stack;
 
+namespace  qscript_parser {
+	extern std::string globalActivePageName_;
+}
+
+//	extern std::string globalActivePageName_;
+
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
@@ -84,11 +90,15 @@ AbstractQuestion::AbstractQuestion(
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
 	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
+	, pageName_(qscript_parser::globalActivePageName_)
 {
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << "pageName_: " << pageName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__);
 	}
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 #if 0
@@ -140,6 +150,7 @@ AbstractQuestion::AbstractQuestion(
 	  , maxCode_(0)
 	, isStartOfBlock_(false)
 	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
+	, pageName_(qscript_parser::globalActivePageName_)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -1299,6 +1310,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	} else {
 		quest_decl << ", false";
 	}
+	quest_decl << ", string(\"" << pageName_ << "\")";
 	quest_decl << ");\n";
 	// I think these lines should move into the else clause of the if (array_mode)
 	// which currently does not exist
@@ -1440,6 +1452,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	} else {
 		quest_decl << ", false";
 	}
+	quest_decl << ", string(\"" << pageName_ << "\")";
 	quest_decl << ");\n";
 	//if (!array_mode) {
 	//	quest_decl << "}\n";

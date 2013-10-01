@@ -391,29 +391,33 @@ randomize_stmt: NAME '.' RANDOMIZE ';' {
 	}
 	;
 
-page_stmt: PAGE NAME cmpd_stmt {
+page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; } cmpd_stmt {
 		std::stringstream mesg;
 		mesg << "Need to add check that names for pages are unique";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
 		string page_name ($2);
 		PageStatement * a_page =
 			new PageStatement (PAGE_STMT,
-					qscript_parser::line_no, page_name, $3);
-		$$ = a_page;
-		//cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
-		//	<< qscript_parser::page_nest_lev << endl;
-	}
-	|PAGE NAME GRID_SIZE '=' INUMBER cmpd_stmt {
-		string page_name ($2);
-		int32_t grid_size = $5;
-		PageStatement * a_page =
-			new PageStatement (PAGE_STMT,
-					qscript_parser::line_no, page_name, $6, grid_size);
+					qscript_parser::line_no, page_name, $4);
 		$$ = a_page;
 		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
-			<< qscript_parser::page_nest_lev
-			<< "grid_size: " << grid_size
+			<< qscript_parser::page_nest_lev << endl
+			<< "page_name: " << qscript_parser::globalActivePageName_
+			<< endl
+	}
+	|PAGE NAME {qscript_parser::globalActivePageName_ = $2;} GRID_SIZE '=' INUMBER cmpd_stmt {
+		string page_name ($2);
+		int32_t grid_size = $6;
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no, page_name, $7, grid_size);
+		$$ = a_page;
+		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
+			<< qscript_parser::page_nest_lev << endl
+			<< "grid_size: " << grid_size << endl
+			<< "page_name: " << qscript_parser::globalActivePageName_ << endl
 			<< endl;
+		qscript_parser::globalActivePageName_ = string("");
 	}
 	;
 

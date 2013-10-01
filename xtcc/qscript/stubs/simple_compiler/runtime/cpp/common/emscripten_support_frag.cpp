@@ -124,16 +124,17 @@ void question_eval_loop2 (
 {
 	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	//cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
-	cout << "arg values: " << endl;
+	//cout << "arg values: " << endl;
 	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
-		cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
+		//cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
+		printf ("p_user_input.userNavigation_ == NAVIGATE_NEXT\n");
 	} else if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
-		cout << "p_user_input.userNavigation_ == NAVIGATE_PREVIOUS" << endl;
+		printf ("p_user_input.userNavigation_ == NAVIGATE_PREVIOUS\n");
 	} else {
-		cout << "FIXME: p_user_input.userNavigation_ == Unhandled value " << endl;
+		printf ("FIXME: p_user_input.userNavigation_ == Unhandled value\n");
 	}
-	if 	  (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
-		cout << "p_user_input.theUserResponse_ == UserEnteredNavigation" << endl;
+	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
+		printf ("p_user_input.theUserResponse_ == UserEnteredNavigation");
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		cout << "p_user_input.theUserResponse_ == UserEnteredData" << endl;
 	} else if (p_user_input.theUserResponse_ == user_response::UserClearedData) {
@@ -169,6 +170,11 @@ void question_eval_loop2 (
 #if 0
 				AbstractRuntimeQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
+				// this line seems unncessary - but it is necessary
+				// - DO NOT DELETE AS REDUNDANT
+				vector<AbstractRuntimeQuestion> * q =
+					theQuestionnaire->eval2 (
+					NAVIGATE_PREVIOUS, last_question_visited, target_question);
 				if (target_question == 0) {
 					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level + 1);
 				} else {

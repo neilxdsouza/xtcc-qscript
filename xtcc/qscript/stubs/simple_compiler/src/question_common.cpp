@@ -11,6 +11,11 @@ using namespace std;
 int AbstractQuestion::nQuestions_ = 0 ;
 
 
+namespace  qscript_parser {
+	extern std::string globalActivePageName_;
+}
+
+
 #if 1
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
@@ -32,6 +37,7 @@ AbstractQuestion::AbstractQuestion(
 	  , maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
 	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
+	, pageName_(qscript_parser::globalActivePageName_)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "

@@ -236,6 +236,7 @@ struct AbstractRuntimeQuestion
 	bool isStartOfBlock_;
 	int questionNoIndex_;
 	static int32_t nQuestions_;
+	string pageName_;
 	//! this is only called in the compile time environment
 #if 0
 	AbstractRuntimeQuestion(
@@ -254,6 +255,7 @@ struct AbstractRuntimeQuestion
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 #if 0
@@ -276,6 +278,7 @@ struct AbstractRuntimeQuestion
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 	virtual ~AbstractRuntimeQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
@@ -382,6 +385,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, DataType l_dt, XtccSet& l_r_data
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 
@@ -407,6 +411,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 	//void GenerateCode(StatementCompiledCode &code);
@@ -512,6 +517,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number
@@ -520,6 +526,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, DataType l_dt, named_range * l_nr_ptr
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
@@ -531,6 +538,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 	//void GenerateCode(StatementCompiledCode &code);
