@@ -288,7 +288,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		PrintPDCursesKeysHeader(simple_pd_curses_keys_h);
 		fclose(simple_pd_curses_keys_h);
 		fprintf(script, "#include \"a_few_pd_curses_keys.h\"\n");
-		fprintf (script, "#include \"get_target_pattern_data_file.h\"\n");
+		fprintf (script, "#include \"new_simple_merge.h\"\n");
 		fprintf (script, "#include \"getopt.h\"\n");
 		fprintf (script, "\n");
 
@@ -724,7 +724,7 @@ const char * file_exists_check_code()
 	const char * file_check_code =
 	"\t\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
 	"\t\t\tif (write_data_new_way) {\n"
-	"\t\t\t\tstring new_potential_data_file_path = data_file_iterator.get_a_potential_data_file();\n"
+	"\t\t\t\tstring new_potential_data_file_path = data_file_iterator.get_next_data_file();\n"
 	"\t\t\t\tif (new_potential_data_file_path.length() == 0) {\n"
 	"\t\t\t\t\tbreak;\n"
 	"\t\t\t\t} \n"
@@ -3369,8 +3369,10 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	}
 	fprintf (script, "\n");
 	fprintf (script, "\tstringstream filename_pattern;\n");
-	fprintf (script, "\tfilename_pattern << jno << \"_[1-9][0-9]*\\\\.dat$\";\n");
-	fprintf (script, "\tDataFileIterator data_file_iterator (filename_pattern.str().c_str(), \".\");\n");
+	fprintf (script, "\tfilename_pattern << \".*/.*/.*/.*/\" << jno << \"_[1-9][0-9]*\\\\.dat$\";\n");
+	fprintf (script, "\tFILE * data_file_dump = fopen (\"op\", \"rb\");\n");
+	//fprintf (script, "\tDataFileIterator data_file_iterator (filename_pattern.str().c_str(), \".\");\n");
+	fprintf (script, "\tSequentialFileIterator data_file_iterator (data_file_dump, filename_pattern.str());\n");
 
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp
