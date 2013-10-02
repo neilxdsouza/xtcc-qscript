@@ -28,8 +28,10 @@
 #include <string>
 #include <cstdlib>
 #include <iostream>
+#include <vector>
 
 using std::string;
+using std::vector;
 using std::cout;
 using std::endl;
 
@@ -51,6 +53,8 @@ struct DataFileIterator {
 	DIR * root_dir;
 	DIR * current_sub_directory_data_repository;
 	string current_sub_directory;
+	string descend_and_get_a_potential_data_file (int n_levels,  int current_level,
+			vector<string> & path_vec , vector <DIR*> & dir_stack);
 };
 
 
@@ -185,9 +189,103 @@ string DataFileIterator::get_a_potential_data_file()
 	return string();
 }
 
-/* 
+string make_path (const vector <string> & path_vec)
+{
+	string combined_path;
+	for (int i=0; i<path_vec.size(); ++i) {
+		combined_path += path_vec[i] + string("/");
+	}
+	return combined_path;
+}
+
+string DataFileIterator::descend_and_get_a_potential_data_file (int n_levels, int current_level,
+		vector<string> & path_vec, vector <DIR*> & dir_stack)
+{
+	static int counter = 0;
+	++counter;	
+	string combined_path = make_path (path_vec);
+	cout << "Enter: " << __PRETTY_FUNCTION__ 
+		<< ", n_levels: " << n_levels
+		<< ", current_level: " << current_level << endl
+		<< ", combined_path: " << combined_path << endl
+		<< ", counter: " << counter << endl
+		<< endl;
+
+	DIR * & a_dir = dir_stack[current_level];
+	if (a_dir == 0) {
+		//if (!(a_dir = opendir(combined_path.c_str()) )) 
+		if (!(a_dir = opendir( path_vec[current_level].c_str()) )) {
+			warn("can't open path dir %s, ... exiting\n",
+					combined_path.c_str());
+			exit (WALK_BADIO);
+		}
+	} else {
+		if (current_level < n_levels) {
+			cout << "current_level dir already set, descending to next level"
+				<< endl;
+			return descend_and_get_a_potential_data_file (n_levels, current_level +1,
+					path_vec, dir_stack);
+		} else if (current_level == n_levels) {
+			cout << "current_level == n_levels, "
+				<< "... exiting" << endl;
+			exit(1);
+		}
+	}
+	if (counter == 8) {
+		cout << "exiting ... counter == " << counter << endl;
+		exit(1);
+	}
+
+
+	struct dirent * directory_entry = 0;
+	while (directory_entry = readdir (a_dir) ) {
+		if (directory_entry->d_name[0] == '.') {
+			cout << "skipping leading '.' file" << endl;
+			continue;
+		}
+		if (!strcmp(directory_entry->d_name, ".")
+			|| !strcmp(directory_entry->d_name, "..")) {
+			cout << "skipping dirs '.' or '..' " << endl;
+			continue;
+		}
+		string file_name = path_vec[current_level] + string("/")
+				+ string(directory_entry->d_name);
+		//cout << "file_name: " << file_name << endl;
+		
+		struct stat st;
+		if (lstat(file_name.c_str(), &st) == -1) {
+			warn("Can't stat %s", file_name.c_str());
+			continue;
+		}
+
+		if (current_level < n_levels && S_ISDIR(st.st_mode)) {
+			cout << "current_level < n_levels and " << file_name << " is a dir, hence descending" 
+				<< endl;
+			path_vec.push_back (file_name);
+			return descend_and_get_a_potential_data_file (n_levels, current_level + 1, path_vec, dir_stack);
+			//exit(1);
+		} else if (current_level == n_levels) {
+			cout << "current_level == n_levels and " << file_name << " is a reg file, hence returning" 
+				<< endl;
+			if (S_ISREG(st.st_mode) ) {
+				return file_name;
+			}
+		}
+	}
+	return string ("");
+
+	cout << "Exit: " << __PRETTY_FUNCTION__ 
+		<< ", n_levels: " << n_levels
+		<< ", current_level: " << current_level
+		<< ", path: " << path_vec[current_level]
+		<< endl;
+
+}
+
 int main()
 {
+	// Old test case
+/* 
 	DataFileIterator data_file_iterator (".\\.dat$", ".");
 
 	string potential_file;
@@ -202,5 +300,31 @@ int main()
 	//cout << "data_file_iterator.get_a_potential_data_file (): "
 	//	<< data_file_iterator.get_a_potential_data_file ()
 	//	<< endl;
-}
  */
+
+	DataFileIterator data_file_iterator (".\\.dat$", ".");
+	vector <DIR*> dir_stack;
+	DIR * lev_1 = 0;
+	dir_stack.push_back(lev_1);
+	DIR * lev_2 = 0;
+	dir_stack.push_back(lev_2);
+	DIR * lev_3 = 0;
+	dir_stack.push_back(lev_3);
+
+	vector <string> path_vec;
+	path_vec.push_back (string("."));
+
+	cout << "lev_1: " << dir_stack[0]<< endl;
+	cout << "lev_2: " << dir_stack[1] << endl;
+	cout << "lev_3: " << dir_stack[2] << endl;
+	string dir1 = data_file_iterator.descend_and_get_a_potential_data_file (3, 0, path_vec, dir_stack);
+
+	cout << "dir1: " << dir1 << endl;
+
+	cout << "lev_1: " << dir_stack[0]<< endl;
+	cout << "lev_2: " << dir_stack[1] << endl;
+	cout << "lev_3: " << dir_stack[2] << endl;
+
+	dir1 = data_file_iterator.descend_and_get_a_potential_data_file (3, 0, path_vec, dir_stack);
+	cout << "dir1: " << dir1 << endl;
+}
