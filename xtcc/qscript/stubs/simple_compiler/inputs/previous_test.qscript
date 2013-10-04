@@ -1,0 +1,99 @@
+previous_test {
+
+ stubs yn=	"Yes" 1,
+		"No" 2;
+
+q1	"q1. Do you use the internet regularly. By regularly we mean atleast once a week?"
+	sp int32_t yn;
+
+	if (q1==1) {
+	
+		page inet_usage {
+
+		stubs internet_usage =
+			"Browsing " 1,
+			"Email " 2,
+			"Chatting " 3,
+			"Gaming " 4,
+			"Work  " 5
+			;
+
+q2			"q2. Please tell us all the below that indicates your internet usage habits"
+			mp(5) int32_t internet_usage;
+
+		stubs sites_visited = 
+			"google.com" 1,
+			"bing.com" 2,
+			"drudgereport" 3,
+			"yahoo.com" 4,
+			"hackernews" 5;
+
+q3			"q3. Please tell us all the below that indicates your internet usage habits"
+			sp    int32_t sites_visited;
+
+
+
+		}
+	}
+
+
+stubs age =
+	"18 to 21" 1,
+	"22 to 25" 2,
+	"26 to 30" 3,
+	"31 to 35" 4,
+	"36 to 40" 5;
+
+d1	"Please tell us your age"
+	sp int32_t age;
+
+	page demog1 {
+
+	stubs 	gender =
+		"Male" 1,
+		"Female" 2
+		;
+
+d2 		"Are you"
+		sp int32_t  gender;
+
+	stubs working_status = 
+		"Student" 1,
+		"Working - private" 2,
+		"Working - gov" 3,
+		"Self Employed - professional (doctor, lawer, architect etc)" 4,
+		"Self Employed - Small Business (1-5 employees)" 5,
+		"Self Employed - Small Business (6-10 employees)" 6;
+	
+
+d3 		"Working Status"
+		sp int32_t  working_status;
+
+	}
+
+	page demog2 {
+		stubs mari_stat = 
+			"Single" 1,
+			"Married" 2,
+			"Divorced/Widowed" 3;
+
+d4		"Marital Status"
+		sp int32_t mari_stat;
+
+		stubs income = 
+			" < 7000 " 1,
+			" 7000 to 15000  " 2,
+			" 15000 to 30000  " 3,
+			" 30000 to 70000  " 4,
+			" 70000 to 120000  " 5;
+
+d5		"Monthly Household Income"
+		sp int32_t income;
+
+
+	}
+
+ty	"Thank you"
+	sp int32_t yn;
+
+}

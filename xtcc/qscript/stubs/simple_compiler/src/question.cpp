@@ -342,8 +342,17 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		//<< "stopAtNextQuestion ||" << endl
 		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
-		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited.size() == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited[last_question_visited.size()-1]-> questionNoIndex_ )) ||" << endl
-		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
+		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited.size() == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited[last_question_visited.size()-1]-> questionNoIndex_ )) ||"
+		<< endl
+		<< "("
+		<< "  (p_jump_to_group_name.length() == 0 && p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
+		<<     questionName_
+		<< "    ) == p_jump_to_index)) ||"
+		<< "  (p_jump_to_group_name.length()  > 0 && p_navigation_mode == NAVIGATE_PREVIOUS && "
+		<<     questionName_ << " -> pageName_ "
+		<< "     == p_jump_to_group_name) "
+		<< ")" << endl
+		<< " ||"  << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
 		<< questionName_ << "->isAnswered_ == false "
@@ -1806,9 +1815,22 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		//<< " && " << "jumpToIndex ==  "
 		//<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		//<< ") "
-		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
+		// ============ NAVIGATE_PREVIOUS =============
+		<< endl
+		<< "( "
+		<< endl
+		<<    "(p_jump_to_group_name.length() == 0 && p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< ") == p_jump_to_index)) ||"  << endl
+		<< "  ) == p_jump_to_index) ) ||"
+		<< endl
+		<<    "(p_jump_to_group_name.length() >  0 && p_navigation_mode == NAVIGATE_PREVIOUS && "
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "] -> pageName_ "
+		<< "   == p_jump_to_group_name)"
+		<< endl
+		<< " ) "
+		<< endl
+		<< " ||"  << endl
+		// ============ NAVIGATE_PREVIOUS =============
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
 		<< "  && !("
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
@@ -3435,9 +3457,17 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 			<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && "
 			<< questionName_
 			<< "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||"
-			<< "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
-			<< questionName_
-			<< ") == p_jump_to_index)) )" << endl
+			// ============ NAVIGATE_PREVIOUS =============
+			<< endl
+			<< "("
+			<< "  (p_jump_to_group_name.length() == 0 && p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
+			<<     questionName_
+			<< "    ) == p_jump_to_index)) ||"
+			<< "  (p_jump_to_group_name.length()  > 0 && p_navigation_mode == NAVIGATE_PREVIOUS && "
+			<<     questionName_ << " -> pageName_ "
+			<< "     == p_jump_to_group_name) "
+			<< ")" << endl
+			// ============ NAVIGATE_PREVIOUS =============
 
 			<< "{" << endl
 			<< "last_question_visited = " << questionName_ << ";" << endl

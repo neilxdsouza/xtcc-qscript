@@ -38,6 +38,14 @@
 //#include "qtm_datafile_conf_parser.h"
 
 
+struct ComputePreviousQuestionRetVal {
+	AbstractRuntimeQuestion * singlePreviousQuestion_;
+	string questionGroupName_;
+	ComputePreviousQuestionRetVal():
+		singlePreviousQuestion_(0), questionGroupName_()
+	{ }
+};
+
 
 struct AbstractQuestionnaire
 {
@@ -62,7 +70,8 @@ struct AbstractQuestionnaire
 	//virtual void compute_flat_file_map_and_init() = 0;
 	virtual /* vector<AbstractRuntimeQuestion *> */ EvalReturnValue eval2 (UserNavigation p_navigation_mode,
 				const vector<AbstractRuntimeQuestion *> & p_last_question_visited,
-				AbstractRuntimeQuestion * p_jump_to_index) = 0;
+				AbstractRuntimeQuestion * p_jump_to_index,
+				const string & p_jump_to_group_name) = 0;
 	void write_data_to_disk(const std::vector<AbstractRuntimeQuestion*>& q_vec
 		, std::string jno
 		, int32_t ser_no);
@@ -71,7 +80,8 @@ struct AbstractQuestionnaire
 		, int32_t ser_no, char * & buffer, int & n_left);
 	int32_t ComputeJumpToIndex(AbstractRuntimeQuestion * q);
 	void reset_questionnaire();
-	AbstractRuntimeQuestion * ComputePreviousQuestion(AbstractRuntimeQuestion * q);
+	//AbstractRuntimeQuestion * ComputePreviousQuestion(AbstractRuntimeQuestion * q);
+	struct ComputePreviousQuestionRetVal ComputePreviousQuestion(AbstractRuntimeQuestion * q);
 	void DisplayActiveQuestions();
 	//void write_qtm_data_to_disk();
 	//void write_ascii_data_to_disk();

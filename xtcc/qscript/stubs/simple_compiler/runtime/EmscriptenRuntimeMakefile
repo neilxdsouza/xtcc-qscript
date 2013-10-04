@@ -44,7 +44,7 @@ $(SOURCE_DIR)/data_entry.hpp: YFLAGS = -p scan_data
 # https://github.com/kripken/emscripten/wiki/Building-Projects
 
 $(BUILD_DIR)/qscript_emscripten_runtime.o: $(OBJS)
-	$(CC) $(CFLAGS) $(OPT_FLAGS) -o $@ $(OBJS) -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial']"
+	$(CC) $(CFLAGS) $(OPT_FLAGS) -o $@ $(OBJS) -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial', '_navigate_previous']"
 
 
 vegetable-simple.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o $(SOURCE_DIR)/shell-phonegap-dom-callback.html $(SOURCE_DIR)/dom_manip_funcs.js

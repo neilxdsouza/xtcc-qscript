@@ -35,6 +35,18 @@
 	//my_log ("created submit handler function");
 	/* newNextQ Button }}}2 */
 
+	/* prevQ Button {{{2 */
+	var prevQ= document.getElementById("prevQ");
+	EventUtil.addHandler (prevQ, "click", function(event) {
+		my_log ("Enter prevQ");
+		var navigate_previous = Module.cwrap ('navigate_previous', 'void', ['string']);
+		//console.log("prevQ called");
+		my_log ("navigate_previous: " +  navigate_previous);
+		navigate_previous ("dummy data");
+	});
+	//my_log ("created submit handler function");
+	/* prevQ Button }}}2 */
+
 /* handleStartSurveyButton  {{{2 */
 	var return_serial_no_button = document.getElementById("btn_return_serial_no");
 	function handleStartSurveyButton (event)

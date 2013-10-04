@@ -1615,7 +1615,7 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 
 	string emscripten_cc_intermediate_file_cmd =
 		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
-		+ " -s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_callback_return_serial']\" "
+		+ " -s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_callback_return_serial','_navigate_previous']\" "
 		//+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
 		+ " -c " + intermediate_cpp_file_name2 + string(" ")
 		;
@@ -1631,7 +1631,7 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		//"emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
 		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
-		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial']\" "
+		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial','_navigate_previous']\" "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/data_entry.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/log_mesg.o "
@@ -2746,7 +2746,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 {
 	fprintf(script, "/* vector<AbstractRuntimeQuestion *> */ EvalReturnValue eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
 			"\t\t AbstractRuntimeQuestion * p_last_question_visited,*/\n"
-			"\t\t UserNavigation p_navigation_mode, const vector<AbstractRuntimeQuestion *> & p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)\n{\n");
+			"\t\t UserNavigation p_navigation_mode, const vector<AbstractRuntimeQuestion *> & p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index, const string & p_jump_to_group_name)\n{\n");
 
 	fprintf(script, "//if (last_question_visited)\n\t//fprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 

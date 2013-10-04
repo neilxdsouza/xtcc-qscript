@@ -167,18 +167,31 @@ void question_eval_loop2 (
 				//fprintf(qscript_stdout, "user_navigation == NAVIGATE_PREVIOUS unhandled\n");
 				printf("%s, %s, %d, user_navigation == NAVIGATE_PREVIOUS unhandled\n",
 						__PRETTY_FUNCTION__, __FILE__, __LINE__);
-#if 0
-				AbstractRuntimeQuestion *target_question =
-					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
+#if 1
+				//AbstractRuntimeQuestion *target_question =
+				struct ComputePreviousQuestionRetVal prev_question_ret_val = 
+					theQuestionnaire->ComputePreviousQuestion(last_question_visited[0]);
 				// this line seems unncessary - but it is necessary
 				// - DO NOT DELETE AS REDUNDANT
-				vector<AbstractRuntimeQuestion> * q =
+				//vector<AbstractRuntimeQuestion *> q_vec =
+				//string dummy_group_name;
+				//EvalReturnValue eval_ret_val =
+				//	theQuestionnaire->eval2 (
+				//	NAVIGATE_PREVIOUS, last_question_visited, target_question,
+				//	dummy_group_name);
+
+				EvalReturnValue eval_ret_val =
 					theQuestionnaire->eval2 (
-					NAVIGATE_PREVIOUS, last_question_visited, target_question);
-				if (target_question == 0) {
-					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level + 1);
+					NAVIGATE_PREVIOUS, last_question_visited, prev_question_ret_val.singlePreviousQuestion_,
+					prev_question_ret_val.questionGroupName_);
+				vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
+				//if (target_question == 0) 
+				if (prev_question_ret_val.singlePreviousQuestion_ == 0) {
+					stdout_eval (last_question_visited, theQuestionnaire,
+							callback_ui_input, nest_level + 1, eval_ret_val.errMessageVec_);
 				} else {
-					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level + 1);
+					stdout_eval (q_vec, theQuestionnaire,
+							callback_ui_input, nest_level + 1, eval_ret_val.errMessageVec_);
 				}
 #endif /* 0 */
 				return;
@@ -207,9 +220,11 @@ void question_eval_loop2 (
 	} // else {
 	// should reach here - end of :
 		//vector<AbstractRuntimeQuestion *> q_vec =
+		string dummy_group_name2;
 		EvalReturnValue eval_ret_val =
 			theQuestionnaire->eval2 (
-			NAVIGATE_NEXT, last_question_visited, jump_to_question);
+			NAVIGATE_NEXT, last_question_visited, jump_to_question,
+			dummy_group_name2);
 		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
 		if (q_vec.size() == 0) {
 			printf(" eval2 has returned NULL => End of qnre();\n");
@@ -264,6 +279,7 @@ void called_from_the_dom (char * data)
 	//printf ("data from the browser dom callback: %s\n", data);
 	//char err_mesg_buffer[4000];
 	printf ("Enter: called_from_the_dom: data %s\n", data);
+	my_log_from_cpp ("Entered called_from_the_dom");
 	my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
@@ -382,6 +398,21 @@ void called_from_the_dom (char * data)
 
 
 	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
+}
+
+void navigate_previous (char * data)
+{
+	my_log_from_cpp ("Enter: navigate_previous");
+	UserInput user_input;
+	user_input.userNavigation_ = NAVIGATE_PREVIOUS;
+	user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+	AbstractQuestionnaire * abs_qnre_ptr = AbstractQuestionnaire::qnre_ptr;
+	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+	vector <string> err_mesg_vec;
+	callback_ui_input (user_input,
+			abs_qnre_ptr->last_question_visited,
+			l_qnre_ptr, 1, err_mesg_vec);
+	my_log_from_cpp ("Exit: navigate_previous");
 }
 
 }

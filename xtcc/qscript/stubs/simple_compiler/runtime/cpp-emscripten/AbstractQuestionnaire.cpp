@@ -442,8 +442,10 @@ void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractRuntimeQues
 	//return survey_data.str();
 }
 
-AbstractRuntimeQuestion * AbstractQuestionnaire::ComputePreviousQuestion(AbstractRuntimeQuestion * q)
+//AbstractRuntimeQuestion * AbstractQuestionnaire::ComputePreviousQuestion(AbstractRuntimeQuestion * q)
+ComputePreviousQuestionRetVal AbstractQuestionnaire::ComputePreviousQuestion(AbstractRuntimeQuestion * q)
 {
+	ComputePreviousQuestionRetVal prev_question_ret_val;
 	int32_t current_question_index = -1;
 	if (q)
 	{
@@ -467,16 +469,31 @@ AbstractRuntimeQuestion * AbstractQuestionnaire::ComputePreviousQuestion(Abstrac
 			<< "line no: " << __LINE__
 			<< endl;
 	}
+	AbstractRuntimeQuestion * prev_question  = 0;
 	for (int32_t i = current_question_index-1; i >= 0; --i)
 	{
 		if (question_list[i]->isAnswered_)
 		{
-			return question_list[i];
+			//return question_list[i];
+			prev_question = question_list[i];
+			break;
+		}
+	}
+
+	if (prev_question == 0) {
+		//return question_list[questions_start_from_here_index];
+		prev_question_ret_val.singlePreviousQuestion_ = question_list[questions_start_from_here_index];
+
+	} else {
+		if (prev_question->pageName_.length() > 0) {
+			prev_question_ret_val.questionGroupName_ = prev_question -> pageName_;
+		} else {
+			prev_question_ret_val.singlePreviousQuestion_ = prev_question;
 		}
 	}
 	// If we reach here just return the 1st question and hope for the best
 	// This will not work if there is a condition on the 1st question - because of which it should never have been taken
-	return question_list[questions_start_from_here_index];
+	return prev_question_ret_val;
 }
 
 int32_t AbstractQuestionnaire::ComputeJumpToIndex(AbstractRuntimeQuestion * q)
