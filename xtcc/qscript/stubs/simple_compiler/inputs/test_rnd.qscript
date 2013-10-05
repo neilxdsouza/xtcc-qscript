@@ -1,0 +1,38 @@
+test_rnd {
+
+named_attribute n_att_test =
+	"Stmt 1",
+	"Stmt 2",
+	"Stmt 3",
+	"Stmt 4",
+	"Stmt 5",
+	"Stmt 6",
+	"Stmt 7",
+	"Stmt 8",
+	"Stmt 9",
+	"Stmt 10",
+	"Stmt 11",
+	"Stmt 12",
+	"Stmt 13",
+	"Stmt 14",
+	"Stmt 15",
+	"Stmt 16",
+	"Stmt 17",
+	"Stmt 18";
+
+	n_att_test.randomize;
+
+	page att_batt1 grid_size=5 {
+
+		int32_t i1 = 0;
+		for (i1 = 0; i1 < 18; i1 = i1 + 1) {
+
+q1			"q1. Testing attribute battery randomization" : n_att_test[i1]
+			sp int32_t (1-18);
+
+		}
+
+	}
+
+
+}
