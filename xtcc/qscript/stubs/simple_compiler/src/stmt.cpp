@@ -2721,3 +2721,27 @@ std::string IfStatement ::PrintIdentity ()
 {
 	return string(__PRETTY_FUNCTION__) + ifCondition_->PrintIdentity();
 }
+
+RandomizeStatement::RandomizeStatement(DataType l_type,
+	int32_t l_line_number,
+	int32_t l_nest_level, int32_t l_for_nest_level,
+	named_attribute_list * p_n_attr_list)
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
+	  namedAttributeList_ (p_n_attr_list)
+{
+	
+}
+
+void RandomizeStatement::GenerateCode(StatementCompiledCode & code)
+{
+	//code.program_code
+	code.quest_defns_init_code
+		<< "/* "  << __PRETTY_FUNCTION__ << " */"
+		<< namedAttributeList_ -> name
+		<< " . " << "randomize();\n"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+

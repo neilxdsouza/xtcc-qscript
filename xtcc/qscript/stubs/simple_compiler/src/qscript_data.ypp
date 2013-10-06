@@ -11,12 +11,15 @@
 
 	static vector<int> data;
 	static vector<int> array_index_list;
-	//vector <question_disk_data*> qdd_list;
+	// comment below line when main is not required anymore
+	vector <question_disk_data*> qdd_list;
 	map <string, question_disk_data*> qdd_map;
 	//QuestionDiskDataMap question_disk_data_map;
 	int read_disk_datalex();
 	int no_errors;
 	void read_disk_dataerror(const char * s);
+	vector <int> randomization_order;
+	map <string, vector<int> > map_rand_order;
 %}
 
 
@@ -25,23 +28,62 @@
 	double dval;
 	char name[MY_STR_MAX];
 }
+
 %token <name> NAME
 %token COLON DOLLAR BOUNDS
+%token NAMED_ATTRIBUTE_LIST
+%token ARROW
 %token <ival> INUMBER
 %token  NEWL
 
 
 %%
 
-program: question_list{
+	/*program: question_list*/
+program: stmt_list {
 	//cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
 	}
 	;
-
-question_list: question
+	
+	/*
+	question_list: question
 	| question_list question
 	;
+	*/
+
+stmt_list: stmt
+	 | stmt_list stmt
+	 ;
+
+stmt: 	question
+    	| named_attribute_order
+	;
+
+named_attribute_order: NAMED_ATTRIBUTE_LIST NAME INUMBER COLON index_map_list NEWL {
+		//cout << "parsed a NAMED_ATTRIBUTE_LIST: name: " 
+		//	<< $2 << ", size: " << $3
+		//	<< endl;
+		//for (int i = 0; i < randomization_order.size(); ++i) {
+		//	cout << "randomization_order[" << i << "]"
+		//		<< randomization_order[i]
+		//		<< endl;
+		//}
+		map_rand_order[$2] = randomization_order;
+		randomization_order.clear();
+	}
+	;
+		     
+index_map_item: INUMBER ARROW INUMBER {
+	      randomization_order.push_back($3);
+	      }
+	;
+
+index_map_list: index_map_item
+	      | index_map_list index_map_item
+	      ;
+
+
 
 question: NAME COLON numberlist NEWL {
 		//cout << "data<int>[]: ";
@@ -129,11 +171,21 @@ int main(){
 	data.reserve(50);
 	qdd_list.reserve(100);
 	if(!read_disk_dataparse()&& !no_errors){
+		cout << "Parsed successfully" << endl;
 		for(int i=0; i< qdd_list.size(); ++i){
 			cout << qdd_list[i]->qno << endl;
 			cout  << ":" << qdd_list[i]->data.size() << endl;
 			for(int j=0; j<qdd_list[i]->data.size(); ++j){
 				cout << qdd_list[i]->data[j] << " ";
+			}
+			cout << endl;
+		}
+		for (map<string, vector<int> >::iterator it = map_rand_order.begin();
+			it != map_rand_order.end(); ++it ) {
+			cout << "NAMED_ATTRIBUTE_LIST: " << it->first;	
+			vector <int> & ord  = it->second;
+			for (int i=0; i<ord.size(); ++i) {
+				cout << " " << ord[i];
 			}
 			cout << endl;
 		}

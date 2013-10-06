@@ -100,6 +100,10 @@
 %token BRAND_RANK
 %token DRIVERS
 %token CREATE_1_0_EDIT
+%token PAGE
+%token GRID_SIZE
+%token RANDOMIZE
+
 
 
 %token '['
@@ -148,6 +152,8 @@
 %type <stmt> stub_manip_stmts
 %type <v_list> var_decl
 %type <v_list> decl_comma_list
+%type <stmt> randomize_stmt
+
 
 %token IF ELSE
 
@@ -325,6 +331,7 @@ stmt:	question
 	| create_1_0_data_edit_stmt
         | brand_rank_recode_stmt 
 	| newcard_stmt
+	| randomize_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
 		std::stringstream err_msg;
@@ -363,8 +370,39 @@ for_loop_stmt:
 	}
 	;
 
+
+
 cmpd_stmt: open_curly stmt_list '}' {
 		$$ = qscript_parser::ProcessCompoundStatement($1, $2);
+	}
+	;
+
+
+randomize_stmt: NAME '.' RANDOMIZE ';' {
+		string name ($1);
+		map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(name);
+		if (sym_it  == qscript_parser::active_scope->SymbolTable.end()) {
+			std::stringstream err_mesg;
+			err_mesg << "symbol: " << name << " not found in symbol table. It should be a named_attribute list";
+			print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			SymbolTableEntry * se = sym_it->second;
+			RandomizeStatement * rand_stmt = 0;
+			if (se->type_ == NAMED_ATTRIBUTE_TYPE) {
+				rand_stmt = new RandomizeStatement (RANDOMIZE_STMT, qscript_parser::line_no,
+						qscript_parser::nest_lev,
+						qscript_parser::flagIsAForBody_, se->namedAttributes_);
+			} else {
+				std::stringstream err_mesg;
+				err_mesg << "symbol: " << name << " should be a named_attribute or a question";
+				print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+				rand_stmt = new RandomizeStatement (ERROR_TYPE, qscript_parser::line_no,
+						qscript_parser::nest_lev,
+						qscript_parser::flagIsAForBody_,
+						0);
+			}
+			$$ = rand_stmt;
+		}
 	}
 	;
 

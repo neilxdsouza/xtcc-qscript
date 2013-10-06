@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include "qscript_lib.h"
 #include "qscript_debug.h"
+#include "named_attributes.h"
 
 
 
@@ -42,6 +43,7 @@ void read_disk_data_init();
 extern QuestionDiskDataMap question_disk_data_map;
 
 extern map <string, question_disk_data*> qdd_map;
+extern map <string, vector<int> > map_rand_order;
 //extern WINDOW * data_entry_window;
 
 void clear_previous_data()
@@ -52,6 +54,7 @@ void clear_previous_data()
 		it->second = 0;
 	}
 	qdd_map.erase(qdd_map.begin(), qdd_map.end());
+	map_rand_order.clear();
 }
 
 int32_t load_data_from_path(string path)
@@ -113,13 +116,23 @@ int32_t load_data(string jno, int32_t ser_no)
 #include "question.h"
 extern vector <AbstractQuestion*> question_list;
 void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
-		AbstractQuestion * & p_last_question_visited)
+		AbstractQuestion * & p_last_question_visited,
+		vector<named_attribute_list*> & p_named_attribute_list_vec
+		)
 {
 	if (qscript_debug::DEBUG_LoadData) {
 		cout << "ENTER: "
 			<< __PRETTY_FUNCTION__
 			<< __FILE__ << ", " << __LINE__ << ", "
 			<< endl;
+	}
+
+	for (int32_t i = 0; i< p_named_attribute_list_vec.size(); ++i) {
+		string attribute_list_name = p_named_attribute_list_vec[i]->name;
+		map<string, vector<int> >::iterator it = map_rand_order.find (attribute_list_name) ;
+		if (it != map_rand_order.end()) {
+			p_named_attribute_list_vec[i]->randomized_order = it->second;
+		}
 	}
 	for (int32_t i = 0; i< question_list.size(); ++i) {
 		AbstractQuestion* q= question_list[i];

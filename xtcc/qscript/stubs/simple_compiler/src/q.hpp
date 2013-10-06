@@ -1,10 +1,8 @@
+/* A Bison parser, made by GNU Bison 2.5.  */
 
-/* A Bison parser, made by GNU Bison 2.4.1.  */
-
-/* Skeleton interface for Bison's Yacc-like parsers in C
+/* Bison interface for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -67,25 +65,28 @@
      BRAND_RANK = 283,
      DRIVERS = 284,
      CREATE_1_0_EDIT = 285,
-     CONST = 286,
-     LOGOR = 287,
-     LOGAND = 288,
-     NOEQ = 289,
-     ISEQ = 290,
-     GEQ = 291,
-     LEQ = 292,
-     NOT = 293,
-     UMINUS = 294,
-     COUNT = 295,
-     FUNC_CALL = 296,
-     IF = 297,
-     ELSE = 298,
-     STUBS_LIST = 299,
-     NAMED_ATTRIBUTES = 300,
-     SETDEL = 301,
-     SETADD = 302,
-     UNSET = 303,
-     SETALL = 304
+     PAGE = 286,
+     GRID_SIZE = 287,
+     RANDOMIZE = 288,
+     CONST = 289,
+     LOGOR = 290,
+     LOGAND = 291,
+     NOEQ = 292,
+     ISEQ = 293,
+     GEQ = 294,
+     LEQ = 295,
+     NOT = 296,
+     UMINUS = 297,
+     COUNT = 298,
+     FUNC_CALL = 299,
+     IF = 300,
+     ELSE = 301,
+     STUBS_LIST = 302,
+     NAMED_ATTRIBUTES = 303,
+     SETDEL = 304,
+     SETADD = 305,
+     UNSET = 306,
+     SETALL = 307
    };
 #endif
 
@@ -95,7 +96,7 @@
 typedef union YYSTYPE
 {
 
-/* Line 1676 of yacc.c  */
+/* Line 2068 of yacc.c  */
 #line 58 "src/q.ypp"
 
 	type_qualifier type_qual;
@@ -114,8 +115,8 @@ typedef union YYSTYPE
 
 
 
-/* Line 1676 of yacc.c  */
-#line 119 "src/q.hpp"
+/* Line 2068 of yacc.c  */
+#line 120 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

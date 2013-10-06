@@ -34,6 +34,10 @@
 	return COLON;
 }
 
+"->" {
+	return ARROW;
+}
+
 "$" 	{
 	return DOLLAR;
 }
@@ -43,6 +47,12 @@
 BOUNDS {
 	return BOUNDS;
 }
+
+named_attribute_list {
+	cout << "got NAMED_ATTRIBUTE_LIST" << endl;
+	return NAMED_ATTRIBUTE_LIST;
+}
+
 
 [_A-Za-z][A-Za-z0-9_]*	{
 	if(read_disk_dataleng < MY_STR_MAX) {

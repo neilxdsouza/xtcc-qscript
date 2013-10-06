@@ -658,4 +658,24 @@ struct Create_1_0_DataEditStatement: public AbstractStatement
 
 string helper_GenerateArrayInitLoopOpen (vector<AbstractExpression*> & for_bounds_stack);
 
+
+struct named_attribute_list;
+struct RandomizeStatement: public AbstractStatement
+{
+	RandomizeStatement(DataType dtype, int32_t lline_number,
+			int32_t l_nest_level, int32_t l_for_nest_level,
+			named_attribute_list * p_n_attr_list);
+	// RandomizeStatement(DataType dtype, int32_t lline_number,
+	// 		string l_page_name,
+	// 		int l_page_size,
+	// 		CompoundStatement * l_page_body);
+	named_attribute_list * namedAttributeList_;
+	void GenerateCode(StatementCompiledCode & code);
+	private:
+	RandomizeStatement& operator=(const RandomizeStatement&);
+	RandomizeStatement(const RandomizeStatement&);
+
+};
+
+
 #endif /* stmt_h */

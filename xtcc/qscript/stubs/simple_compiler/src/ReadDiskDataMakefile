@@ -1,0 +1,12 @@
+SRC=qscript_data.cpp read_disk_data.cpp
+OBJS=$(SRC:.cpp=.o)
+
+test_read_data.exe: $(OBJS) $(SRC)
+	g++ -o $@ $(OBJS)
+
+
+read_disk_data.cpp: read_disk_data.l
+	flex -o$@ $<
+
+qscript_data.cpp qscript_data.hpp: qscript_data.ypp
+	bison -p read_disk_data -v -d $< -o $(basename $@).cpp

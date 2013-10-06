@@ -269,7 +269,16 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				//named_attribute_key << textExprVec_[i]->naPtr_->name;
 				//named_attribute_key << "_" << textExprVec_[i]->naIndex_;
 				//question_text += WString::tr(named_attribute_key.str().c_str());
-				question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+				//question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+				if (textExprVec_[i]->naPtr_->isRandomized_) {
+					question_text += textExprVec_[i]->naPtr_->attribute[
+						textExprVec_[i]->naPtr_->randomized_order[
+							textExprVec_[i]->naIndex_
+							]
+					];
+				} else {
+					question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+				}
 			}
 			else if (textExprVec_[i]->teType_ == TextExpression::question_type)
 			{
@@ -661,7 +670,15 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				//named_attribute_key << textExprVec_[i]->naPtr_->name;
 				//named_attribute_key << "_" << textExprVec_[i]->naIndex_;
 				//question_text += WString::tr(named_attribute_key.str().c_str());
-				question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+				if (textExprVec_[i]->naPtr_->isRandomized_) {
+					question_text += textExprVec_[i]->naPtr_->attribute[
+						textExprVec_[i]->naPtr_->randomized_order[
+							textExprVec_[i]->naIndex_
+							]
+					];
+				} else {
+					question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+				}
 			}
 			else if (textExprVec_[i]->teType_ == TextExpression::question_type)
 			{

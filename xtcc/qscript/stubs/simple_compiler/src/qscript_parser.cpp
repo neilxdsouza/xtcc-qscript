@@ -38,6 +38,8 @@ namespace qscript_parser
 	int32_t nest_lev = 0;
 	int32_t flagIsAFunctionBody_ = -1;
 	int32_t flagIsAForBody_ = 0;
+	int32_t page_nest_lev  = 0;
+
 	bool flag_next_stmt_start_of_block = false;
 
 	bool flag_dynamic_base_text = false;
@@ -188,6 +190,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
 	fprintf(script, "vector <BaseText> base_text_vec;\n");
+	fprintf(script, "vector <named_attribute_list *> named_attribute_list_vec ;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
@@ -278,6 +281,8 @@ void print_header(FILE* script, bool ncurses_flag)
 		//fprintf(script, "#include \"TempNameGenerator.h\"\n");
 	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
+	fprintf(script, "#include \"new_simple_merge.h\"\n");
+	fprintf(script, "#include <getopt.h>\n");
 	if(config_file_parser::PLATFORM == "LINUX"){
 		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
 		if(!simple_pd_curses_keys_h){
@@ -324,7 +329,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
 			"\t\tAbstractQuestion * & p_last_question_answered,\n"
 			"\t\tAbstractQuestion * & p_last_question_visited);\n");
-	fprintf(script, "void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered, AbstractQuestion * & p_last_question_visited);\n");
+	fprintf(script, "void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,\n\t\tAbstractQuestion * & p_last_question_visited,\n\t\tvector<named_attribute_list*> & named_attribute_list_vec);\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
@@ -729,7 +734,7 @@ const char * file_exists_check_code()
 	"\t\t\t\t\tbreak;\n"
 	"\t\t\t\t} \n"
 	"\t\t\t\tload_data_from_path (new_potential_data_file_path);\n"
-	"\t\t\t\tmerge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t\t\t merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, named_attribute_list_vec);\n"
 	"\t\t\t} else {\n"
 	"\t\t\t\tser_no = read_a_serial_no();\n"
 	"\t\t\t\tfprintf(qscript_stdout, \"Read Serial no: %d\\n\", ser_no);\n"
@@ -741,8 +746,7 @@ const char * file_exists_check_code()
 	"\t\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\t\tif(exists == 1){\n"
 	"\t\t\t	load_data(jno,ser_no);\n"
-	"\t\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
-	"\t\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, named_attribute_list_vec);\n"
 	"\t\t\t}\n\t\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
@@ -1111,6 +1115,9 @@ const char * write_data_to_disk_code()
 	"\texit(EXIT_FAILURE);\n"
 	"\t}\n"
 
+	"\tfor(int32_t i = 0; i < named_attribute_list_vec.size(); ++i){\n"
+	"\t\tnamed_attribute_list_vec[i]->WriteDataToDisk(data_file, string(outstr), jno, ser_no);\n"
+	"\t}\n"
 
 	"\t\n"
 	"\t	for(int32_t i = 0; i < question_list.size(); ++i){\n"
@@ -3604,7 +3611,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
-	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n");
+	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, named_attribute_list_vec);\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");

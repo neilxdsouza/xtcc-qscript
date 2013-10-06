@@ -87,16 +87,19 @@
 
 	static vector<int> data;
 	static vector<int> array_index_list;
-	//vector <question_disk_data*> qdd_list;
+	// comment below line when main is not required anymore
+	vector <question_disk_data*> qdd_list;
 	map <string, question_disk_data*> qdd_map;
 	//QuestionDiskDataMap question_disk_data_map;
 	int read_disk_datalex();
 	int no_errors;
 	void read_disk_dataerror(const char * s);
+	vector <int> randomization_order;
+	map <string, vector<int> > map_rand_order;
 
 
 /* Line 268 of yacc.c  */
-#line 100 "src/qscript_data.cpp"
+#line 103 "src/qscript_data.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -127,8 +130,10 @@
      COLON = 259,
      DOLLAR = 260,
      BOUNDS = 261,
-     INUMBER = 262,
-     NEWL = 263
+     NAMED_ATTRIBUTE_LIST = 262,
+     ARROW = 263,
+     INUMBER = 264,
+     NEWL = 265
    };
 #endif
 
@@ -139,7 +144,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 23 "src/qscript_data.ypp"
+#line 26 "src/qscript_data.ypp"
 
 	int ival;
 	double dval;
@@ -148,7 +153,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 152 "src/qscript_data.cpp"
+#line 157 "src/qscript_data.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -160,7 +165,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 164 "src/qscript_data.cpp"
+#line 169 "src/qscript_data.cpp"
 
 #ifdef short
 # undef short
@@ -377,22 +382,22 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  9
+#define YYFINAL  13
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   22
+#define YYLAST   32
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  9
+#define YYNTOKENS  11
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  6
+#define YYNNTS  10
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  13
+#define YYNRULES  19
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  25
+#define YYNSTATES  38
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   263
+#define YYMAXUTOK   265
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -426,7 +431,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8
+       5,     6,     7,     8,     9,    10
 };
 
 #if YYDEBUG
@@ -434,25 +439,27 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    10,    15,    19,    25,    30,
-      35,    37,    40,    43
+       0,     0,     3,     5,     7,    10,    12,    14,    21,    25,
+      27,    30,    35,    39,    45,    50,    55,    57,    60,    63
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      10,     0,    -1,    11,    -1,    12,    -1,    11,    12,    -1,
-       3,     4,    13,     8,    -1,     3,     4,     8,    -1,     3,
-      14,     4,    13,     8,    -1,     3,    14,     4,     8,    -1,
-       3,     6,    13,     8,    -1,     7,    -1,    13,     7,    -1,
-       5,     7,    -1,    14,     5,     7,    -1
+      12,     0,    -1,    13,    -1,    14,    -1,    13,    14,    -1,
+      18,    -1,    15,    -1,     7,     3,     9,     4,    17,    10,
+      -1,     9,     8,     9,    -1,    16,    -1,    17,    16,    -1,
+       3,     4,    19,    10,    -1,     3,     4,    10,    -1,     3,
+      20,     4,    19,    10,    -1,     3,    20,     4,    10,    -1,
+       3,     6,    19,    10,    -1,     9,    -1,    19,     9,    -1,
+       5,     9,    -1,    20,     5,     9,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    36,    36,    42,    43,    46,    61,    69,    82,    95,
-     107,   111,   117,   120
+       0,    43,    43,    55,    56,    59,    60,    63,    77,    82,
+      83,    88,   103,   111,   124,   137,   149,   153,   159,   162
 };
 #endif
 
@@ -462,8 +469,9 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "NAME", "COLON", "DOLLAR", "BOUNDS",
-  "INUMBER", "NEWL", "$accept", "program", "question_list", "question",
-  "numberlist", "array_index_list", 0
+  "NAMED_ATTRIBUTE_LIST", "ARROW", "INUMBER", "NEWL", "$accept", "program",
+  "stmt_list", "stmt", "named_attribute_order", "index_map_item",
+  "index_map_list", "question", "numberlist", "array_index_list", 0
 };
 #endif
 
@@ -472,22 +480,23 @@ static const char *const yytname[] =
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261,   262,   263
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
+     265
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,     9,    10,    11,    11,    12,    12,    12,    12,    12,
-      13,    13,    14,    14
+       0,    11,    12,    13,    13,    14,    14,    15,    16,    17,
+      17,    18,    18,    18,    18,    18,    19,    19,    20,    20
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     4,     3,     5,     4,     4,
-       1,     2,     2,     3
+       0,     2,     1,     1,     2,     1,     1,     6,     3,     1,
+       2,     4,     3,     5,     4,     4,     1,     2,     2,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -495,31 +504,33 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     2,     3,     0,     0,     0,     0,     1,
-       4,    10,     6,     0,    12,     0,     0,     0,    11,     5,
-       9,     8,     0,    13,     7
+       0,     0,     0,     0,     2,     3,     6,     5,     0,     0,
+       0,     0,     0,     1,     4,    16,    12,     0,    18,     0,
+       0,     0,     0,    17,    11,    15,    14,     0,    19,     0,
+      13,     0,     9,     0,     0,     7,    10,     8
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     4,    13,     8
+      -1,     3,     4,     5,     6,    32,    33,     7,    17,    11
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -8
+#define YYPACT_NINF -11
 static const yytype_int8 yypact[] =
 {
-       1,    -3,    19,     1,    -8,    -2,    13,    14,     3,    -8,
-      -8,    -8,    -8,     4,    -8,     6,     8,    15,    -8,    -8,
-      -8,    -8,    10,    -8,    -8
+      -2,     2,     1,     9,    -2,   -11,   -11,   -11,    -7,    14,
+      15,     7,    16,   -11,   -11,   -11,   -11,     4,   -11,     6,
+       8,    17,    23,   -11,   -11,   -11,   -11,    10,   -11,    19,
+     -11,    21,   -11,    12,    22,   -11,   -11,   -11
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,    -8,    -8,     7,    -7,    -8
+     -11,   -11,   -11,    26,   -11,    -1,   -11,   -11,   -10,   -11
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -528,31 +539,34 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      15,     5,     6,     7,     1,    11,    12,    16,    17,    22,
-      10,    18,    19,    18,    20,    11,    21,    18,    24,     9,
-      14,    11,    23
+      19,     1,    15,    16,    12,     2,     8,     9,    10,    13,
+      27,    20,    21,    23,    24,    23,    25,    15,    26,    23,
+      30,    31,    35,    18,    15,    22,    28,    29,    31,    34,
+      14,    37,    36
 };
 
 #define yypact_value_is_default(yystate) \
-  ((yystate) == (-8))
+  ((yystate) == (-11))
 
 #define yytable_value_is_error(yytable_value) \
   YYID (0)
 
 static const yytype_uint8 yycheck[] =
 {
-       7,     4,     5,     6,     3,     7,     8,     4,     5,    16,
-       3,     7,     8,     7,     8,     7,     8,     7,     8,     0,
-       7,     7,     7
+      10,     3,     9,    10,     3,     7,     4,     5,     6,     0,
+      20,     4,     5,     9,    10,     9,    10,     9,    10,     9,
+      10,     9,    10,     9,     9,     9,     9,     4,     9,     8,
+       4,     9,    33
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,    10,    11,    12,     4,     5,     6,    14,     0,
-      12,     7,     8,    13,     7,    13,     4,     5,     7,     8,
-       8,     8,    13,     7,     8
+       0,     3,     7,    12,    13,    14,    15,    18,     4,     5,
+       6,    20,     3,     0,    14,     9,    10,    19,     9,    19,
+       4,     5,     9,     9,    10,    10,    10,    19,     9,     4,
+      10,     9,    16,    17,     8,    10,    16,     9
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1389,17 +1403,44 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 36 "src/qscript_data.ypp"
+#line 43 "src/qscript_data.ypp"
     {
 	//cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
 	}
     break;
 
-  case 5:
+  case 7:
 
 /* Line 1806 of yacc.c  */
-#line 46 "src/qscript_data.ypp"
+#line 63 "src/qscript_data.ypp"
+    {
+		//cout << "parsed a NAMED_ATTRIBUTE_LIST: name: " 
+		//	<< $2 << ", size: " << $3
+		//	<< endl;
+		//for (int i = 0; i < randomization_order.size(); ++i) {
+		//	cout << "randomization_order[" << i << "]"
+		//		<< randomization_order[i]
+		//		<< endl;
+		//}
+		map_rand_order[(yyvsp[(2) - (6)].name)] = randomization_order;
+		randomization_order.clear();
+	}
+    break;
+
+  case 8:
+
+/* Line 1806 of yacc.c  */
+#line 77 "src/qscript_data.ypp"
+    {
+	      randomization_order.push_back((yyvsp[(3) - (3)].ival));
+	      }
+    break;
+
+  case 11:
+
+/* Line 1806 of yacc.c  */
+#line 88 "src/qscript_data.ypp"
     {
 		//cout << "data<int>[]: ";
 		// for(int i=0; i<data.size(); ++i){
@@ -1417,10 +1458,10 @@ yyreduce:
 	}
     break;
 
-  case 6:
+  case 12:
 
 /* Line 1806 of yacc.c  */
-#line 61 "src/qscript_data.ypp"
+#line 103 "src/qscript_data.ypp"
     {
 		//cout << "got empty question" << endl;
 		string qno((yyvsp[(1) - (3)].name));
@@ -1431,10 +1472,10 @@ yyreduce:
 	}
     break;
 
-  case 7:
+  case 13:
 
 /* Line 1806 of yacc.c  */
-#line 69 "src/qscript_data.ypp"
+#line 111 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (5)].name));
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
@@ -1450,10 +1491,10 @@ yyreduce:
 	}
     break;
 
-  case 8:
+  case 14:
 
 /* Line 1806 of yacc.c  */
-#line 82 "src/qscript_data.ypp"
+#line 124 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
@@ -1469,10 +1510,10 @@ yyreduce:
 	}
     break;
 
-  case 9:
+  case 15:
 
 /* Line 1806 of yacc.c  */
-#line 95 "src/qscript_data.ypp"
+#line 137 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
@@ -1485,39 +1526,39 @@ yyreduce:
 	}
     break;
 
-  case 10:
+  case 16:
 
 /* Line 1806 of yacc.c  */
-#line 107 "src/qscript_data.ypp"
+#line 149 "src/qscript_data.ypp"
     {
 		    data.push_back((yyvsp[(1) - (1)].ival));
 		    //cout << "INUMBER: " << $1 << endl;
 	}
     break;
 
-  case 11:
+  case 17:
 
 /* Line 1806 of yacc.c  */
-#line 111 "src/qscript_data.ypp"
+#line 153 "src/qscript_data.ypp"
     {
 		    //cout << "INUMBER: " << $2 << endl;
 		    data.push_back((yyvsp[(2) - (2)].ival));
 	}
     break;
 
-  case 12:
+  case 18:
 
 /* Line 1806 of yacc.c  */
-#line 117 "src/qscript_data.ypp"
+#line 159 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(2) - (2)].ival));
 	}
     break;
 
-  case 13:
+  case 19:
 
 /* Line 1806 of yacc.c  */
-#line 120 "src/qscript_data.ypp"
+#line 162 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	}
@@ -1526,7 +1567,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1530 "src/qscript_data.cpp"
+#line 1571 "src/qscript_data.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1757,7 +1798,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 125 "src/qscript_data.ypp"
+#line 167 "src/qscript_data.ypp"
 
 
 /*
@@ -1765,11 +1806,21 @@ int main(){
 	data.reserve(50);
 	qdd_list.reserve(100);
 	if(!read_disk_dataparse()&& !no_errors){
+		cout << "Parsed successfully" << endl;
 		for(int i=0; i< qdd_list.size(); ++i){
 			cout << qdd_list[i]->qno << endl;
 			cout  << ":" << qdd_list[i]->data.size() << endl;
 			for(int j=0; j<qdd_list[i]->data.size(); ++j){
 				cout << qdd_list[i]->data[j] << " ";
+			}
+			cout << endl;
+		}
+		for (map<string, vector<int> >::iterator it = map_rand_order.begin();
+			it != map_rand_order.end(); ++it ) {
+			cout << "NAMED_ATTRIBUTE_LIST: " << it->first;	
+			vector <int> & ord  = it->second;
+			for (int i=0; i<ord.size(); ++i) {
+				cout << " " << ord[i];
 			}
 			cout << endl;
 		}
