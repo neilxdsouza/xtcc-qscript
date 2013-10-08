@@ -337,6 +337,10 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "bool write_data_new_way;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
 	fprintf(script, "bool write_xtcc_data_file_flag;\n");
+	fprintf(script, "string company_name;\n");
+	fprintf(script, "string uuid;\n");
+
+
 	fprintf(script, "bool only_setup_flag;\n");
 	fprintf(script, "bool card_start_flag;\n");
 	fprintf(script, "bool card_end_flag;\n");
@@ -1477,6 +1481,15 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
+	fprintf(script, "\tenum long_option_values  {\n");
+	fprintf(script, "\t	COMPANY_NAME=255,\n");
+	fprintf(script, "\t	UUID\n");
+	fprintf(script, "\t};\n");
+
+
+
+
+
 	fprintf(script, "\tstatic struct option long_options[] =\n");
 	fprintf(script, "\t	{\n");
 	fprintf(script, "\t		{ \"setup-only\", no_argument, 0, 's'} ,\n");
@@ -1484,6 +1497,9 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "\t		{ \"qtm-data\", no_argument, 0, 'q'} ,\n");
 	fprintf(script, "\t		{ \"xtcc-data\", no_argument, 0, 'x'} ,\n");
 	fprintf(script, "\t		{ \"new-data\", required_argument, 0, 'n'} ,\n");
+	fprintf(script, "\t		{ \"company_name\", required_argument, 0, COMPANY_NAME} ,\n");
+	fprintf(script, "\t		{ \"uuid\", required_argument, 0, UUID},\n");
+	fprintf(script, "\t		{ 0, 0, 0, 0}\n");
 	fprintf(script, "\t	};\n\n\n\n");
 	fprintf(script, "	while ( (c = getopt_long(argc, argv, \"sxwqn:\", long_options, &optind)) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
@@ -1546,6 +1562,16 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				}\n");
 	fprintf(script, "			}\n");
 	fprintf(script, "		break;\n");
+	fprintf(script, "	\tcase COMPANY_NAME: {\n");
+	fprintf(script, "	\t	company_name = optarg;\n");
+	fprintf(script, "	\t	}\n");
+	fprintf(script, "	\tbreak;\n");
+	fprintf(script, "	\tcase UUID: {\n");
+	fprintf(script, "	\t	uuid = optarg;\n");
+	fprintf(script, "	\t	}\n");
+	fprintf(script, "	\tbreak;\n");
+
+
 
 
 	fprintf(script, "		case '?' : {\n");
@@ -1561,6 +1587,15 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	cout << \"write_data_file_flag: \" << write_data_file_flag << endl;\n");
 	fprintf(script, "	cout << \"output_qtm_data_file_name: \" << output_qtm_data_file_name << endl;\n");
 	fprintf(script, "	cout << \"write_qtm_data_file_flag: \" << write_qtm_data_file_flag << endl;\n");
+	fprintf(script, "	cout << \"company_name: \" << company_name << endl;\n");
+	fprintf(script, "	cout << \"uuid: \" << uuid << endl;\n");
+	fprintf(script, "	cout << \"Exit: \" << __PRETTY_FUNCTION__ << endl;\n");
+
+
+
+
+
+
 	fprintf(script, "	//exit(1);\n");
 	fprintf(script, "}\n");
 }
@@ -3376,7 +3411,33 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	}
 	fprintf (script, "\n");
 	fprintf (script, "\tstringstream filename_pattern;\n");
-	fprintf (script, "\tfilename_pattern << \".*/.*/.*/.*/\" << jno << \"_[1-9][0-9]*\\\\.dat$\";\n");
+	fprintf (script, "\t//filename_pattern << \".*/.*/.*/.*/\" << jno << \"_[1-9][0-9]*\\\\.dat$\";\n");
+
+	fprintf (script, "\t// if (company_name.length() > 0) {\n");
+	fprintf (script, "\t// 	filename_pattern << company_name << \"/\";\n");
+	fprintf (script, "\t// } else {\n");
+	fprintf (script, "\t// 	company_name << \".*/\";\n");
+	fprintf (script, "\t// }\n");
+	fprintf (script, "\t// filename_pattern << jno << \"/\";\n");
+	fprintf (script, "\tif (uuid.length() > 0) {\n");
+	fprintf (script, "\t	filename_pattern << uuid << \"/\";\n");
+	fprintf (script, "\t} else {\n");
+	fprintf (script, "\t	filename_pattern << \".*\"<< \"/\";\n");
+	fprintf (script, "\t}\n");
+	fprintf (script, "\tfilename_pattern\n");
+	fprintf (script, "\t	<< \".*/\"\n");
+	fprintf (script, "\t	<< \"synced/\" \n");
+	fprintf (script, "\t	<< jno <<  \"_[1-9][0-9]*\\\\.dat$\";\n");
+	fprintf (script, "\t                                                                \n");
+	fprintf (script, "\tcout << \"filename_pattern: \" << filename_pattern.str() << endl;\n");
+	//fprintf (script, "exit(1);\n");
+	fprintf (script, "\n");
+
+
+
+
+
+
 	fprintf (script, "\tFILE * data_file_dump = fopen (\"op\", \"rb\");\n");
 	//fprintf (script, "\tDataFileIterator data_file_iterator (filename_pattern.str().c_str(), \".\");\n");
 	fprintf (script, "\tSequentialFileIterator data_file_iterator (data_file_dump, filename_pattern.str());\n");
