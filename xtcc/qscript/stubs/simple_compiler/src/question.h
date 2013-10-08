@@ -63,6 +63,7 @@ struct DummyArrayQuestion;
 
 
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
+struct ArrayQuestion;
 struct AbstractQuestion: public AbstractStatement
 {
 	string questionName_;
@@ -87,6 +88,9 @@ struct AbstractQuestion: public AbstractStatement
 	XtccSet mutexCodeList_;
 	int maxCode_;
 	bool isStartOfBlock_;
+	// this is reqd in the runtime
+	ArrayQuestion * array_q_ptr_;
+	int index_in_array_question;
 	//int nestLevel_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(

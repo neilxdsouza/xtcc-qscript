@@ -30,7 +30,7 @@ SequentialFileIterator::SequentialFileIterator(FILE * fptr, string file_name_pat
 		fprintf (stderr, "Bad regex pattern ... exiting\n");
 		exit (WALK_BADPATTERN);
 	}
-	string cmd = "find . -name \"*.dat\" > op";
+	string cmd = "find . -name \"*.dat\" > find_command_op";
 	cout << "executing cmd: " << cmd << endl;
 
 	int ret_val = system (cmd.c_str());
@@ -40,7 +40,7 @@ SequentialFileIterator::SequentialFileIterator(FILE * fptr, string file_name_pat
 			<< endl;
 		exit(1);
 	}
-	all_files = fopen ("op", "rb");
+	all_files = fopen ("find_command_op", "rb");
 	if (!all_files) {
 		cout << "Failed to open |op| for reading, ... exiting" << endl;
 		exit (1);

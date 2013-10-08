@@ -70,11 +70,57 @@ class AsciiFlatFileQuestionDiskMap
 		int GetTotalLength() { return total_length; }
 		void write_data (char * output_buffer)
 		{
+			cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 			char * ptr = output_buffer + start_pos;
 			int no_responses_written = 0;
-			for (std::set<int>::iterator it = q->input_data.begin();
-				it != q->input_data.end(); ++it)
-			{
+			bool has_named_attribute = false;
+			bool named_attribute_is_randomized = false;
+			int text_na_index = -1;
+			// warning - the code below will only work if there is
+			// exactly 1 named attribute in the question which is randomized
+			//
+			if (q->textExprVec_.size() > 0 ) {
+				cout << __PRETTY_FUNCTION__ << ", q->textExprVec_.size() > 0" << endl;
+				for (int i=0; i< q->textExprVec_.size(); ++i) {
+					if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {
+						has_named_attribute = true;
+						if (q->textExprVec_[i]->naPtr_->isRandomized_) {
+							named_attribute_is_randomized = true;
+							text_na_index = i;
+							cout << "named_attribute_is_randomized : text_na_index: " << text_na_index
+								<< endl;
+						}
+					}
+				}
+			}
+
+			set<int32_t> the_input_data;
+			if (text_na_index > 0 && has_named_attribute && named_attribute_is_randomized) {
+				cout << "q->textExprVec_[" << text_na_index << "]->naIndex_:"
+					<< q->textExprVec_[text_na_index]->naIndex_
+					<< endl;
+				if (q->textExprVec_[text_na_index]->naPtr_ -> randomized_order.size() > 0 ) {
+					vector <int> & rnd_order = q->textExprVec_[text_na_index]->naPtr_ -> randomized_order;
+					int na_index =  q->textExprVec_[text_na_index]->naIndex_;
+					int na_rnd_index = -1;
+					for (int i=0; i < rnd_order.size(); ++i) {
+						if (rnd_order[i] == na_index) {
+							na_rnd_index = i;
+							break;
+						}
+					}
+					the_input_data = q->array_q_ptr_ -> questionList[na_rnd_index]->input_data;
+				} else {
+					the_input_data = q->array_q_ptr_ -> questionList[q->textExprVec_[text_na_index]->naIndex_]->input_data;
+				}
+			}  else {
+				the_input_data = q->input_data;
+			}
+
+			for (
+				//std::set<int>::iterator it = q->input_data.begin(); it != q->input_data.end(); ++it
+				std::set<int>::iterator it = the_input_data.begin(); it != the_input_data.end(); ++it
+				) {
 				int code = *it;
 				std::stringstream code_str;
 				code_str << code;
@@ -113,6 +159,7 @@ class AsciiFlatFileQuestionDiskMap
 					exit(1);
 				}
 			}
+			cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 		}
 		void print_map(fstream & map_file)
 		{

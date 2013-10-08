@@ -84,6 +84,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
+	, array_q_ptr_(0), index_in_array_question(-1)  
 {
 	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -143,6 +144,7 @@ AbstractQuestion::AbstractQuestion(
 	, mutexCodeList_(p_mutexCodeList)
 	, maxCode_(0)
 	, isStartOfBlock_(false)
+	, array_q_ptr_(0), index_in_array_question(-1)  
 {
 	// cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -173,8 +175,9 @@ AbstractQuestion::AbstractQuestion(
 	, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
-	  , mutexCodeList_()
-	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
+	, mutexCodeList_()
+	, maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
+	, array_q_ptr_(0), index_in_array_question(-1)  
 {
 	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -1253,6 +1256,14 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		quest_decl
+			//<< "/*  "
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			//<< " */"
+			<< endl;
 		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		//cerr << "mutex_range_set_name: " << mutex_range_set_name << endl;
@@ -1386,6 +1397,15 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
+
+		quest_decl
+			//<< "/*  "
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			//<< " */"
 			<< endl;
 		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);

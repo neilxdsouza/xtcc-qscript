@@ -58,6 +58,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
 	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
+	, array_q_ptr_(0), index_in_array_question(-1)  
 {
 	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	//if(enclosingCompoundStatement_ == 0){
@@ -416,6 +417,7 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0)
 	  , isStartOfBlock_(l_isStartOfBlock)
+	, array_q_ptr_(0), index_in_array_question(-1)  
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
