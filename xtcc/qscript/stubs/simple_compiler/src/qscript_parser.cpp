@@ -3427,7 +3427,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf (script, "\tfilename_pattern\n");
 	fprintf (script, "\t	<< \".*/\"\n");
 	fprintf (script, "\t	<< \"synced/\" \n");
-	fprintf (script, "\t	<< jno <<  \"_[1-9][0-9]*\\\\.dat$\";\n");
+	fprintf (script, "\t	<< jno << \"_interviewer_id\" <<  \"_[1-9][0-9]*\\\\.dat$\";\n");
 	fprintf (script, "\t                                                                \n");
 	fprintf (script, "\tcout << \"filename_pattern: \" << filename_pattern.str() << endl;\n");
 	//fprintf (script, "exit(1);\n");
