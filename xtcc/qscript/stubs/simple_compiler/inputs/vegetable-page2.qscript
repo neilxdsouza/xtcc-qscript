@@ -1,0 +1,196 @@
+
+vegetable_page {
+		int32_t i1;
+ stubs yn=	"Yes" 1
+		"No" 2;
+
+stubs age =
+	"18 to 21" 1
+	"22 to 25" 2
+	"26 to 30" 3
+	"31 to 35" 4
+	"36 to 40" 5;
+
+stubs dummyExit = 
+	"Exit" 1;
+
+q1 	"Do you Eat Vegetables?"
+	sp int32_t yn;
+
+q1_1 	"Why do you Eat Vegetables?"
+	mp(10) int32_t (1-500);
+
+stubs agree_5 =
+	"5 agree strongly" 5
+	"4 agree somewhat" 4
+	"3 Neutral" 3
+	"2 Disagree " 2
+	"1 Disagree strongly" 1;
+
+ stubs veg=
+ 		"Tomates" 1
+		"Potatoes" 2
+		"Capsicum" 3
+		"Brinjal/Egg plant" 4
+		"Okra/Lady Finger" 5
+		//"Pumpkin" 6
+		//"French Beans" 7,
+		//"Snow Peas" 8,
+		//"Artichokes" 9,
+		//"Cabbage" 10
+		//"Cauliflower" 11
+		//"Broccoli" 12,
+		//"Other 1" 13
+		//"Other 2" 14
+		//"Other 3" 15
+		//"Don't Know" 99
+		;
+	setall (veg);
+	named_attribute veg_seg_att = " Vegetables are good for health",
+				" I buy fresh vegetables often",
+				" Greens are good source of dietary fibre",
+				" I would like to be vegetarian some day"
+				;
+
+
+	if (q1==1) {
+
+		setall(veg);
+	
+
+q2 		"Here is a list of some common vegetables. Which of these vegetables are you aware of?"
+		mp(15) int32_t veg;
+
+
+		unset(veg);
+		setadd(veg, q2);
+q3_1 		"And which of these Vegetables have you ever eaten?"
+		mp(15) int32_t veg;
+
+		unset(veg);
+		setadd(veg, q3_1);
+q3_2 		"And which of these Vegetables do you regularly eat?"
+		mp(15) int32_t veg;
+
+ 	
+		unset(veg);
+		setadd(veg, q3_1);
+q4 		"And, could you please tell us, Which of these vegetables is your favourite?" : q3_1
+		sp int32_t veg;
+
+		/*
+		int32_t sum=0;
+		int32_t iter_no=0;
+		for (i1=0; i1<12; i1=i1+1) {
+			int32_t code = i1+1;
+
+			if (code in q3_2) {
+q5				"In a week what percentage of your veggies are : "
+				: q3_2 . stubs [i1]
+				sp int32_t (0-100);
+				sum=sum+q5[i1];
+				iter_no=i1;
+			} else {
+				1;
+			}
+		}
+		if (sum != 100) {
+			clear (q5[iter_no], "Percentage should add up to 100");
+		}
+		*/
+
+
+	int32_t sum_veg = 0;
+	sum_veg = 0;
+	//page veg_share {
+	{
+
+			if (1 in q3_2) {
+q5_1				"In a week what percentage of your veggies are " : "Tomatoes"
+				sp int32_t (1-100);
+				sum_veg = sum_veg + q5_1;
+				printf ("sum percentages sum_veg: %d\n", sum_veg);
+			} else {
+				1;
+			}
+
+			
+
+			if (2 in q3_2) {
+q5_2				"In a week what percentage of your veggies are : " : "Potatoes"
+				sp int32_t (1-100);
+				sum_veg = sum_veg + q5_2;
+			} else {
+				1;
+			}
+
+			if (3 in q3_2) {
+q5_3				"In a week what percentage of your veggies are : " : "Capsicum"
+				sp int32_t (1-100);
+				sum_veg = sum_veg + q5_3;
+			} else {
+				1;
+			}
+
+			if (4 in q3_2) {
+q5_4				"In a week what percentage of your veggies are : " : "Brinjal/Egg plant"
+				sp int32_t (1-100);
+				sum_veg = sum_veg + q5_4;
+			} else {
+				1;
+			}
+
+			if (5 in q3_2) {
+q5_5				"In a week what percentage of your veggies are : " : "Okra/Lady Finger"
+				sp int32_t (1-100);
+				sum_veg = sum_veg + q5_5;
+			} else {
+				1;
+			}
+
+		}
+		//	sum_veg =  q5_1 + q5_2 + q5_3 + q5_4 + q5_5;
+			printf ("sum percentages sum_veg: %d\n", sum_veg);
+
+			if (sum_veg != 100) {
+				//clear (q5_1 , q5_2 , q5_3 , q5_4 , q5_5, " Sum of percentages should add up to 100");
+				clear (q5_1 , " Sum of percentages should add up to 100");
+				clear (q5_2 , " Sum of percentages should add up to 100");
+				clear (q5_3 , " Sum of percentages should add up to 100");
+				clear (q5_4 , " Sum of percentages should add up to 100");
+			}
+
+
+
+
+	} else {
+		1;
+	}
+
+
+		for (i1=0; i1<4; i1=i1+1) {
+q6			"Please state your agreement with these statements" : veg_seg_att[i1]
+			sp int32_t agree_5;
+		}
+
+page demogs {
+
+d1	 "Age"
+	sp int32_t  age;
+
+stubs gen=
+	"Male " 1
+	"Female " 2;
+
+d2 	"Gender"
+	sp int32_t gen;
+
+
+	}
+
+e1 "Thank you for taking the survey"
+sp int32_t dummyExit: allow_blank;	
+
+}
+
+
