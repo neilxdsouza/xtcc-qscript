@@ -42,6 +42,11 @@ namespace qscript_parser
 
 	bool flag_next_stmt_start_of_block = false;
 
+	std::string globalActivePageName_;
+	int32_t globalActivePageSize_;
+	//bool flag_first_question_in_page = false;
+
+
 	bool flag_dynamic_base_text = false;
 	AbstractQuestion * dynamic_base_text_question = 0;
 	bool flag_next_question_start_of_block = false;

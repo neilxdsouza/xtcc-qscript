@@ -2722,6 +2722,103 @@ std::string IfStatement ::PrintIdentity ()
 	return string(__PRETTY_FUNCTION__) + ifCondition_->PrintIdentity();
 }
 
+PageStatement::PageStatement (DataType dtype, int32_t l_line_no,
+		int32_t l_nest_level, int32_t l_for_nest_level,
+		string l_page_name, CompoundStatement * l_page_body,
+		int l_page_size)
+	: AbstractStatement(dtype, l_line_no, l_nest_level, l_for_nest_level),
+	  pageName_ (l_page_name), pageBody_ (l_page_body),
+	  pageSize_ (l_page_size)
+{
+	cout
+		<< "pageName_: " << pageName_
+		<< ", pageSize_: " << pageSize_
+		<< endl;
+}
+
+void PageStatement::GetQuestionNames(vector<string> & question_list,
+			      AbstractStatement * endStatement)
+{
+	if (endStatement==this) {
+		return;
+	}
+	pageBody_->GetQuestionNames(question_list, endStatement);
+	if (next_) {
+		next_->GetQuestionNames(question_list,endStatement);
+	}
+}
+
+
+void PageStatement::GetQuestionsInBlock(
+	vector<AbstractQuestion*> & question_list
+	, AbstractStatement * stop_at)
+{
+	//cerr << "ENTER: CompoundStatement::GetQuestionsInBlock" << endl;
+	if (pageBody_){
+		pageBody_->GetQuestionsInBlock(question_list, stop_at);
+	}
+	if (next_ && next_ != stop_at){
+		next_->GetQuestionsInBlock(question_list, stop_at);
+	}
+	//cerr << "EXIT: CompoundStatement::GetQuestionsInBlock" << endl;
+}
+
+void PageStatement::GenerateCode(StatementCompiledCode & code)
+{
+	code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
+#if 0
+	qscript_parser::globalActivePageName_ = pageName_;
+	qscript_parser::globalActivePageSize_ = pageSize_;
+	code.program_code << "vector <AbstractRuntimeQuestion*> vec_page_"
+		<< pageName_ << "_ret_val;" << std::endl;
+	qscript_parser::page_nest_lev = 1;
+	qscript_parser::flag_first_question_in_page = true;
+#endif /*  0  */
+	pageBody_->GenerateCode(code);
+
+#if 0
+	code.program_code
+		<< "if (vec_page_" << pageName_ << "_ret_val.size() > 0) {"
+		<< " last_question_visited =  vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl
+		//<< " return vec_page_" << pageName_ << "_ret_val;"
+		<< "EvalReturnValue ev_ret_val;" << endl
+	 	<< "ev_ret_val.qVec_ = "
+		<< " vec_page_" << pageName_ << "_ret_val;"
+	 	<< "ev_ret_val.errMessageVec_ = error_messages_vec; " << endl
+	 	<< "return ev_ret_val;" << endl
+		<< std::endl
+		<< "}" << endl
+		;
+
+
+	qscript_parser::page_nest_lev = 0;
+#endif /*  0 */
+	code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	if (next_) {
+		next_->GenerateCode (code);
+	}
+}
+
+void PageStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{
+	pageBody_->Generate_ComputeFlatFileMap (code);
+	if (next_)
+		next_->Generate_ComputeFlatFileMap(code);
+}
+
+void PageStatement::GenerateConsolidatedForLoopIndexes()
+{
+	//cout << "ENTER IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	if (pageBody_) {
+		pageBody_->GenerateConsolidatedForLoopIndexes();
+	}
+	if (next_) {
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+	//cout << "EXIT IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+}
+
 RandomizeStatement::RandomizeStatement(DataType l_type,
 	int32_t l_line_number,
 	int32_t l_nest_level, int32_t l_for_nest_level,

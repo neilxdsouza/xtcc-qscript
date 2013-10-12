@@ -150,6 +150,8 @@
 %type <stmt> if_stmt
 %type <stmt> for_loop_stmt
 %type <stmt> stub_manip_stmts
+%type <stmt> page_stmt
+
 %type <v_list> var_decl
 %type <v_list> decl_comma_list
 %type <stmt> randomize_stmt
@@ -331,6 +333,7 @@ stmt:	question
 	| create_1_0_data_edit_stmt
         | brand_rank_recode_stmt 
 	| newcard_stmt
+	| page_stmt
 	| randomize_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
@@ -376,6 +379,36 @@ cmpd_stmt: open_curly stmt_list '}' {
 		$$ = qscript_parser::ProcessCompoundStatement($1, $2);
 	}
 	;
+
+page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; } cmpd_stmt {
+		std::stringstream mesg;
+		mesg << "Need to add check that names for pages are unique";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		string page_name ($2);
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no,
+					qscript_parser::nest_lev,
+					qscript_parser::flagIsAForBody_,
+					page_name, $4);
+		$$ = a_page;
+		qscript_parser::globalActivePageName_ = string("");
+	}
+	| PAGE NAME {qscript_parser::globalActivePageName_ = $2;} GRID_SIZE '=' INUMBER cmpd_stmt {
+		string page_name ($2);
+		int32_t grid_size = $6;
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no,
+					qscript_parser::nest_lev,
+					qscript_parser::flagIsAForBody_,
+					page_name, $7, grid_size);
+		$$ = a_page;
+		qscript_parser::globalActivePageName_ = string("");
+	}
+	;
+
+
 
 
 randomize_stmt: NAME '.' RANDOMIZE ';' {
@@ -1515,6 +1548,17 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 			(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
 	}
 	//$$=$1;
+	if (qscript_parser::page_nest_lev == 1) {
+		qscript_parser::page_nest_lev = 0;
+	} else if (qscript_parser::page_nest_lev > 1) {
+		print_err(compiler_internal_error
+			, "Error: page_nest_lev should never be more than 1 "
+			   "ProcessCompoundStatement : "
+			"... exiting"
+			, line_no, __LINE__, __FILE__  );
+		exit (1);
+	}
+
 	return cmpdStmt;
 }
 

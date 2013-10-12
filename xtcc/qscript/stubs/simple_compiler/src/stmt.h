@@ -655,6 +655,33 @@ struct Create_1_0_DataEditStatement: public AbstractStatement
 	}
 };
 
+struct PageStatement: public AbstractStatement
+{
+	PageStatement (DataType dtype, int32_t lline_number,
+			int32_t l_nest_level, int32_t l_for_nest_level,
+			string l_page_name, CompoundStatement * l_page_body,
+			int l_page_size = 0);
+	// PageStatement(DataType dtype, int32_t lline_number,
+	// 		string l_page_name,
+	// 		int l_page_size,
+	// 		CompoundStatement * l_page_body);
+	std::string pageName_;
+	int pageSize_;
+	CompoundStatement * pageBody_;
+	void GenerateConsolidatedForLoopIndexes();
+	void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	void GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement);
+	void GetQuestionsInBlock( vector<AbstractQuestion*> & question_list
+				, AbstractStatement * stop_at);
+	private:
+	PageStatement& operator=(const PageStatement&);
+	PageStatement(const PageStatement&);
+};
+
+
+
 
 string helper_GenerateArrayInitLoopOpen (vector<AbstractExpression*> & for_bounds_stack);
 
