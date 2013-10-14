@@ -35,4 +35,11 @@ q1			"q1. Testing attribute battery randomization" : n_att_test[i1]
 	}
 
 
+stubs dummyExit = 
+	"Exit" 1;
+
+e1 	"Thank you for taking the survey"
+	sp int32_t dummyExit: allow_blank;
+
+
 }
