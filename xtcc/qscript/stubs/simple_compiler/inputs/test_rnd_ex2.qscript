@@ -1,0 +1,97 @@
+test_rnd {
+
+named_attribute n_att_test =
+	"Stmt 1",
+	"Stmt 2",
+	"Stmt 3",
+	"Stmt 4",
+	"Stmt 5",
+	"Stmt 6",
+	"Stmt 7",
+	"Stmt 8",
+	"Stmt 9",
+	"Stmt 10",
+	"Stmt 11",
+	"Stmt 12",
+	"Stmt 13",
+	"Stmt 14",
+	"Stmt 15",
+	"Stmt 16",
+	"Stmt 17",
+	"Stmt 18";
+
+	n_att_test.randomize;
+
+	page att_batt1 grid_size=5 {
+
+		int32_t i1 = 0;
+		for (i1 = 0; i1 < 18; i1 = i1 + 1) {
+
+q1			"q1. Testing attribute battery randomization" : n_att_test[i1]
+			sp int32_t (1-18);
+
+		}
+
+	}
+
+
+stubs age =
+	"18 to 21" 1,
+	"22 to 25" 2,
+	"26 to 30" 3,
+	"31 to 35" 4,
+	"36 to 40" 5;
+
+d1	 "Age"
+	sp int32_t  age;
+
+named_attribute n_att_test2 =
+	"Stm2t 1",
+	"Stm2t 2",
+	"Stm2t 3",
+	"Stm2t 4",
+	"Stm2t 5",
+	"Stm2t 6",
+	"Stm2t 7",
+	"Stm2t 8",
+	"Stm2t 9",
+	"Stm2t 10",
+	"Stm2t 11",
+	"Stm2t 12",
+	"Stm2t 13",
+	"Stm2t 14",
+	"Stm2t 15",
+	"Stm2t 16",
+	"Stm2t 17",
+	"Stm2t 18",
+	"Stm2t 19";
+	n_att_test2.randomize;
+
+	page att_batt2 grid_size=6 {
+
+		int32_t i2 = 0;
+		for (i2 = 0; i2 < 19; i2 = i2 + 1) {
+
+q2			"q2. Testing attribute battery randomization" : n_att_test2[i2]
+			sp int32_t (1-19);
+
+		}
+
+	}
+
+stubs gen=
+	"Male " 1,
+	"Female " 2;
+
+d2 	"Gender"
+	sp int32_t gen;
+
+
+stubs dummyExit = 
+	"Exit" 1;
+
+e1 	"Thank you for taking the survey"
+	sp int32_t dummyExit: allow_blank;
+
+
+}
