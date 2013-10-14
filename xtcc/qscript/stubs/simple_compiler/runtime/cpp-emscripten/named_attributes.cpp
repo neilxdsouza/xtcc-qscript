@@ -1,10 +1,11 @@
+#include <cstdio>
 #include <sys/types.h>
-#include <iostream>
+//#include <iostream>
 #include "named_attributes.h"
 #include "simple_rng.h"
 
-using std::cout;
-using std::endl;
+//using std::cout;
+//using std::endl;
 
 using std::vector;
 using std::string;
@@ -89,3 +90,32 @@ void named_attribute_list::randomize()
 	shuffle (randomized_order);
 	isRandomized_  = 1;
 }
+
+int named_attribute_list::WriteNamedAttributeOrderToBuffer (char * & buffer_start, int & n_left)
+{
+	int total = 0;
+	if (isRandomized_) {
+		char * buffer_ptr = buffer_start;
+		//data_file << "named_attribute_list " << name << " " << attribute.size()
+		//	<< ":";
+		int n = sprintf (buffer_ptr, "named_attribute_list %s %d:", name.c_str(), attribute.size());
+		buffer_ptr += n; total += n;
+
+		for (int i=0; i < randomized_order.size(); ++i) {
+			//data_file << " " << i << "->" << randomized_order[i];
+			n = sprintf (buffer_ptr, " %d -> %d", i, randomized_order[i]);
+			buffer_ptr += n; total += n;
+		}
+		n = sprintf (buffer_ptr, "\n");
+		buffer_ptr += n; total += n;
+		buffer_start = buffer_ptr;
+		if (n_left - total < 0) {
+			printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
+		}
+	}
+	//data_file << endl;
+	return total;
+
+
+}
+

@@ -44,8 +44,11 @@ int32_t check_if_reg_file_exists(string jno, int32_t ser_no)
 	typedef void * yyscan_t;
 int read_disk_dataparse(yyscan_t yyscanner,
 	std::map <string, question_disk_data*>* qdd_map_ptr,
+	std::map <string, vector<int> >* map_n_attr_rand_order_ptr,
 	std::vector<int>* data_ptr,
-	vector<int>* array_index_list_ptr);
+	vector<int>* array_index_list_ptr,
+	vector<int>* randomization_order_ptr
+	);
 int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 
 void read_disk_data_init();
@@ -67,7 +70,9 @@ void clear_previous_data()
 */
 
 int32_t load_data_from_string(const char * survey_data,
-		map <string, question_disk_data*> * qdd_map_ptr)
+		map <string, question_disk_data*> * qdd_map_ptr,
+		map <string, vector<int> >  * map_n_attr_rand_order_ptr
+		)
 {
 	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	yyscan_t scanner;
@@ -75,9 +80,12 @@ int32_t load_data_from_string(const char * survey_data,
 	YY_BUFFER_STATE s_data = read_disk_data_scan_string  (survey_data, scanner);
 	vector <int> data;
 	vector <int> array_index_list;
+	vector <int> randomization_order_ptr;
+	///map <string, vector<int> > map_n_attr_rand_order;
 	// warning this is the same code as the next function - need
 	// to extract it out
-	if (! read_disk_dataparse (scanner, qdd_map_ptr, &data, &array_index_list)) {
+	if (! read_disk_dataparse (scanner, qdd_map_ptr, map_n_attr_rand_order_ptr,
+				&data, &array_index_list, &randomization_order_ptr)) {
 		//return 1;
 		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		for (map<string, question_disk_data*>:: iterator it
@@ -109,7 +117,10 @@ int32_t load_data_from_string(const char * survey_data,
 }
 
 int32_t load_data(string jno, int32_t ser_no,
-		map <string, question_disk_data*> * qdd_map_ptr)
+		map <string, question_disk_data*> * qdd_map_ptr,
+		map <string, vector<int> >  * map_n_attr_rand_order_ptr
+		)
+
 {
 	yyscan_t scanner;
 	//yylex_init(&scanner);
@@ -125,7 +136,9 @@ int32_t load_data(string jno, int32_t ser_no,
 		read_disk_dataset_in (read_disk_datain, scanner);
 		vector <int> data;
 		vector <int> array_index_list;
-		if (! read_disk_dataparse (scanner, qdd_map_ptr, &data, &array_index_list)) {
+		vector <int> randomization_order;
+		if (! read_disk_dataparse (scanner, qdd_map_ptr, map_n_attr_rand_order_ptr,
+					&data, &array_index_list, &randomization_order)) {
 			//return 1;
 			map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 			for (map<string, question_disk_data*>:: iterator it
@@ -173,8 +186,9 @@ int32_t load_data(string jno, int32_t ser_no,
 //extern vector <AbstractRuntimeQuestion*> question_list;
 void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuestion * & p_last_question_answered,
 		vector<AbstractRuntimeQuestion *> & p_last_question_visited, const vector <AbstractRuntimeQuestion*> question_list,
-		map <string, question_disk_data*> * qdd_map_ptr)
-
+		map <string, question_disk_data*> * qdd_map_ptr,
+		const vector <named_attribute_list *> & p_named_attribute_list_vec,
+		const map <string, vector <int> > & p_map_randomization_order)
 {
 	map <string, question_disk_data*> & qdd_map =  * qdd_map_ptr;
 	if (qscript_debug::DEBUG_LoadData) {
@@ -183,6 +197,20 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuest
 			<< __FILE__ << ", " << __LINE__ << ", "
 			<< endl;
 	}
+	
+	for (int32_t i = 0; i< p_named_attribute_list_vec.size(); ++i) {
+		const string & attribute_list_name = p_named_attribute_list_vec[i]->name;
+		map<string, vector<int> >::const_iterator it = p_map_randomization_order.find (attribute_list_name) ;
+		if (it != p_map_randomization_order.end()) {
+			p_named_attribute_list_vec[i]->randomized_order = it->second;
+		}
+	}
+
+
+
+
+
+
 	for (int32_t i = 0; i< question_list.size(); ++i) {
 		AbstractRuntimeQuestion* q= question_list[i];
 

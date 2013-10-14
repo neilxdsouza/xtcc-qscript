@@ -1,4 +1,5 @@
 
+	alert ( "started" );
 	my_log ("Started loading our_ui.js");
 
 	/* Next Question Button {{{2 */
@@ -24,6 +25,8 @@
 
 	/* newNextQ Button {{{2 */
 	var newNextQ= document.getElementById("newNextQ");
+	alert ( "newNextQ: " + newNextQ);
+
 	EventUtil.addHandler (newNextQ, "click", function(event) {
 		my_log ("Enter newNextQ");
 		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
@@ -32,7 +35,7 @@
 		my_log ("new_serialize done: " + returnValue);
 		called_from_the_dom(returnValue.join("|"));
 	});
-	//my_log ("created submit handler function");
+	my_log ("created newNextQ handler function");
 	/* newNextQ Button }}}2 */
 
 	/* prevQ Button {{{2 */
@@ -44,7 +47,7 @@
 		my_log ("navigate_previous: " +  navigate_previous);
 		navigate_previous ("dummy data");
 	});
-	//my_log ("created submit handler function");
+	my_log ("created prevQ handler function");
 	/* prevQ Button }}}2 */
 
 /* handleStartSurveyButton  {{{2 */

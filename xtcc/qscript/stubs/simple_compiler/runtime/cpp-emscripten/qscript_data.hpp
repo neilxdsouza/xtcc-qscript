@@ -41,8 +41,10 @@
      COLON = 259,
      DOLLAR = 260,
      BOUNDS = 261,
-     INUMBER = 262,
-     NEWL = 263
+     NAMED_ATTRIBUTE_LIST = 262,
+     ARROW = 263,
+     INUMBER = 264,
+     NEWL = 265
    };
 #endif
 
@@ -53,7 +55,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 35 "src/qscript_data.ypp"
+#line 39 "cpp-emscripten/qscript_data.ypp"
 
 	int ival;
 	double dval;
@@ -62,7 +64,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 66 "src/qscript_data.hpp"
+#line 68 "cpp-emscripten/qscript_data.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

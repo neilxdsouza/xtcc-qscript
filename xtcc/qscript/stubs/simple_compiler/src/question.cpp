@@ -1338,6 +1338,14 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		quest_decl
+			//<< "/*  "
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			//<< " */"
+			<< endl;
 		quest_decl << "}\n";
 	} else {
 		quest_decl << "print_question_messages(" << questionName_ << ");\n";
@@ -1473,6 +1481,14 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 			<< endl;
 		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
+		quest_decl
+			//<< "/*  "
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			//<< " */"
 			<< endl;
 		quest_decl << "}\n";
 	} else {

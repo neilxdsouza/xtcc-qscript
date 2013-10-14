@@ -33,6 +33,8 @@ struct named_attribute_list
 	void randomize();
 	void load_randomized_order (const std::vector <int> & p_randomized_order);
 	std::string save_randomized_order ();
+
+	int WriteNamedAttributeOrderToBuffer (char * & buffer_start, int & n_left);
 	//virtual void GenerateCode(StatementCompiledCode & code);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);

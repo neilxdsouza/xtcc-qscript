@@ -63,6 +63,8 @@ struct AbstractQuestionnaire
 	std::string jumpToQuestion;
 	int32_t jumpToIndex;
 	std::vector <BaseText> base_text_vec;
+	vector <named_attribute_list *> named_attribute_list_vec;
+
 	AbstractQuestionnaire (std::string p_jno);
 	void print_question_messages(AbstractRuntimeQuestion * q);
 	//void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);

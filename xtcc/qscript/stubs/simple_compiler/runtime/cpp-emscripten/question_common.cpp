@@ -35,6 +35,7 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, isStartOfBlock_(l_isStartOfBlock)
 	, questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
 	, pageName_ (l_page_name)  
+	, array_q_ptr_(0), index_in_array_question(-1)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "

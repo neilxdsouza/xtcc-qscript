@@ -210,6 +210,7 @@ struct AbstractQuestion: public AbstractStatement
 };
 #endif /* 0 */
 
+struct ArrayQuestion;
 struct AbstractRuntimeQuestion
 {
 	string questionName_;
@@ -237,6 +238,10 @@ struct AbstractRuntimeQuestion
 	int questionNoIndex_;
 	static int32_t nQuestions_;
 	string pageName_;
+	ArrayQuestion * array_q_ptr_;
+	int index_in_array_question;
+
+
 	//! this is only called in the compile time environment
 #if 0
 	AbstractRuntimeQuestion(

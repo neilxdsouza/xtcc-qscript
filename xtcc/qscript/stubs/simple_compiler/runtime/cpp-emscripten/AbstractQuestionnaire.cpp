@@ -397,6 +397,12 @@ int AbstractQuestionnaire::write_data_to_buffer (const vector<AbstractRuntimeQue
 {
 	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	int total = 0;
+	for (int32_t i = 0; i < named_attribute_list_vec.size(); ++i) {
+		int n_written = named_attribute_list_vec[i]->WriteNamedAttributeOrderToBuffer(buffer, n_left);
+		total += n_written;
+	}
+
+
 	for(int32_t i = 0; i < question_list.size(); ++i)
 	{
 		int n_written = question_list[i]->WriteDataToBuffer(buffer, n_left);
@@ -528,6 +534,7 @@ void AbstractQuestionnaire::reset_questionnaire()
 
 
 
+#if 0
 int read_a_serial_no (DIR * directory_ptr, string jno, struct AbstractQuestionnaire * qnre)
 {
 	//cout << "ENTER: "  << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
@@ -650,6 +657,7 @@ int read_a_serial_no (DIR * directory_ptr, string jno, struct AbstractQuestionna
 		goto restart;
 	}
 }
+#endif /*  0  */
 
 void AbstractQuestionnaire::DisplayActiveQuestions()
 {

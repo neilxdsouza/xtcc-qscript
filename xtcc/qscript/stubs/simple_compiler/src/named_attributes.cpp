@@ -33,6 +33,11 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 			<<  name << ".attribute.push_back (string(\"" << attribute[i]
 				<< "\"));\n";
 	}
+
+	code.quest_defns_init_code
+		<< "named_attribute_list_vec.push_back ( &" << name << ");" << endl;
+
+
 	code.quest_defns_init_code
 		<< "\tif (write_messages_flag) {\n"
 		<< "\tfor (int i=0; i<"

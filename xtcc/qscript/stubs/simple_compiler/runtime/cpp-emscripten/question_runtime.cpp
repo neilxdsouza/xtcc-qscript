@@ -108,7 +108,8 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
 	, questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
-	, pageName_ (l_page_name)  
+	, pageName_ (l_page_name) 
+	, array_q_ptr_(0), index_in_array_question(-1)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -491,6 +492,7 @@ int DummyArrayQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 	}
 	n = sprintf (buffer_ptr, "\n");
 	buffer_ptr += n; total += n;
+	buffer_start = buffer_ptr;
 	if (n_left - total < 0) {
 		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
 	}

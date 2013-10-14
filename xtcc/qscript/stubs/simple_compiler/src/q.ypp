@@ -404,6 +404,7 @@ page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globa
 			<< qscript_parser::page_nest_lev << endl
 			<< "page_name: " << qscript_parser::globalActivePageName_
 			<< endl;
+		qscript_parser::globalActivePageName_ = string("");
 	}
 	|PAGE NAME {qscript_parser::globalActivePageName_ = $2;} GRID_SIZE '=' INUMBER cmpd_stmt {
 		string page_name ($2);
