@@ -1,0 +1,20 @@
+named_attribute_test {
+
+named_attribute veg_seg_att = " Vegetables are good for health",
+			" I buy fresh vegetables often",
+			" Greens are good source of dietary fibre",
+			" I would like to be vegetarian some day"
+			;
+
+	veg_seg_att.randomize;
+
+	int32_t i1 = 0;
+	for (i1 = 0; i1 < 4; i1 = i1 + 1) {
+
+q1		"q1. Testing attribute battery randomization" : veg_seg_att[i1]
+		sp int32_t (1-5);
+
+	}
+
+
+}

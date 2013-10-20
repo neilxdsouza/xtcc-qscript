@@ -157,25 +157,28 @@ save_qnre_data: function (survey_data_ptr)
 {
 	//my_log ("Enter: save_qnre_data ");
 	var the_survey_data = Pointer_stringify (survey_data_ptr);
+	//my_log ("the_survey_data: " + the_survey_data);
 	// Need to make the fail function the same global function for
 	// error handling of files: getFileErrorHandler
 	var fail = function (err_msg) {
-		console.log(JSON.stringify(err_msg));
+		my_log ("save failed: " + err_msg);
+		//console.log(JSON.stringify(err_msg));
 		//my_log (JSON.stringify(err_msg));
 		//my_log("Write fail");
 	};
 
 	var gotFileWriter = function (writer) {
+		my_log ("gotFileWriter in save_qnre_data");
 		writer.write(the_survey_data);
 		//my_log("Write successful");
 	};
 
 	//if ( global_current_survey_data_file)
-	if (global_survey_related_info.current_survey_data_file ) {
+	if (global_survey_related_info.current_data_file_fileEntry ) {
 		// global_current_survey_data_file.createWriter (gotFileWriter, fail);
-		global_survey_related_info.current_survey_data_file.createWriter (gotFileWriter, fail);
+		global_survey_related_info.current_data_file_fileEntry.createWriter (gotFileWriter, fail);
 	} else {
-		//my_log ("global_current_survey_data_file not available from dom_manip_funcs.js");
+		my_log ("global_survey_related_info.current_survey_data_file not available from dom_manip_funcs.js");
 	}
 	//my_log ("exit : save_qnre_data");
 	//alert("timestamp");
@@ -239,7 +242,7 @@ current_question_errors: function (err_json_ptr) {
 
 my_log_from_cpp: function (log_mesg_ptr) {
 	var log_mesg = Pointer_stringify (log_mesg_ptr);
-	//my_log ("cpp_log:" +  log_mesg);
+	my_log ("cpp_log:" +  log_mesg);
 }
 
 });

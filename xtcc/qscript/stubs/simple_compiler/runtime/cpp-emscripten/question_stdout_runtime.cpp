@@ -56,13 +56,13 @@ char get_end_of_question_response()
 
 void print_save_partial_data_message_success ()
 {
-	cout << "saved partial data " << endl;
+	//cout << "saved partial data " << endl;
 }
 
 int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int, int), int nest_level)
 {
 
-	cout << "Enter a serial no, 0 to exit" << endl;
+	//cout << "Enter a serial no, 0 to exit" << endl;
 	int serial_no;
 	//cin >> serial_no;
 	char line_buf[250];
@@ -71,7 +71,7 @@ int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int, int), int nest_l
 	sscanf (line_buf, "%d", &serial_no);
 	//int serial_no = get_serial_no_from_dom();
 	if (serial_no == 0) {
-		cout << "exiting ..." << endl;
+		//cout << "exiting ..." << endl;
 		exit(0);
 	} else {
 		p_return_ser_no (serial_no, nest_level);
@@ -194,8 +194,8 @@ string DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 	string end_marker  ("================= END OF QUESTION TEXT ==========================");
 	stringstream ret_val;
 	if (qno_and_qtxt.size() > 1) {
-		cout << start_marker << endl;
-		cout << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
+		//cout << start_marker << endl;
+		//cout << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
 
 		// ret_val << start_marker << endl;
 		//ret_val
@@ -208,21 +208,21 @@ string DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 			<< qno_and_qtxt[1]
 			;
 		for (int i = 2; i < qno_and_qtxt.size(); ++i) {
-			cout <<  qno_and_qtxt[i].c_str();
+			//cout <<  qno_and_qtxt[i].c_str();
 			ret_val << qno_and_qtxt[i] ;
 		}
-		cout << endl;
+		//cout << endl;
 
 		//cout << end_marker << endl;
 	}
-	cout << endl;
+	//cout << endl;
 	return ret_val.str();
 }
 
 
 void ClearPreviousView ()
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	//cout << __PRETTY_FUNCTION__ << endl;
 }
 
 void PrepareStubs (AbstractRuntimeQuestion *q)
@@ -428,6 +428,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
+	my_log_from_cpp ("Entered ConstructQuestionForm");
 	stringstream question_json_string;
 	question_json_string << "[" << endl;
 	stringstream stub_json_string;
@@ -487,6 +488,20 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 			question_type = "rq";
 			question_json_string << " \"rq\"";
 		}
+		{
+			question_json_string << ", \"current_response\": [";
+			bool first_time = true;
+			for (set<int32_t>::iterator it =  q->input_data.begin();
+					it != q->input_data.end(); ++it) {
+				if (first_time) {
+					first_time = false;
+				} else {
+					question_json_string << ", ";
+				}
+				question_json_string << *it << endl;
+			}
+			question_json_string << "]" << endl;
+		}
 		question_json_string << endl <<"}" << endl;
 		//print_to_stub_area (question_type.c_str(),
 		//	q->no_mpn,
@@ -496,6 +511,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	stub_json_string << "]" << endl;
 	printf ("question_json_string: %s\n", question_json_string.str().c_str());
 	printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
+	my_log_from_cpp (question_json_string .str().c_str());
 	stringstream err_json_string;
 
 	err_json_string << "[" << endl;
@@ -526,31 +542,31 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	//cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
 	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	static int counter = 0; // for unique ids in web browser
-	ClearPreviousView ();
-	AbstractRuntimeQuestion * q= q_vec[0];
-	vector <string> qno_and_qtxt = PrepareQuestionText (q);
-	string question_display_text = DisplayQuestionTextView (qno_and_qtxt);
-	PrepareStubs (q);
-	DisplayStubs (q);
-	DisplayCurrentAnswers (q);
+	//ClearPreviousView ();
+	//AbstractRuntimeQuestion * q= q_vec[0];
+	//vector <string> qno_and_qtxt = PrepareQuestionText (q);
+	//string question_display_text = DisplayQuestionTextView (qno_and_qtxt);
+	//PrepareStubs (q);
+	//DisplayStubs (q);
+	//DisplayCurrentAnswers (q);
 	//print_to_question_area (question_display_text.c_str());
 
 
-	stringstream s;
-	string question_type;
-	if (NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q)) {
-		//nq->nr_ptr->Serialize (writer);
-		nq->nr_ptr->toString(s);
-		//std::string str = s.GetString();
-		cout << s.str() << endl;
-		question_type = "nq";
-	} else {
-		question_type = "rq";
-	}
-	string err_msg;
-	for (int i = 0; i < p_error_messages_vec.size(); ++i) {
-		err_msg += p_error_messages_vec[i];
-	}
+	//stringstream s;
+	//string question_type;
+	//if (NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q)) {
+	//	//nq->nr_ptr->Serialize (writer);
+	//	nq->nr_ptr->toString(s);
+	//	//std::string str = s.GetString();
+	//	cout << s.str() << endl;
+	//	question_type = "nq";
+	//} else {
+	//	question_type = "rq";
+	//}
+	//string err_msg;
+	//for (int i = 0; i < p_error_messages_vec.size(); ++i) {
+	//	err_msg += p_error_messages_vec[i];
+	//}
 	//print_to_stub_area (question_type.c_str(),
 	//	q->no_mpn,
 	//	s.str().c_str(), ++counter, err_msg.c_str());

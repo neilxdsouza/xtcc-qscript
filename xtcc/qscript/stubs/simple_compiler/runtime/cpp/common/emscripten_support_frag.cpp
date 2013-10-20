@@ -13,6 +13,7 @@ struct TheQuestionnaire * make_questionnaire ()
 
 int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_data)
 {
+	//my_log_from_cpp ("Entered: callback_get_ser_no_from_ui");
 	// now its not :-) // nxd: this is a global variable - has to be eliminated at some point
 	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
 	//cout << "received serial no : " << p_ser_no << "from ui";
@@ -29,12 +30,27 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_dat
 	string str_survey_data(survey_data);
 	if (str_survey_data.length() > 0) {
 		map <string, question_disk_data*>  qdd_map;
-		int r_val =  load_data_from_string (str_survey_data.c_str(), &qdd_map);
+		map <string, vector<int> >  randomization_order;
+		//my_log_from_cpp ("going to parse survey_data");
+		int r_val =  load_data_from_string (str_survey_data.c_str(), &qdd_map, &randomization_order);
+		//my_log_from_cpp ("finished parsing survey_data ");
+		//stringstream rnd_order_str;
+		//for (map<string, vector<int> >::iterator it = randomization_order.begin();
+		//		it != randomization_order.end(); ++it) {
+		//	rnd_order_str << it->first << ":";
+		//	for (int i = 0; i < it->second.size(); ++i) {
+		//		rnd_order_str << " " << it->second[i];
+		//	}
+		//	rnd_order_str << endl;
+		//}
+		//my_log_from_cpp (rnd_order_str.str().c_str());
 		printf ("after load_data_from_string r_val: %d\n", r_val);
 		merge_disk_data_into_questions2 (/*qscript_stdout*/ 0,
 			theQuestionnaire->last_question_answered,
 			theQuestionnaire->last_question_visited,
-			theQuestionnaire->question_list, &qdd_map);
+			theQuestionnaire->question_list, &qdd_map,
+			theQuestionnaire->named_attribute_list_vec, randomization_order);
+		my_log_from_cpp ("finished merging answers");
 	}
 	EvalMode qnre_mode = NORMAL_FLOW;
 	//question_eval_loop (qnre_mode,
@@ -122,6 +138,7 @@ void question_eval_loop2 (
 	const vector<AbstractRuntimeQuestion *> & last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
+	//my_log_from_cpp ("question_eval_loop2");
 	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	//cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	//cout << "arg values: " << endl;
@@ -162,6 +179,7 @@ void question_eval_loop2 (
 	}
 
 	if (last_question_visited.size() > 0) {
+		//my_log_from_cpp ("last_question_visited.size() > 0");
 		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
 				//fprintf(qscript_stdout, "user_navigation == NAVIGATE_PREVIOUS unhandled\n");
@@ -220,21 +238,34 @@ void question_eval_loop2 (
 	} // else {
 	// should reach here - end of :
 		//vector<AbstractRuntimeQuestion *> q_vec =
+		//my_log_from_cpp ("Just before theQuestionnaire->eval2");
 		string dummy_group_name2;
 		EvalReturnValue eval_ret_val =
 			theQuestionnaire->eval2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question,
 			dummy_group_name2);
+		//my_log_from_cpp ("Just after theQuestionnaire->eval2");
 		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
 		if (q_vec.size() == 0) {
 			printf(" eval2 has returned NULL => End of qnre();\n");
+			//my_log_from_cpp(" eval2 has returned NULL => End of qnre();\n");
 			show_end_of_qnre_page();
 		} else {
-			printf(" eval2 has returned first q in vec: %s\n", q_vec[0]->questionName_.c_str());
+			stringstream eval2_retval_str;
+			eval2_retval_str << "q_vec.size(): " << q_vec.size() ;
+			for (int i=0; i < q_vec.size(); ++i) {
+				eval2_retval_str << q_vec[i]->questionName_;
+				for (int j=0; j < q_vec[i]->loop_index_values.size(); ++j) {
+					eval2_retval_str << "$" << q_vec[i]->loop_index_values[j];
+				}
+				eval2_retval_str << endl;
+			}
+			//my_log_from_cpp(eval2_retval_str.str().c_str());
+			//printf(" eval2 has returned first q in vec: %s\n", q_vec[0]->questionName_.c_str());
 			//cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
 			//	<< q->questionName_ << endl;
 			//string qnre_data = theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
-			/*
+			// *
 			const int MAX_DATAFILE_SIZE = 50000;
 			char buffer[MAX_DATAFILE_SIZE]; int n_left = MAX_DATAFILE_SIZE;
 			char * buffer_start_ptr = buffer;
@@ -248,8 +279,10 @@ void question_eval_loop2 (
 						theQuestionnaire->ser_no,
 						buffer_start_ptr,
 						n_left);
-			save_qnre_data (buffer);
-			*/
+			if (n_written > 0) {
+				save_qnre_data (buffer);
+			}
+			// * /
 			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1, eval_ret_val.errMessageVec_);
 		}
 	//}
@@ -266,7 +299,8 @@ extern "C" {
 
 void callback_return_serial (int serial_no, char * survey_data)
 {
-	printf ("Got a serial no from the DOM: %d, survey_data: |%s|\n", serial_no, survey_data);
+	//my_log_from_cpp ("Entered callback_return_serial:");
+	//printf ("Got a serial no from the DOM: %d, survey_data: |%s|\n", serial_no, survey_data);
 	//TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
 	callback_get_ser_no_from_ui (serial_no, 1, survey_data);
 }
@@ -278,9 +312,9 @@ void called_from_the_dom (char * data)
 	//emscripten_resume_main_loop();
 	//printf ("data from the browser dom callback: %s\n", data);
 	//char err_mesg_buffer[4000];
-	printf ("Enter: called_from_the_dom: data %s\n", data);
-	my_log_from_cpp ("Entered called_from_the_dom");
-	my_log_from_cpp (data);
+	//printf ("Enter: called_from_the_dom: data %s\n", data);
+	//my_log_from_cpp ("Entered called_from_the_dom");
+	//my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
 #if 0
@@ -402,7 +436,7 @@ void called_from_the_dom (char * data)
 
 void navigate_previous (char * data)
 {
-	my_log_from_cpp ("Enter: navigate_previous");
+	//my_log_from_cpp ("Enter: navigate_previous");
 	UserInput user_input;
 	user_input.userNavigation_ = NAVIGATE_PREVIOUS;
 	user_input.theUserResponse_ = user_response::UserEnteredNavigation;
@@ -412,7 +446,7 @@ void navigate_previous (char * data)
 	callback_ui_input (user_input,
 			abs_qnre_ptr->last_question_visited,
 			l_qnre_ptr, 1, err_mesg_vec);
-	my_log_from_cpp ("Exit: navigate_previous");
+	//my_log_from_cpp ("Exit: navigate_previous");
 }
 
 }

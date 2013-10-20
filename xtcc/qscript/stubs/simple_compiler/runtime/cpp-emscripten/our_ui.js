@@ -1,5 +1,5 @@
 
-	alert ( "started" );
+	//alert ( "started" );
 	my_log ("Started loading our_ui.js");
 
 	/* Next Question Button {{{2 */
@@ -25,7 +25,7 @@
 
 	/* newNextQ Button {{{2 */
 	var newNextQ= document.getElementById("newNextQ");
-	alert ( "newNextQ: " + newNextQ);
+	//alert ( "newNextQ: " + newNextQ);
 
 	EventUtil.addHandler (newNextQ, "click", function(event) {
 		my_log ("Enter newNextQ");
@@ -67,6 +67,8 @@
 		var test_numeric_serial =  re_chk_serial.test(serial_no);
 		if (test_numeric_serial === false) {
 			alert ("Please enter a valid serial no" );
+		} else {
+			global_survey_related_info.serial_no = serial_no;
 		}
 		// Sanity checks
 		var all_systems_go = false;
@@ -94,7 +96,7 @@
 			global_survey_related_info.serial_no = serial_no;
 			global_survey_related_info.open_file_path = our_path;
 			global_survey_related_info.fileSystemObject.root.getFile(
-				our_path, {create: false, exclusive: true}, gotFileEntry, getFileErrorHandler);
+				our_path, {create: true}, gotFileEntry, getFileErrorHandler);
 			//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, getFileErrorHandler);
 			// if successful, we need to merge in the survey data into the qnre
 			// so that eval correctly returns the next question to be asked
@@ -108,8 +110,10 @@
 			// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
 		}
 		//my_log (" after sanity checks");
+		/*
 		var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
-		if (/*all_systems_go && */ callback_return_serial) {
+		if (//all_systems_go && 
+				callback_return_serial) {
 			my_log("about to invoke callback_return_serial");
 			//console.log("returning serial no to c++ code");
 			// add check on serial no here.
@@ -123,6 +127,7 @@
 		} else {
 			my_log ("Could not find callback_return_serial in Module.cwrap");
 		}
+		*/
 		//var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
 		//callback_return_serial (serial_no);
 		my_log ("Exit handleStartSurveyButton");
@@ -130,6 +135,27 @@
 	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
 	my_log ("created handleStartSurveyButton function");
 /* handleStartSurveyButton  }}}2 */
+
+	function handleStartSurveyButtonBrowserOnly (event) {
+		var question_view = document.getElementById("question_view");
+		var txt_serial_no = document.getElementById("txt_serial_no");
+		var serial_no = txt_serial_no.value;
+		//alert ("serial_no: " + serial_no);
+		var re_chk_serial = /\d+/;
+		var test_numeric_serial =  re_chk_serial.test(serial_no);
+		var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
+		if (test_numeric_serial === false) {
+			alert ("Please enter a valid serial no" );
+		} else {
+			question_view.style.display = "block";
+			var div_serial_no = document.getElementById("div_serial_no");
+			div_serial_no.style.display = "none";
+			//return_serial_no_button.disabled = true;
+			document.getElementById("newNextQDiv").style.display = "block";
+			callback_return_serial (txt_serial_no.value, "");
+		}
+	}
+	//EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButtonBrowserOnly);
 
 	function analyse_page_structure (questions_obj_arr, stubs_obj_arr) {
 		var result;
@@ -415,6 +441,7 @@
 
 	function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
 		my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
+		my_log ("document.forms.length: " + document.forms.length);
 
 		var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 		if (result == "single_question") {
@@ -431,26 +458,26 @@
 
 
 	function serialize (form, my_question_obj) {
-		my_log("Enter: serialize");
+		//my_log("Enter: serialize");
 		var parts = new Array();
 		var field = null;
 		for (var i=0; i < form.elements.length; ++i ) {
 			field = form.elements[i];
 			switch (field.type) {
 			case "radio":
-				my_log ("case radio");
+				//my_log ("case radio");
 				if (field.checked) {
 					parts.push(field.value);
 				}
 			break;
 			case "checkbox":
-				my_log ("case checkbox");
+				//my_log ("case checkbox");
 				if (field.checked) {
 					parts.push(field.value);
 				}
 			break;
 			case "text":
-				my_log ("case text");
+				//my_log ("case text");
 				if (my_question_obj.question_type === "rq") {
 					if ( my_question_obj.no_mpn == 1) {
 						parts.push(field.value);
@@ -490,23 +517,29 @@
 			}
 		}
 		var return_value = parts.join(" ");
-		my_log("Exiting: serialize return_value:" + return_value);
+		//my_log("Exiting: serialize return_value:" + return_value);
 		//return parts.join(" ");
 		return return_value;
 	}
 
 
 	function new_serialize () {
-		my_log("Enter: new_serialize");
+		//my_log ("Enter: new_serialize: global_survey_related_info.questions_obj_arr.length " +
+		//		global_survey_related_info.questions_obj_arr.length);
+
+		//my_log ("Enter: new_serialize: document.forms.length " +
+		//		document.forms.length);
 		var form_data_arr = [];
-		for (var i = 0; i < document.forms.length;  ++i) {
+		var i = 0;
+		for (i = 0; i < document.forms.length;  ++i) {
 			var form_serialized_data = serialize (document.forms[i], global_survey_related_info.questions_obj_arr[i] );
 			//console.log ("form_serialized_data:" );
-			my_log ("form_serialized_data:" + form_serialized_data);
+			//my_log ("form_serialized_data:" + form_serialized_data);
 			form_data_arr.push (form_serialized_data);
-			my_log ("finished loop iter i== " + i);
+			//my_log ("form_data_arr: " + form_data_arr);
+			//my_log ("finished loop iter i== " + i);
 		}
-		my_log("Exit: new_serialize");
+		//my_log("Exit: new_serialize");
 		return form_data_arr;
 	}
 

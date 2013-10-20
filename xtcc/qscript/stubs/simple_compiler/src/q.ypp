@@ -1636,6 +1636,15 @@ AbstractStatement * ProcessVideoQuestion (const string &name
 	PrintActiveVariablesAtScope(active_scope_list, av_info);
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	VideoQuestion* q=0;
+
+	if (q_type == video || q_type == audio || q_type == image) {
+	} else {
+		std::stringstream err_mesg;
+		err_mesg << " Question has to be of video, audio or image type";
+		print_err (compiler_sem_err , err_mesg.str().c_str(),
+				qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+
 	if (qscript_parser::flagIsAForBody_) {
 		cerr << " Video within for loops not yet implemented - exiting"
 			<< endl;

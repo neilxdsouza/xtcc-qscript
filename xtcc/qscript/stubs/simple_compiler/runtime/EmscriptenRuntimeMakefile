@@ -32,6 +32,9 @@ OBJS := $(OBJS:.cpp=.o)
 %.cpp : %.l
 	flex -o$@ $<
 
+$(SOURCE_DIR)/qscript_data.cpp: YFLAGS = -p read_disk_data
+$(SOURCE_DIR)/qscript_data.hpp: YFLAGS = -p read_disk_data
+
 
 $(SOURCE_DIR)/data_entry.cpp: YFLAGS = -p scan_data
 $(SOURCE_DIR)/data_entry.hpp: YFLAGS = -p scan_data
