@@ -4,6 +4,23 @@
 using std::cout;
 using std::endl;
 
+namespace program_options_ns {
+	extern bool ncurses_flag;
+	extern bool static_binary_flag;
+	extern bool web_server_flag;
+	extern bool microhttpd_flag ;
+	extern bool wt_flag ;
+	extern bool compile_to_cpp_only_flag;
+	extern int32_t fname_flag;
+	extern bool flag_nice_map;
+	extern bool stdout_flag;
+	extern bool wx_flag;
+	extern bool gtk_flag;
+	extern bool emscripten_flag;
+	extern int data_export_flag;
+	extern string QSCRIPT_HOME;
+};
+
 named_attribute_list::named_attribute_list(DataType dt, int32_t lline_no
 					   , string l_name
 					   , vector<string> l_attr)
@@ -37,17 +54,21 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 	code.quest_defns_init_code
 		<< "named_attribute_list_vec.push_back ( &" << name << ");" << endl;
 
-
-	code.quest_defns_init_code
-		<< "\tif (write_messages_flag) {\n"
-		<< "\tfor (int i=0; i<"
-		<< name << ".attribute.size(); ++i) {\n"
-		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
-		<<	" << "
-		<< name
-		<< ".attribute[i] << \"</message>\\n\" << endl;\n"
-		<< "\t}\n"
-		<< "}\n";
+	if (program_options_ns::emscripten_flag) {
+		// empty - do not generate messages code in html
+		// file - to reduce the code size generated
+	} else {
+		code.quest_defns_init_code
+			<< "\tif (write_messages_flag) {\n"
+			<< "\tfor (int i=0; i<"
+			<< name << ".attribute.size(); ++i) {\n"
+			<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+			<<	" << "
+			<< name
+			<< ".attribute[i] << \"</message>\\n\" << endl;\n"
+			<< "\t}\n"
+			<< "}\n";
+	}
 	if (next_) {
 		next_->GenerateCode(code);
 	}

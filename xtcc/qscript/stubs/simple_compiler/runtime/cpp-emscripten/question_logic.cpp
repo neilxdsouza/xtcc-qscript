@@ -162,6 +162,7 @@ extern bool write_xtcc_data_file_flag;
 
 
 
+/*
 int process_options(int argc, char * argv[])
 {
 	//int32_t opterr=1, c;
@@ -234,6 +235,7 @@ int process_options(int argc, char * argv[])
 	cout << "write_qtm_data_file_flag: " << write_qtm_data_file_flag << endl;
 	//exit(1);
 }
+  */
 
 void SetupSignalHandler()
 {

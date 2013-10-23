@@ -26,7 +26,7 @@ stub_pair::stub_pair(string l_txt, int32_t l_code, const stub_pair_options & cur
 		  is_other_specify (current_stub_pair_options.is_other_specify),
 		  url_image (current_stub_pair_options.url)
 { 
-	using std::cout;
-	using std::endl;
-	cout << "url_image: " << url_image << endl;
+	//using std::cout;
+	//using std::endl;
+	//cout << "url_image: " << url_image << endl;
 }

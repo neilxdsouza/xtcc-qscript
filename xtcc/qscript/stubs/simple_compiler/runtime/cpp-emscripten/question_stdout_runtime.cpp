@@ -428,7 +428,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
-	my_log_from_cpp ("Entered ConstructQuestionForm");
+	//my_log_from_cpp ("Entered ConstructQuestionForm");
 	stringstream question_json_string;
 	question_json_string << "[" << endl;
 	stringstream stub_json_string;
@@ -444,7 +444,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		//	output_comma = false;
 		//}
 		const AbstractRuntimeQuestion* q = q_vec[i];
-		printf ("question: %s\n", q->questionName_.c_str());
+		//printf ("question: %s\n", q->questionName_.c_str());
 		vector <string> qno_and_qtxt = PrepareQuestionText (q);
 		string question_display_text = DisplayQuestionTextView (qno_and_qtxt);
 
@@ -470,7 +470,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 			nq->nr_ptr->toString(s);
 			//std::string str = s.GetString();
 			//cout << s.str() << endl;
-			printf ("stubs : %s\n", s.str().c_str() );
+			//printf ("stubs : %s\n", s.str().c_str() );
 			question_type = "nq";
 			question_json_string
 				<< " \"nq\"" << endl
@@ -509,9 +509,9 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	}
 	question_json_string << "]" << endl;
 	stub_json_string << "]" << endl;
-	printf ("question_json_string: %s\n", question_json_string.str().c_str());
-	printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
-	my_log_from_cpp (question_json_string .str().c_str());
+	//printf ("question_json_string: %s\n", question_json_string.str().c_str());
+	//printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
+	//my_log_from_cpp (question_json_string .str().c_str());
 	stringstream err_json_string;
 
 	err_json_string << "[" << endl;
@@ -523,10 +523,10 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	}
 	err_json_string << "]" << endl;
 
-	printf ("before call to create_question_form\n");
+	//printf ("before call to create_question_form\n");
 	create_question_form (question_json_string.str().c_str(),
 				stub_json_string.str().c_str(), err_json_string.str().c_str());
-	printf ("after call to create_question_form\n");
+	//printf ("after call to create_question_form\n");
 }
 
 

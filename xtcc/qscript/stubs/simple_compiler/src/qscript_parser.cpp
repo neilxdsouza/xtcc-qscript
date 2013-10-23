@@ -240,14 +240,18 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
-	fprintf(script, "if (write_messages_flag) {\n");
-	fprintf(script, "\tmessages.open (\"%s.xml\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
-	fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
-	fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
-	fprintf(script, "\tmessages << \"<messages>\\n\";");
-	fprintf(script, "\tmessages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";");
-
-	fprintf(script, "}\n");
+	if (program_options_ns::emscripten_flag) {
+		// empty - do not generate messages code in html
+		// file - to reduce the code size generated
+	} else {
+		fprintf(script, "if (write_messages_flag) {\n");
+		fprintf(script, "\tmessages.open (\"%s.xml\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
+		fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
+		fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
+		fprintf(script, "\tmessages << \"<messages>\\n\";");
+		fprintf(script, "\tmessages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";");
+		fprintf(script, "}\n");
+	}
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
 	fprintf(script, "\tquestions_start_from_here_index = question_list.size();\n\tint our_question_index_no = 100000;\n");
 
@@ -257,10 +261,15 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	} else {
 		fprintf(script, "\t//compute_flat_file_map_and_init();\n");
 	}
-	fprintf(script, "\tif (write_messages_flag) {\n");
-	fprintf(script, "\tmessages << \"</messages>\\n\";\n");
-	fprintf(script, "\tmessages.flush() ;\n");
-	fprintf(script, "\t}\n");
+	if (program_options_ns::emscripten_flag) {
+		// empty - do not generate messages code in html
+		// file - to reduce the code size generated
+	} else {
+		fprintf(script, "\tif (write_messages_flag) {\n");
+		fprintf(script, "\tmessages << \"</messages>\\n\";\n");
+		fprintf(script, "\tmessages.flush() ;\n");
+		fprintf(script, "\t}\n");
+	}
 	fprintf(script, "}\n");
 #if 0
 	print_question_messages(script);
@@ -1615,6 +1624,12 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 
 	string emscripten_cc_intermediate_file_cmd =
 		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
+		+ " -s ASM_JS=0 "
+		+ " -s INLINING_LIMIT=50 "
+		+ " -s TOTAL_MEMORY=33554432 "
+		+ " -s TOTAL_STACK=10485760 "
+		+ " -s RELOOPER_BUFFER_SIZE=41943040 "
+		+ " -s ALLOW_MEMORY_GROWTH=1  " 
 		+ " -s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_callback_return_serial','_navigate_previous']\" "
 		//+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
 		+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
@@ -1631,6 +1646,12 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		"emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
 		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
+		+ " -s ASM_JS=0 "
+		+ " -s INLINING_LIMIT=50 "
+		+ " -s TOTAL_MEMORY=33554432 "
+		+ " -s TOTAL_STACK=10485760 "
+		+ " -s RELOOPER_BUFFER_SIZE=41943040 "
+		+ " -s ALLOW_MEMORY_GROWTH=1  " 
 		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial','_navigate_previous']\" "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/data_entry.o "

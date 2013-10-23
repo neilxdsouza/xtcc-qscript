@@ -258,8 +258,8 @@
 		my_log ("Enter: readAsText");
 		var reader = new FileReader();
 		reader.onloadend = function(evt) {
-			my_log("Read as text:");
-			my_log(evt.target.result);
+			//my_log("Read as text:");
+			//my_log(evt.target.result);
 			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
 			if (evt.target.result.length > 0) {
 				//my_log ("callback_return_serial:" + callback_return_serial);
