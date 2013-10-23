@@ -1624,12 +1624,13 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 
 	string emscripten_cc_intermediate_file_cmd =
 		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
-		+ " -s ASM_JS=0 "
+		//+ " -s ASM_JS=0 "
+		+ " -s DISABLE_EXCEPTION_CATCHING=1 "
 		+ " -s INLINING_LIMIT=50 "
 		+ " -s TOTAL_MEMORY=33554432 "
 		+ " -s TOTAL_STACK=10485760 "
 		+ " -s RELOOPER_BUFFER_SIZE=41943040 "
-		+ " -s ALLOW_MEMORY_GROWTH=1  " 
+		//+ " -s ALLOW_MEMORY_GROWTH=1  " 
 		+ " -s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_callback_return_serial','_navigate_previous']\" "
 		//+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
 		+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
@@ -1646,12 +1647,13 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		"emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
 		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
-		+ " -s ASM_JS=0 "
+		+ " -s DISABLE_EXCEPTION_CATCHING=1 "
+		//+ " -s ASM_JS=0 "
 		+ " -s INLINING_LIMIT=50 "
 		+ " -s TOTAL_MEMORY=33554432 "
 		+ " -s TOTAL_STACK=10485760 "
 		+ " -s RELOOPER_BUFFER_SIZE=41943040 "
-		+ " -s ALLOW_MEMORY_GROWTH=1  " 
+		//+ " -s ALLOW_MEMORY_GROWTH=1  " 
 		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial','_navigate_previous']\" "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/data_entry.o "
