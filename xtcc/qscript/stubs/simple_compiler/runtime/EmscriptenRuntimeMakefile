@@ -1,7 +1,7 @@
 #CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
 #CFLAGS= -g -Wunused-function --jcache
 CFLAGS= -Wunused-function 
-OPT_FLAGS = -O2 --llvm-lto 1
+OPT_FLAGS = -O2 --llvm-opts 1 --llvm-lto 1 -s DISABLE_EXCEPTION_CATCHING=1 -s INLINING_LIMIT=50 -s TOTAL_MEMORY=33554432 -s TOTAL_STACK=10485760 -s RELOOPER_BUFFER_SIZE=41943040
 #CC = clang --analyze
 CC=emcc
 SOURCE_DIR=cpp-emscripten

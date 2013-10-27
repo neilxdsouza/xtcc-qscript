@@ -21,7 +21,18 @@ enum compiler_err_category
 	, compiler_code_generation_error
 };
 
+enum compiler_warning_category
+{
+	better_coding_style
+};
+
 void print_err(compiler_err_category cmp_err
+		, string err_msg
+		, int32_t line_no
+		, int32_t compiler_line_no
+		, string compiler_file_name);
+
+void print_warning (compiler_warning_category cmp_err
 		, string err_msg
 		, int32_t line_no
 		, int32_t compiler_line_no
@@ -42,6 +53,30 @@ unsigned long djb_hash(const char *str);
 unsigned long sdbm_hash(const char *str);
 void log_maintainer_message(int line, string file, string func_name, string mesg);
 #define LOG_MAINTAINER_MESSAGE(mesg)	log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__, mesg)
+struct RatingScaleInfo
+{
+	bool isRatingScale_;
+	bool isReversed_;
+	int ratingScaleStart_;
+	int ratingScaleEnd_;
+	RatingScaleInfo ()
+		: isRatingScale_ (false), isReversed_(false),
+		  ratingScaleStart_(0), ratingScaleEnd_(0)
+	{ }
+
+};
+
+struct RatingScaleInfo extract_rating_scale (string s);
+
+struct ExtractNumberInfo {
+	bool gotANumber_;
+	int numberValue_;
+	ExtractNumberInfo()
+		: gotANumber_ (false), numberValue_(0)
+	{ }
+};
+
+struct ExtractNumberInfo extract_number (string s);
 
 
 extern noun_list_type noun_list[];

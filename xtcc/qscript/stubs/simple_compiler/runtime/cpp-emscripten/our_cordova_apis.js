@@ -163,7 +163,7 @@
 /* =============== File API {{{1 ==================== */
 
 	function gotFile(file) {
-		my_log("Enter: gotFile");
+		//my_log("Enter: gotFile");
 		//readDataUrl(file);
 		global_survey_related_info.current_survey_data_file = file;
 		readAsText(file);
@@ -255,7 +255,7 @@
 
 	/* readAsText {{{2 */
 	function readAsText(file) {
-		my_log ("Enter: readAsText");
+		//my_log ("Enter: readAsText");
 		var reader = new FileReader();
 		reader.onloadend = function(evt) {
 			//my_log("Read as text:");

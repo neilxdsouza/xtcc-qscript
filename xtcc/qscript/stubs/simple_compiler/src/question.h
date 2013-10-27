@@ -18,7 +18,7 @@
 //#include <fstream>
 #include <iostream>
 #include <string>
-#include <Wt/WString>
+//#include <Wt/WString>
 
 #include "stmt.h"
 #include "expr.h"
@@ -94,7 +94,9 @@ struct AbstractQuestion: public AbstractStatement
 	string pageName_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
@@ -104,14 +106,18 @@ struct AbstractQuestion: public AbstractStatement
 		);
 
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
+		DataType l_type,int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
@@ -121,7 +127,9 @@ struct AbstractQuestion: public AbstractStatement
 
 	//! this is only called in the runtime environment
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn , DataType l_dt
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
@@ -214,7 +222,9 @@ struct RangeQuestion: public AbstractQuestion
 	vector<display_data::DisplayDataUnit> displayData_;
 	//! this is only called in the compile time environment
 	RangeQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
@@ -234,7 +244,9 @@ struct RangeQuestion: public AbstractQuestion
 
 	//! this is only called in the compile time environment
 	RangeQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, CompoundStatement * l_enclosing_scope
@@ -323,7 +335,9 @@ class NamedStubQuestion: public AbstractQuestion
 
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
@@ -333,7 +347,9 @@ class NamedStubQuestion: public AbstractQuestion
 		);
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, CompoundStatement * l_enclosing_scope
@@ -430,7 +446,9 @@ public:
 	string file_path;
 
 	VideoQuestion(
-			DataType this_stmt_type, int32_t line_number, string l_name
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
 			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
 			, CompoundStatement * l_enclosing_scope
 			, vector<ActiveVariableInfo* > l_av_info

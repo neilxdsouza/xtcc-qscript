@@ -23,13 +23,15 @@ namespace program_options_ns {
 
 named_attribute_list::named_attribute_list(DataType dt, int32_t lline_no
 					   , string l_name
+					   , int32_t l_nest_level
+					   , int32_t l_for_nest_level
 					   , vector<string> l_attr)
-	: AbstractStatement(dt, lline_no)
+	: AbstractStatement(dt, lline_no, l_nest_level, l_for_nest_level)
 	, name(l_name), attribute(l_attr), symbolTableEntry_(0)
 { }
 
 named_attribute_list::named_attribute_list()
-	: AbstractStatement(NAMED_ATTRIBUTE_TYPE, 0)
+	: AbstractStatement(NAMED_ATTRIBUTE_TYPE, 0, -1, -1)
 	, name(), attribute(), symbolTableEntry_(0)
 { }
 

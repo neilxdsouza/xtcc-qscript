@@ -80,6 +80,7 @@ namespace qscript_parser
 	extern int32_t yylex();
 	extern void yyerror(const char * s);
 	extern int32_t no_errors;
+	extern int32_t no_warnings;
 
 	extern struct AbstractStatement* tree_root;
 	extern string project_name;
@@ -99,16 +100,28 @@ namespace qscript_parser
 
         extern vector <string> attribute_list;
 	extern vector <named_range*> named_stubs_list;
+	named_range * named_stub_exists (string p_name);
+	int question_exists (string p_name);
 	extern vector <named_attribute_list> named_attributes_list;
         extern vector <stub_pair> stub_list;
 	extern int32_t if_line_no;
 	extern int32_t yywrap();
+	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
+					 , char* stub_list_name
+					 , Unary2Expression * arr_index
+					 , Unary2Expression * p_mask_expr
+					 );
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			, char* stub_list_name, char * question_name, AbstractExpression * l_arr_index=0);
+			, char* stub_list_name
+			, AbstractExpression * l_l_arr_index
+			, char * question_name
+			, AbstractExpression * l_r_arr_index);
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			 , char* stub_list_name , XtccSet & l_xs);
+			 , char* stub_list_name
+			, AbstractExpression * l_l_arr_index
+			 , XtccSet & l_xs);
 	extern AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 			, char* stub_list_name);
 
@@ -141,6 +154,7 @@ namespace qscript_parser
 
 	extern vector<TextExpression*> text_expr_vec;
 	void do_stub_pair_checks (const string & stub_text, int code, const stub_pair_options & current_stub_pair_options);
+	bool verify_stubs_list (struct named_range * nr_ptr);
 
 }
 

@@ -95,8 +95,9 @@ struct ExpressionStatement: public AbstractStatement
 {
 	struct AbstractExpression* expression_;
 	ExpressionStatement(DataType l_type, int32_t l_line_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			    , struct AbstractExpression* e)
-		: AbstractStatement(l_type, l_line_number), expression_(e)
+		: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level), expression_(e)
 	{ }
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
@@ -113,8 +114,9 @@ struct ExpressionStatement: public AbstractStatement
 struct DeclarationStatement: public AbstractStatement
 {
 	struct SymbolTableEntry* symbolTableEntry_;
-	DeclarationStatement( DataType dtype, int32_t lline_number)
-		: AbstractStatement(dtype, lline_number), symbolTableEntry_(0)
+	DeclarationStatement( DataType dtype, int32_t lline_number,
+				  int32_t l_nest_level, int32_t l_for_nest_level)
+		: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level), symbolTableEntry_(0)
 	{ }
 	~DeclarationStatement();
 	//void GenerateCode(ostringstream & quest_defns
@@ -186,6 +188,9 @@ struct DeclarationStatement: public AbstractStatement
 
 */
 
+struct IfStatement;
+struct ForStatement;
+
 struct CompoundStatement: public AbstractStatement
 {
 	static int32_t counter_;
@@ -222,8 +227,14 @@ struct CompoundStatement: public AbstractStatement
 	vector<CompoundStatement*> nestedCompoundStatementStack_;
 	vector<string> ConsolidatedForLoopIndexStack_;
 	int32_t flagIsAIfBody_;
+
+	struct IfStatement  * ifStatement_;
+	struct IfStatement  * elseStatement_;
+	struct ForStatement * forStatement_;
+	int nestLevel_;
 	public:
 	CompoundStatement(DataType dtype, int32_t lline_number
+			  , int32_t l_nest_level, int32_t l_for_nest_level
 			  , int32_t l_flag_cmpd_stmt_is_a_func_body
 			  , int32_t l_flag_cmpd_stmt_is_a_for_body
 			  , vector<AbstractExpression*>& l_for_bounds_stack
@@ -233,17 +244,8 @@ struct CompoundStatement: public AbstractStatement
 	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~CompoundStatement();
 	void GetQuestionNames(vector<string> & question_list,
-			      AbstractStatement * endStatement)
-	{
-		if(endStatement==this){
-			return;
-		}
-		compoundBody_->GetQuestionNames(question_list,
-				endStatement);
-		if (next_) {
-			next_->GetQuestionNames(question_list,endStatement);
-		}
-	}
+			      AbstractStatement * endStatement);
+
 	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 				 , AbstractStatement * stop_at);
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
@@ -267,6 +269,7 @@ struct ForStatement: public AbstractStatement
 		, * testExpression_, *incrementExpression_;
 	CompoundStatement * forBody_;
 	ForStatement(DataType dtype, int32_t lline_number
+		     , int32_t l_nest_level, int32_t l_for_nest_level
 		     , AbstractExpression* l_init
 		     , AbstractExpression* l_test
 		     , AbstractExpression* l_incr
@@ -281,6 +284,8 @@ struct ForStatement: public AbstractStatement
 	virtual ~ForStatement();
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
 	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
+	void GetQuestionNames(vector<string> & question_list,
+			      AbstractStatement * endStatement);
 	private:
 	ForStatement& operator=(const ForStatement&);
 	ForStatement(const ForStatement&);
@@ -298,6 +303,7 @@ struct IfStatement : public AbstractStatement
 	struct AbstractStatement * ifBody_;
 	struct AbstractStatement * elseBody_;
 	IfStatement( DataType dtype, int32_t lline_number
+		     , int32_t l_nest_level, int32_t l_for_nest_level
 		     , AbstractExpression * lcondition
 		     , AbstractStatement * lif_body
 		     , AbstractStatement * lelse_body=0);
@@ -308,17 +314,8 @@ struct IfStatement : public AbstractStatement
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual ~IfStatement();
 	void GetQuestionNames(vector<string> & question_list,
-			AbstractStatement* endStatement)
-	{
-		if(endStatement==this)
-			return;
-		ifBody_->GetQuestionNames(question_list, endStatement);
-		if( elseBody_)
-			elseBody_->GetQuestionNames(question_list, endStatement);
-		if (next_) {
-			next_->GetQuestionNames(question_list,endStatement);
-		}
-	}
+			AbstractStatement* endStatement);
+
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
 	private:
@@ -352,6 +349,7 @@ struct Parameter
 
 struct AbstractQuestion;
 AbstractQuestion* find_in_question_list(string name);
+struct Unary2Expression;
 
 struct named_range;
 struct StubManipStatement: public AbstractStatement
@@ -363,31 +361,75 @@ struct StubManipStatement: public AbstractStatement
 	AbstractQuestion * rhs_;
 	XtccSet xtccSet_;
 	AbstractExpression * arrIndex_;
+	AbstractExpression * arrLIndex_;
+	AbstractExpression * maskExpr_;
 	//StubManipStatement( DataType dtype, int32_t lline_number
 	//		    , string l_named_stub, string l_question_name);
 	//StubManipStatement( DataType dtype, int32_t lline_number
 	//		    , string l_named_stub, string l_question_name, AbstractExpression * arr_index);
 	StubManipStatement( DataType dtype, int32_t lline_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			    , string l_named_stub);
 
 	//StubManipStatement(DataType dtype, int32_t lline_number
 	//			       , named_range * l_named_range
 	//			       , AbstractQuestion * l_question);
-	StubManipStatement(DataType dtype, int32_t lline_number
-				       , named_range * l_named_range
-				       , AbstractQuestion * l_question
-				       , AbstractExpression * larr_index = 0);
-	StubManipStatement(DataType dtype, int32_t lline_number
-				       , AbstractQuestion * l_question_lhs
-				       , AbstractQuestion * l_question_rhs
-				       , AbstractExpression * larr_index = 0);
+	//StubManipStatement(DataType dtype, int32_t lline_number
+	//			       , named_range * l_named_range
+	//			       , AbstractQuestion * l_question
+	//			       , AbstractExpression * larr_index = 0);
+	//StubManipStatement(DataType dtype, int32_t lline_number
+	//			       , AbstractQuestion * l_question_lhs
+	//			       , AbstractQuestion * l_question_rhs
+	//			       , AbstractExpression * larr_index = 0);
+
+	//StubManipStatement(DataType dtype, int32_t lline_number
+	//		       , named_range * l_named_range
+	//		       , XtccSet & xs);
+	//StubManipStatement(DataType dtype, int32_t lline_number
+	//		       , AbstractQuestion * l_question_lhs
+	//		       , XtccSet & xs);
+	StubManipStatement (DataType dtype, int32_t lline_number
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , named_range * l_named_range
+			   , AbstractQuestion * l_question
+			   , AbstractExpression * larr_index = 0);
+	StubManipStatement (DataType dtype, int32_t lline_number
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , AbstractQuestion * l_question_lhs
+			   , AbstractExpression * l_l_arr_index
+			   , AbstractQuestion * l_question_rhs
+			   , AbstractExpression * l_r_arr_index
+			   );
 
 	StubManipStatement(DataType dtype, int32_t lline_number
-			       , named_range * l_named_range
-			       , XtccSet & xs);
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , named_range * l_named_range
+			   , XtccSet & xs);
 	StubManipStatement(DataType dtype, int32_t lline_number
-			       , AbstractQuestion * l_question_lhs
-			       , XtccSet & xs);
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , AbstractQuestion * l_question_lhs
+			   , XtccSet & xs);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , AbstractQuestion * l_question_lhs
+			   , AbstractExpression * l_arr_index
+			   , XtccSet & xs);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, named_range * l_named_range
+		, Unary2Expression * p_name_expr
+		);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, AbstractQuestion * l_named_range
+		, Unary2Expression * p_arr_index
+		, Unary2Expression * p_name_expr
+		);
+
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
@@ -430,7 +472,10 @@ struct FunctionDeclarationStatement: public AbstractStatement
 	struct FunctionInformation * funcInfo_;
 
 	FunctionDeclarationStatement( DataType dtype
-				      , int32_t lline_number, char * & name
+				      , int32_t lline_number
+				      , int32_t l_nest_level
+				      , int32_t l_for_nest_level
+				      , char * & name
 				      , FunctionParameter* & v_list
 				      , DataType returnType_);
 	//void GenerateCode(FILE * & fptr);
@@ -451,6 +496,7 @@ struct FunctionStatement: public AbstractStatement
 	DataType returnType_;
 
 	FunctionStatement ( DataType dtype, int32_t lline_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			    , struct Scope * &scope_
 			    , struct FunctionParameter * & v_list
 			    , struct AbstractStatement* & lfunc_body
@@ -525,7 +571,9 @@ private:
 
 struct ErrorStatement: public AbstractStatement
 {
-	ErrorStatement( int lline_number);
+	ErrorStatement( int lline_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			);
 	void GenerateCode(StatementCompiledCode & code);
 	private:
 	ErrorStatement& operator=(const ErrorStatement&);
@@ -536,6 +584,7 @@ struct GotoStatement: public AbstractStatement
 {
 	string gotoLabel_;
 	GotoStatement(DataType l_type, int32_t l_line_number
+		      , int32_t l_nest_level, int32_t l_for_nest_level
 		      , string l_gotoLabel);
 	void GenerateCode(StatementCompiledCode & code);
 	private:
@@ -559,6 +608,7 @@ struct ClearStatement: public AbstractStatement
 			AbstractExpression *e, string err_msg);
 	*/
 	ClearStatement(DataType l_type, int32_t l_line_number,
+		        int32_t l_nest_level, int32_t l_for_nest_level,
 			const vector <Unary2Expression *> & expr_vec, string err_msg);
 	void GenerateCode(StatementCompiledCode & code);
 	//bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
@@ -578,8 +628,9 @@ struct ColumnStatement: public AbstractStatement
 {
 	AbstractExpression * columnExpression_;
 
-	ColumnStatement(DataType l_type, int32_t l_line_number,
-					AbstractExpression * expr);
+	ColumnStatement(DataType l_type, int32_t l_line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, AbstractExpression * expr);
 	void GenerateCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	friend bool RunColumnExpressionChecks();
@@ -594,8 +645,9 @@ struct NewCardStatement: public AbstractStatement
 {
 	AbstractExpression * cardExpression_;
 
-	NewCardStatement(DataType l_type, int32_t l_line_number,
-					AbstractExpression * expr);
+	NewCardStatement(DataType l_type, int32_t l_line_number
+			 , int32_t l_nest_level, int32_t l_for_nest_level
+			 , AbstractExpression * expr);
 	void GenerateCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	friend bool RunColumnExpressionChecks();
@@ -606,7 +658,8 @@ struct NewCardStatement: public AbstractStatement
 
 struct PageStatement: public AbstractStatement
 {
-	PageStatement(DataType dtype, int32_t lline_number,
+	PageStatement (DataType dtype, int32_t lline_number,
+			int32_t l_nest_level, int32_t l_for_nest_level,
 			string l_page_name, CompoundStatement * l_page_body,
 			int l_page_size = 0);
 	// PageStatement(DataType dtype, int32_t lline_number,
@@ -618,10 +671,14 @@ struct PageStatement: public AbstractStatement
 	CompoundStatement * pageBody_;
 	void GenerateConsolidatedForLoopIndexes();
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	void GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement);
+	void GetQuestionsInBlock( vector<AbstractQuestion*> & question_list
+				, AbstractStatement * stop_at);
 	private:
 	PageStatement& operator=(const PageStatement&);
 	PageStatement(const PageStatement&);
-
 };
 
 
@@ -629,6 +686,7 @@ struct PageStatement: public AbstractStatement
 struct RandomizeStatement: public AbstractStatement
 {
 	RandomizeStatement(DataType dtype, int32_t lline_number,
+			int32_t l_nest_level, int32_t l_for_nest_level,
 			named_attribute_list * p_n_attr_list);
 	// RandomizeStatement(DataType dtype, int32_t lline_number,
 	// 		string l_page_name,
@@ -641,5 +699,6 @@ struct RandomizeStatement: public AbstractStatement
 	RandomizeStatement(const RandomizeStatement&);
 
 };
+
 
 #endif /* stmt_h */

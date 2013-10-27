@@ -68,18 +68,21 @@ namespace  qscript_parser {
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes
+	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
 	:
-	AbstractStatement(l_type, l_no)
+	AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
 	, questionName_(l_name), textExprVec_(text_expr_vec)
 	, questionDiskName_()
-	,  q_type(l_q_type)
+	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(l_for_bounds_stack), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -128,6 +131,7 @@ AbstractQuestion::AbstractQuestion(
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, CompoundStatement * l_enclosing_scope
@@ -135,7 +139,7 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level), questionName_(l_name)
 	, textExprVec_(text_expr_vec)
 	, questionDiskName_()
 	, q_type(l_q_type)
@@ -147,7 +151,7 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList)
-	  , maxCode_(0)
+	, maxCode_(0)
 	, isStartOfBlock_(false)
 	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
 	, pageName_(qscript_parser::globalActivePageName_)
@@ -763,7 +767,10 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 //! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name
+	, vector<TextExpression*> text_expr_vec
+	, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
@@ -771,7 +778,9 @@ RangeQuestion::RangeQuestion(
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+	: AbstractQuestion(this_stmt_type, line_number
+			, l_nest_level, l_for_nest_level
+			, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 			   , l_enclosing_scope, l_av_info, l_question_attributes
 			   , p_mutexCodeList)
@@ -800,14 +809,19 @@ RangeQuestion::RangeQuestion(
 	//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name
+	, vector<TextExpression*> text_expr_vec
+	, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+	: AbstractQuestion(this_stmt_type, line_number
+			   , l_nest_level, l_for_nest_level
+			   , l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt
 			   , l_enclosing_scope, l_av_info, l_question_attributes
 			   , p_mutexCodeList
@@ -1545,6 +1559,7 @@ void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
@@ -1553,13 +1568,16 @@ NamedStubQuestion::NamedStubQuestion(
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
 			 , l_q_type, l_no_mpn, l_dt
-			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes)
+			 , l_for_bounds_stack, l_enclosing_scope, l_av_info
+			 , l_question_attributes
+			 )
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
-	, displayData_()
-	, currentPage_(0)
+	, displayData_(), currentPage_(0)
 {
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
@@ -1574,6 +1592,7 @@ NamedStubQuestion::NamedStubQuestion(
 	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
@@ -1581,13 +1600,15 @@ NamedStubQuestion::NamedStubQuestion(
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes
+	AbstractQuestion(this_stmt_type, line_number,
+		l_nest_level, l_for_nest_level,
+		l_name, text_expr_vec,
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info,
+		l_question_attributes
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
-	, displayData_()
-	, currentPage_(0)
+	, displayData_(), currentPage_(0)
 {
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
@@ -3553,14 +3574,18 @@ string VideoQuestion::PrintSelectedAnswers(int code_index)
 }
 
 VideoQuestion::VideoQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
 		, const string& path_to_media)
 	:
-	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
 			 , l_q_type, 1, INT32_TYPE /* dummy */
 			 , l_enclosing_scope
 			 , l_av_info, l_question_attributes),

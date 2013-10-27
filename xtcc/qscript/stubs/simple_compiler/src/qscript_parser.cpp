@@ -935,28 +935,87 @@ const char * file_exists_check_code()
 	return file_check_code;
 }
 
+AbstractStatement* setup_stub_manip_stmt(DataType dt
+					 , char* stub_list_name
+					 , Unary2Expression * p_arr_index
+					 , Unary2Expression * p_mask_expr
+					 )
+{
+	bool range_stub = false, question_stub = false;
+	named_range * lhs_stub =  named_stub_exists (stub_list_name);
+	if (lhs_stub) {
+		range_stub = true;
+	}
+	NamedStubQuestion * lhs_question = 0;
+	int32_t index = question_exists (stub_list_name);
+	if (index >= 0) {
+		question_stub = true;
+		lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index]);
+		if (!lhs_question) {
+			stringstream err_text;
+			err_text << "Question : " << stub_list_name
+				<< "is not a named stub Question";
+			print_err (compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no, 0, 0);
+		}
+	} else  if (index == -1 && lhs_stub == 0)  {
+		stringstream err_text;
+		err_text << "named stub list does not exist: " << stub_list_name;
+		print_err (compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+		return new ErrorStatement(line_no, 0, 0);
+	}
+	struct AbstractStatement* st_ptr  = 0;
+	if (range_stub) {
+		st_ptr = new StubManipStatement(dt,
+				line_no, nest_lev, flagIsAForBody_,
+				lhs_stub, p_mask_expr);
+	} else {
+		st_ptr = new StubManipStatement(dt,
+				line_no, nest_lev, flagIsAForBody_,
+				lhs_question, p_arr_index,
+				p_mask_expr);
+	}
+	return st_ptr;
+}
+
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
+					 , AbstractExpression * l_l_arr_index
 					 , char * question_name
-					 , AbstractExpression * l_arr_index /* =0 */)
+					 , AbstractExpression * l_r_arr_index /* =0 */)
 {
-	int32_t index = -1;
+	std::stringstream warn_mesg;
+	warn_mesg << __PRETTY_FUNCTION__
+		<< "looks like param l_l_arr_index is not at all used in this function"
+		<< " please revisit";
+
+	LOG_MAINTAINER_MESSAGE(warn_mesg.str());
+	using qscript_parser::nest_lev;
+	using qscript_parser::flagIsAForBody_;
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0, * rhs_question=0;
-	named_range * lhs_stub = 0;
-	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
+	named_range * lhs_stub =  named_stub_exists (stub_list_name);
+	if (lhs_stub) {
+		range_stub = true;
+	}
+#if 0
+	for (int32_t i = 0; i < named_stubs_list.size(); ++i) {
 		named_range * nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name == stub_list_name){
+		if (nr_ptr->name == stub_list_name) {
 			index = i;
 			range_stub = true;
 			lhs_stub = nr_ptr;
 			break;
 		}
 	}
+#endif /* 0  */
 	// at this point lhs_stub is valid
-	for(int32_t i = 0; i < question_list.size(); ++i){
-		if(question_list[i]->questionName_  ==  stub_list_name){
+#if 0
+	for (int32_t i = 0; i < question_list.size(); ++i) {
+		if (question_list[i]->questionName_  ==  stub_list_name) {
 			index = i;
 			question_stub = true;
 			lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
@@ -966,26 +1025,39 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					"is not a named stub Question";
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__);
-				return new ErrorStatement(line_no);
+				return new ErrorStatement(line_no, 0, 0);
 			}
 			break;
 		}
 	}
-
-	if(index == -1){
+#endif /*  0 */
+	int32_t index = question_exists (stub_list_name);
+	if (index >= 0) {
+		question_stub = true;
+		lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index]);
+		if (!lhs_question) {
+			stringstream err_text;
+			err_text << "Question : " << stub_list_name
+				<< "is not a named stub Question";
+			print_err (compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no, 0, 0);
+		}
+	} else  if (index == -1 && lhs_stub == 0)  {
 		stringstream err_text;
 		err_text << "named stub list does not exist: " << stub_list_name;
-		print_err(compiler_sem_err, err_text.str(),
+		print_err (compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-		return new ErrorStatement(line_no);
+		return new ErrorStatement(line_no, 0, 0);
 	}
 	// at this point
 	// 	1. if lhs_question is not null it is valid and
 	// 	2. we need not do any more checks on the 1st argument
 
 
+#if 0
 	int32_t index_question = -1;
-	for(int32_t i = 0; i < question_list.size(); ++i){
+	for (int32_t i = 0; i < question_list.size(); ++i) {
 		if(question_list[i]->questionName_  ==  question_name){
 			index_question = i;
 			rhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
@@ -995,18 +1067,33 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					"is not a named stub Question";
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__);
-				return new ErrorStatement(line_no);
+				return new ErrorStatement(line_no, 0, 0);
 			}
 			break;
 		}
 	}
+#endif /*  0  */
+
+	int32_t index_question = question_exists (question_name);
+	if (index_question >= 0) {
+		rhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index_question]);
+		if (!rhs_question) {
+			stringstream err_text;
+			err_text << "Question : " << question_name <<
+				"is not a named stub Question";
+			print_err(compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no, 0, 0);
+		}
+	}
+
 	// 	At this point if rhs_question is not null it is a named stub question
-	if(index_question == -1){
+	if (index_question == -1) {
 		stringstream err_text;
 		err_text << "Question does not exist: " << question_name;
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__);
-		return new ErrorStatement(line_no);
+		return new ErrorStatement(line_no, 0, 0);
 	}
 	// At this point 2nd argument  is valid
 
@@ -1020,19 +1107,19 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				<< endl;
 			print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-			return new ErrorStatement(line_no);
+			return new ErrorStatement(line_no, 0, 0);
 		}
-		if (l_arr_index==0) {
+		if (l_r_arr_index==0) {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_stub, rhs_question);
+				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question);
 			return st_ptr;
 		} else {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_stub, rhs_question, l_arr_index);
+				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question, l_r_arr_index);
 			return st_ptr;
 		}
 	} else if (question_stub == true) {
-		if(!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ){
+		if (!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ) {
 			stringstream err_text;
 			err_text << "1st arg Question: " << lhs_question->questionName_
 				<< " named range: " << lhs_question->nr_ptr->name
@@ -1042,20 +1129,29 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				<< " do not match" << endl;
 			print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-			return new ErrorStatement(line_no);
+			return new ErrorStatement(line_no, 0, 0);
 		}
-		if (l_arr_index==0) {
-			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_question, rhs_question);
+		if (l_r_arr_index==0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement (
+				dt,
+				line_no,
+				/* nest_lev */ 0,
+				/* flagIsAForBody_ */ 0
+				, lhs_question, l_l_arr_index
+				, rhs_question, l_r_arr_index);
 			return st_ptr;
 		} else {
-			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_question, rhs_question, l_arr_index);
+			struct AbstractStatement* st_ptr =
+				new StubManipStatement (dt,
+				line_no, /* nest_lev */ 0,
+				/* flagIsAForBody_ */ 0
+				, lhs_question, l_l_arr_index
+				, rhs_question, l_r_arr_index);
 			return st_ptr;
 		}
 
 	}
-	return new ErrorStatement(line_no);
+	return new ErrorStatement(line_no, 0, 0);
 }
 
 
@@ -1077,13 +1173,15 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 			line_no, __LINE__, __FILE__);
 	}
 	struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-		line_no, stub_list_name);
+		line_no, nest_lev, flagIsAForBody_, stub_list_name);
 
 	return st_ptr;
 }
 
+
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
+					 , AbstractExpression * l_l_arr_index
 					 , XtccSet & l_xs)
 {
 	stringstream warn_mesg;
@@ -1107,7 +1205,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	}
 	// at this point lhs_stub is valid
 	for (int32_t i = 0; i < question_list.size(); ++i) {
-		if(question_list[i]->questionName_  ==  stub_list_name){
+		if (question_list[i]->questionName_  ==  stub_list_name) {
 			index = i;
 			question_stub = true;
 			lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
@@ -1117,32 +1215,44 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					"is not a named stub Question";
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__);
-				return new ErrorStatement(line_no);
+				return new ErrorStatement(line_no, 0, 0);
 			}
 			break;
 		}
 	}
 
-	if(index == -1){
+	if (index == -1) {
 		stringstream err_text;
 		err_text << "named stub list does not exist: " << stub_list_name;
 		print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-		return new ErrorStatement(line_no);
+		return new ErrorStatement(line_no, 0, 0);
 	}
 	// at this point
 	// 	1. if lhs_question is not null it is valid and
 	// 	2. we need not do any more checks on the 1st argument
 	if (range_stub == true) {
 		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, lhs_stub, l_xs);
+						line_no,
+						nest_lev, flagIsAForBody_,
+						lhs_stub, l_xs);
 		return st_ptr;
 	} else if (question_stub == true) {
-		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, lhs_question, l_xs);
-		return st_ptr;
+		if (l_l_arr_index == 0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+						line_no,
+						nest_lev, flagIsAForBody_,
+						lhs_question, l_xs);
+			return st_ptr;
+		} else {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+						line_no,
+						nest_lev, flagIsAForBody_,
+						lhs_question, l_l_arr_index, l_xs);
+			return st_ptr;
+		}
 	}
-	return new ErrorStatement(line_no);
+	return new ErrorStatement(line_no, 0, 0);
 }
 
 const char * write_data_to_disk_code()
@@ -1625,6 +1735,7 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 	string emscripten_cc_intermediate_file_cmd =
 		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
 		//+ " -s ASM_JS=0 "
+		+ " -s OUTLINING_LIMIT=20000 "
 		+ " -s DISABLE_EXCEPTION_CATCHING=1 "
 		+ " -s INLINING_LIMIT=50 "
 		+ " -s TOTAL_MEMORY=33554432 "
@@ -1644,9 +1755,10 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 	}
 	string emscripten_cc_cmd =
 		//"emcc -Wunused-function  -o " + executable_file_name + string(" ")
-		"emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
+		"emcc -Wunused-function --llvm-opts 1 --llvm-lto 1 -O2 -o " + executable_file_name + string(" ")
 		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
+		+ " -s OUTLINING_LIMIT=20000 "
 		+ " -s DISABLE_EXCEPTION_CATCHING=1 "
 		//+ " -s ASM_JS=0 "
 		+ " -s INLINING_LIMIT=50 "
@@ -4847,7 +4959,78 @@ void print_Wt_support_code(FILE * script)
 
 }
 
-/// =============================
+
+named_range * named_stub_exists (string p_name)
+{
+	using qscript_parser::named_stubs_list;
+	for (int i=0; i < named_stubs_list.size(); ++i) {
+		if (named_stubs_list[i]->name == p_name) {
+			return named_stubs_list[i];
+		}
+	}
+	return 0;
+}
+
+int question_exists (string p_name)
+{
+	int index = -1;
+	for (int32_t i = 0; i < question_list.size(); ++i) {
+		if (question_list[i]->questionName_  ==  p_name) {
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
+
+
+#if 0
+bool verify_stubs_list (struct named_range * nr_ptr)
+{
+	bool success = true;
+	// We need to check 2 things
+	// 1. Does the stub list end with [0-9]r
+	// 	=> reversed scale
+	// 2. Does the stub list end with [0-9]
+	// 	=> normal scale
+	// if either of these conditions is true
+	//  then do our checks otherwise immediately
+	//  return success
+	string stub_list_name = nr_ptr->name;
+	struct RatingScaleInfo rat_scale_inf = extract_rating_scale (stub_list_name);
+
+	if (rat_scale_inf.isRatingScale_) {
+		if (rat_scale_inf.isReversed_ == true) {
+			cerr << "Scale is reversed - run checks" << endl;
+			if (!check_reversed_rating_scale(rat_scale_inf, nr_ptr) ) {
+				stringstream err_mesg;
+				err_mesg << "stub list :" << nr_ptr->name
+					<< "failed rating scale checks"
+					<< endl;
+				print_err (compiler_sem_err, err_mesg.str(), line_no, __LINE__, __FILE__);
+			}
+		} else if (rat_scale_inf.isReversed_ == false) {
+			cerr << "Normal Scale - run checks" << endl;
+			if (!check_standard_rating_scale(rat_scale_inf, nr_ptr) ) {
+				stringstream err_mesg;
+				err_mesg << "stub list :" << nr_ptr->name
+					<< "failed rating scale checks"
+					<< endl;
+				print_err (compiler_sem_err, err_mesg.str(), line_no, __LINE__, __FILE__);
+			}
+		} else {
+			stringstream err_mesg;
+			err_mesg << " This should never happen. Unhandled case RatingScaleInfo";
+			print_err (compiler_internal_error, err_mesg.str(), line_no, __LINE__, __FILE__);
+		}
+	} else {
+		// nothing
+	}
+	return success;
+
+}
+#endif /*  0 */
+
 
 void print_new_logic_support_functions(FILE * script)
 {

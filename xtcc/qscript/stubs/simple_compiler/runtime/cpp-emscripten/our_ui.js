@@ -28,11 +28,11 @@
 	//alert ( "newNextQ: " + newNextQ);
 
 	EventUtil.addHandler (newNextQ, "click", function(event) {
-		my_log ("Enter newNextQ");
+		//my_log ("Enter newNextQ");
 		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
 		//console.log("newNextQ called");
 		var returnValue = new_serialize ();
-		my_log ("new_serialize done: " + returnValue);
+		//my_log ("new_serialize done: " + returnValue);
 		called_from_the_dom(returnValue.join("|"));
 	});
 	my_log ("created newNextQ handler function");
@@ -245,7 +245,7 @@
 		}
 
 		else {
-			my_log ("Enter:  create_multiple_questions_view" );
+			//my_log ("Enter:  create_multiple_questions_view" );
 			var new_question_view = document.getElementById("new_question_view");
 			//new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
 			new_question_view.innerHTML = "";
@@ -347,7 +347,7 @@
 
 
 	function get_stubs_display_view (question_obj, stubs_obj_arr) {
-		my_log ("Enter: get_stubs_display_view: question_obj.no_mpn" + question_obj.no_mpn);
+		//my_log ("Enter: get_stubs_display_view: question_obj.no_mpn" + question_obj.no_mpn);
 		question_type = question_obj.question_type;
 		//my_log ("After question_type.question_type");
 		var doc_frag2 = document.createDocumentFragment();
@@ -434,14 +434,14 @@
 		}
 		// move this to the function that renders the view
 		// $( '#stubs_form_div' ).trigger( 'create' );
-		my_log ("Exit: get_stubs_display_view");
+		//my_log ("Exit: get_stubs_display_view");
 		return doc_frag2;
 	}
 
 
 	function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
-		my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
-		my_log ("document.forms.length: " + document.forms.length);
+		//my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
+		//my_log ("document.forms.length: " + document.forms.length);
 
 		var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 		if (result == "single_question") {
@@ -453,7 +453,7 @@
 		} else {
 			my_log ("unhandled case - analyse_page_structure");
 		}
-		my_log ("Exited: ui_create_question_form stubs_obj_arr:" + stubs_obj_arr);
+		//my_log ("Exited: ui_create_question_form stubs_obj_arr:" + stubs_obj_arr);
 	}
 
 

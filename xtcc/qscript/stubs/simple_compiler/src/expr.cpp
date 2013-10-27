@@ -500,7 +500,7 @@ void Unary2Expression::PrintExpressionText(ostringstream & s)
 				s << "All who have answered question " << q->questionName_;
 			}
 		} else {
-			s << "All respondents where internal variable " << symbolTableEntry_->name_ << " is true"; 
+			s << "All respondents where internal variable " << symbolTableEntry_->name_ << " is true";
 		}
 
 	}
@@ -509,7 +509,7 @@ void Unary2Expression::PrintExpressionText(ostringstream & s)
 		if (type_ == QUESTION_TYPE){
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_ARR_TYPE){
-				s << " All who have answered " 
+				s << " All who have answered "
 					<< q->questionName_
 					<< "[";
 				ExpressionCompiledCode code1;
@@ -585,9 +585,16 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 
 				// string temp_name = get_temp_name();
 				string temp_name = qscript_parser::temp_name_generator.GetNewName();
+				//code.code_bef_expr << "int32_t " << temp_name
+				//		   << " = *" << symbolTableEntry_->name_ 
+				//		   << "->input_data.begin();\n";
 				code.code_bef_expr << "int32_t " << temp_name
-						   << " = *" << symbolTableEntry_->name_ 
-						   << "->input_data.begin();\n";
+						   << " = "
+						   << q->questionName_ << "->isAnswered_ ? "
+						   << "*" << symbolTableEntry_->name_
+						   << "->input_data.begin()"
+						   << " : INT_MAX"
+						   << ";\n";
 				code.code_expr << temp_name;
 			}
 		} else {
@@ -601,7 +608,7 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_ARR_TYPE){
 				code.code_bef_expr
-					<< "if (!"
+					<< "/* if (!"
 					<< q->questionName_
 					<< "_list.questionList[";
 				ExpressionCompiledCode code1;
@@ -612,12 +619,31 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 					<< "]->isAnswered_) {\n"
 					<< "cerr << \"runtime error using unanswered question in expression: \" << \""
 					<< q->questionName_
-					<< "\" << endl;\n}\n";
+					<< "\" << endl;\n} */\n";
+				string temp_name = qscript_parser::temp_name_generator.GetNewName();
+				code.code_bef_expr << "int32_t " << temp_name
+						   << " = "
+						   << q->questionName_
+						   << "_list.questionList["
+						   << code1.code_bef_expr.str()
+						   << code1.code_expr.str()
+						   << "]"
+						   << "->isAnswered_ ? "
+						   << "*"
+						   << q->questionName_
+						   << "_list.questionList["
+						   << code1.code_bef_expr.str()
+						   << code1.code_expr.str()
+						   << "]"
+						   << "->input_data.begin()"
+						   << " : /* INT_MAX */ 0"
+						   << ";\n";
+				code.code_expr << temp_name;
 			}
 			// 27-aug-2011 moved code into if block: was below commented out before
-			code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
-			operand_->PrintExpressionCode(code);
-			code.code_expr << "]->input_data.begin())";
+			//code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
+			//operand_->PrintExpressionCode(code);
+			//code.code_expr << "]->input_data.begin())";
 		}
 		// 27-aug-2011 moved code into if block
 		//	code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
@@ -1004,6 +1030,7 @@ Unary2Expression::Unary2Expression(struct SymbolTableEntry * lsymp)
 	, symbolTableEntry_(lsymp), intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1)
 	, text(0), column_no(-1), operand_(0), operand2_(0)
+	  , maxBounds_(0)
 { }
 
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
@@ -1012,6 +1039,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {
 	if(qscript_debug::DEBUG_Unary2Expression)
 		cerr << __PRETTY_FUNCTION__ << endl;
@@ -1130,6 +1158,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	, intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(arr_index),  operand2_(0)
+	  , maxBounds_(0)
 {
 	//cerr << "ENTER Unary2Expression::Unary2Expression :name" << name
 	//	<< " with arr_index" << endl;
@@ -1188,6 +1217,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(arr_index), operand2_(arr_index2)
+	  , maxBounds_(0)
 {
 	SymbolTableEntry* se = 0;
 	map<string,SymbolTableEntry*>::iterator sym_it1 = find_in_symtab(name);
@@ -1250,6 +1280,7 @@ Unary2Expression::Unary2Expression(int32_t l_isem_value)
 	: AbstractExpression(oper_num), symbolTableEntry_(0)
 	, intSemanticValue_(l_isem_value), doubleSemanticValue_(0), func_index_in_table(-1)
 	, text(0), column_no(-1), operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {
 	if (intSemanticValue_ >= SCHAR_MIN && intSemanticValue_ <= SCHAR_MAX){
 		type_ = INT8_TYPE;
@@ -1273,6 +1304,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(lfunc_index_in_table)
 	, text(0), column_no(-1), operand_(e_list), operand2_(0)
+	  , maxBounds_(0)
 {}
 
 Unary2Expression::Unary2Expression(double l_dsem_value)
@@ -1280,6 +1312,7 @@ Unary2Expression::Unary2Expression(double l_dsem_value)
 	, intSemanticValue_(0), doubleSemanticValue_(l_dsem_value)
 	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {}
 
 Unary2Expression::Unary2Expression(DataType d)
@@ -1287,6 +1320,7 @@ Unary2Expression::Unary2Expression(DataType d)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {}
 
 
@@ -1302,11 +1336,12 @@ bool Binary2Expression::IsIntegralExpression()
 
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , string name
+					, AbstractExpression * l_arr_index
 				     , ExpressionOperatorType letype)
 	: AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
-	  , xs(0), rhsQuestion_(0)
+	  , xs(0), rhsQuestion_(0), rightOperandArrIndex_(l_arr_index)
 {
-	switch(exprOperatorType_){
+	switch (exprOperatorType_) {
 		case oper_in: {
 			leftOperand2_=llop;
 			AbstractQuestion* q = find_in_question_list(name);
@@ -1318,9 +1353,14 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 				type_ = ERROR_TYPE;
 			}  else {
 				rhsQuestion_ = q;
+				if (rightOperandArrIndex_ && q->type_ != QUESTION_ARR_TYPE) {
+					stringstream err_msg ;
+					err_msg <<  "Trying to index a non array question : " << name;
+					print_err(compiler_sem_err, err_msg.str(),
+						line_no, __LINE__, __FILE__);
+					type_ = ERROR_TYPE;
+				}
 			}
-
-
 			type_ = BOOL_TYPE;
 		}
 		break;
@@ -1338,18 +1378,18 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , XtccSet& l_rd
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
+	: AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
 	 		, xs(0), rhsQuestion_(0)
 {
 	//cerr << "Binary2Expression::Binary2Expression" << endl;
-	switch(exprOperatorType_){
+	switch (exprOperatorType_) {
 		case oper_in:
-			switch( llop->exprOperatorType_){
+			switch (llop->exprOperatorType_) {
 			case oper_name:
 			case oper_arrderef:
 				type_ = BOOL_TYPE;
 				//cerr << "Binary2Expression::static_cast" << endl;
-				leftOperand_=
+				leftOperand_ =
 					static_cast<Unary2Expression*>(llop);
 				xs = new XtccSet(l_rd);
 				break;
@@ -1377,7 +1417,7 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 {
 	stringstream mesg;
 	mesg << " shouldnt i be using an XtccSet here directly - it looks like im doing the same work 2ice and if i used the set the generated code would be smaller\n";
-	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ 
+	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< " " << mesg.str();
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_bef_expr << " /* ENTER Binary2Expression::PrintTemporaryStruct */ " << endl;
@@ -1462,7 +1502,7 @@ void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 		int32_t k = 0;
 		for(set<int32_t>::iterator iter = xs->indiv.begin();
 			iter != xs->indiv.end(); ++iter, ++k){
-			temp_code << set_name << ".add_indiv(" 
+			temp_code << set_name << ".add_indiv("
 				 << *iter << ");\n";
 		}
 	}
@@ -1535,11 +1575,11 @@ void Binary2Expression::PrintExpressionText(ostringstream & s)
 
 		ExpressionCompiledCode expr2_code;
 		leftOperand2_->PrintExpressionCode(expr2_code);
-		
+
 		NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (rhsQuestion_);
 		if (Unary2Expression * un2expr = dynamic_cast<Unary2Expression*> (leftOperand2_)) {
 			if (un2expr->exprOperatorType_ == oper_num ) {
-				s << " All Respondents who have coded \\\"" << un2expr->intSemanticValue_ << "\\\" i.e. ";
+				s << " All Respondents who have coded '" << un2expr->intSemanticValue_ << "' i.e. ";
 				if (nq) {
 					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 					for (int i=0; i<vec.size(); ++i) {
@@ -1672,14 +1712,26 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 		} // note this closes the default label
 		}
 	} else /* if leftOperand2_ !=0 */{
-		code.code_expr  << "/* " << __PRETTY_FUNCTION__ 
-			<< ", " << __LINE__ 
-			<< ", " << __FILE__ 
+		code.code_expr  << "/* " << __PRETTY_FUNCTION__
+			<< ", " << __LINE__
+			<< ", " << __FILE__
 			<< "   ";
 		code.code_expr << " */" << endl;
-		code.code_expr << rhsQuestion_->questionName_ << "->input_data.find(";
+		code.code_expr << rhsQuestion_->questionName_;
+		if (rightOperandArrIndex_) {
+			ExpressionCompiledCode expr_code2;
+			rightOperandArrIndex_->PrintExpressionCode(expr_code2);
+			code.code_expr << "_list.questionList[" << expr_code2.code_expr.str() << "]";
+		}
+		code.code_expr << "->input_data.find(";
 		leftOperand2_->PrintExpressionCode(code);
-		code.code_expr << ") != " << rhsQuestion_->questionName_ << "->input_data.end()";
+		code.code_expr << ") != " << rhsQuestion_->questionName_ ;
+		if (rightOperandArrIndex_) {
+			ExpressionCompiledCode expr_code2;
+			rightOperandArrIndex_->PrintExpressionCode(expr_code2);
+			code.code_expr << "_list.questionList[" << expr_code2.code_expr.str() << "]";
+		}
+		code.code_expr << "->input_data.end()";
 	}
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;

@@ -55,12 +55,15 @@ using qscript_parser::line_no;
 using qscript_parser::no_errors;
 using qscript_parser::debug_log_file;
 using qscript_parser::mem_addr;
+using qscript_parser::nest_lev;
+using qscript_parser::flagIsAForBody_;
 
 
 AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt);
 		//se->name = strdup(name.c_str());
@@ -70,9 +73,11 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_
 		st_ptr->type_ = dt;
 		st_ptr->symbolTableEntry_ = se;
 	} else {
-		cerr << "ERROR: " << name << " already present in symbol table" << endl;
+		//cerr << "ERROR: " << name << " already present in symbol table" << endl;
+		print_err (compiler_sem_err, " already present in symbol table"
+			  , qscript_parser::line_no, __LINE__, __FILE__);
 		st_ptr->type_ = ERROR_TYPE;
-		++no_errors;
+		//++no_errors;
 	}
 	return st_ptr;
 }
@@ -90,8 +95,15 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 		     << endl;
 	}
 	*/
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
-	if (SymbolTable.find(name) == SymbolTable.end()) {
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
+	if (qscript_parser::named_stub_exists (name)) {
+		std::stringstream err_mesg;
+		err_mesg << "|" << name << " |  is already present as named_stub ";
+		print_err (compiler_sem_err, err_mesg.str().c_str()
+			  , qscript_parser::line_no, __LINE__, __FILE__);
+		st_ptr->type_ = ERROR_TYPE;
+	} else if (SymbolTable.find (name) == SymbolTable.end()) {
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, l_q);
 		//se->name = strdup(name.c_str());
 		//se->type_ = dt;
@@ -100,9 +112,13 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 		st_ptr->type_ = dt;
 		st_ptr->symbolTableEntry_ = se;
 	} else {
-		cerr << "ERROR: " << name << " already present in symbol table" << endl;
+		//cerr << "ERROR: " << name << " already present in symbol table" << endl;
+		std::stringstream err_mesg;
+		err_mesg << "|" << name << " | NAME already present in symbol table";
+		print_err (compiler_sem_err, err_mesg.str()
+			  , qscript_parser::line_no, __LINE__, __FILE__);
 		st_ptr->type_ = ERROR_TYPE;
-		++no_errors;
+		//++no_errors;
 	}
 	return st_ptr;
 }
@@ -111,7 +127,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , int32_t arr_size	 /*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_
+			);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt);
 		se->n_elms = arr_size;
@@ -120,8 +138,12 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 		st_ptr->type_ = dt;
 		st_ptr->symbolTableEntry_ = se;
 	} else {
-		cerr << " array NAME failed:" << line_no << endl;
-		cerr << name << " already present in symbol table" << endl;
+		//cerr << " array NAME failed:" << line_no << endl;
+		//cerr << name << " already present in symbol table" << endl;
+		std::stringstream err_mesg;
+		err_mesg << "|" << name << " | array NAME already present in symbol table";
+		print_err (compiler_sem_err, err_mesg.str().c_str()
+			  , qscript_parser::line_no, __LINE__, __FILE__);
 		st_ptr->type_ = ERROR_TYPE;
 		++no_errors;
 	}
@@ -132,11 +154,12 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , AbstractExpression *e)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
-	if ( SymbolTable.find(name) == SymbolTable.end() ){
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
+	if ( SymbolTable.find(name) == SymbolTable.end()) {
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, e);
-		if(is_of_noun_type(e->type_)){
-			if (check_type_compat(dt, e->type_)){
+		if (is_of_noun_type (e->type_)) {
+			if (check_type_compat(dt, e->type_)) {
 				string s(name);
 				SymbolTable[s] = se;
 				st_ptr->type_ = dt;
@@ -170,7 +193,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , AbstractExpression *e, type_qualifier tq)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+				nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, e, tq);
 		if(is_of_noun_type(e->type_)){
@@ -221,7 +245,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int32_t arr_siz
 		cerr << "length of TEXT < array size line_no:" << line_no << endl;
 		++no_errors;
 	}
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, arr_size, text);
 		//se->n_elms = arr_size;
@@ -243,7 +268,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int32_t arr_siz
 
 AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 {
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		XtccSet * xs = new XtccSet(*lxs);
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, xs);
@@ -261,9 +287,15 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 }
 
 AbstractStatement* Scope::insert(const char * name, DataType dt, int l_line_no
+		, int32_t l_nest_level
+		, int32_t l_for_nest_level
 		, vector<string> l_vec_named_attribute_list)
 {
-	named_attribute_list * na = new named_attribute_list(NAMED_ATTRIBUTE_TYPE, l_line_no, name, l_vec_named_attribute_list);
+	named_attribute_list * na = new named_attribute_list
+			(NAMED_ATTRIBUTE_TYPE, l_line_no, name
+			 , l_nest_level
+			 , l_for_nest_level
+			 , l_vec_named_attribute_list);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, na);
@@ -271,7 +303,6 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int l_line_no
 		SymbolTable[s] = se;
 		//na->type_ = dt;
 		na->symbolTableEntry_ = se;
-
 	} else {
 		stringstream s;
 		s << " IDENTIFIER: " << name << "  already present in symbol table" << endl;
@@ -280,7 +311,6 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int l_line_no
 	}
 	return na;
 }
-
 Scope::~Scope()
 {
 	debug_log_file <<"deleting Scope" << endl;
@@ -326,3 +356,15 @@ void Scope::print_scope(vector<ActiveVariableInfo*> & output_info)
 		output_info.push_back(sym_ptr->GetVarInfo());
 	}
 }
+
+SymbolTableEntry * Scope::find (string name)
+{
+	
+	map<string,SymbolTableEntry*>::iterator se_entry_iter =  SymbolTable.find (name);
+	if (se_entry_iter == SymbolTable.end()) {
+		return 0;
+	} else {
+		return se_entry_iter->second;
+	}
+}
+
