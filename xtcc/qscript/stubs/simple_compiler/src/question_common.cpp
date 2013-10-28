@@ -18,12 +18,14 @@ namespace  qscript_parser {
 
 #if 1
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level), questionName_(l_name)
 	, textExprVec_(text_expr_vec)
 	, questionDiskName_(l_name)
 	, q_type(l_q_type)
@@ -87,7 +89,7 @@ RangeQuestion::~RangeQuestion()
 }
 
 DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-	: AbstractQuestion(QUESTION_TYPE, 0, l_qno
+	: AbstractQuestion(QUESTION_TYPE, 0, 0, 0, l_qno
 			//, string(l_qno + "_dummy")
 			, vector<TextExpression*>()
 			, spn, 0
