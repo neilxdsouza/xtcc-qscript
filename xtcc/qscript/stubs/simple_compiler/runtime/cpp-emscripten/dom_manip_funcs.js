@@ -174,11 +174,11 @@ save_qnre_data: function (survey_data_ptr)
 	};
 
 	//if ( global_current_survey_data_file)
-	if (global_survey_related_info.current_data_file_fileEntry ) {
+	if (global_survey_related_info.current_data_file_fileEntry) {
 		// global_current_survey_data_file.createWriter (gotFileWriter, fail);
 		global_survey_related_info.current_data_file_fileEntry.createWriter (gotFileWriter, fail);
 	} else {
-		my_log ("global_survey_related_info.current_survey_data_file not available from dom_manip_funcs.js");
+		//my_log ("global_survey_related_info.current_survey_data_file not available from dom_manip_funcs.js");
 	}
 	//my_log ("exit : save_qnre_data");
 	//alert("timestamp");
@@ -197,6 +197,7 @@ show_end_of_qnre_page: function() {
 	thank_you_screen.style.display = "block";
 
 	clearInterval(geolocationTimer);	// clear gps timer
+	moveToReadyToSync.onGetDirectorySuccess.init();
 },
 
 create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr) {

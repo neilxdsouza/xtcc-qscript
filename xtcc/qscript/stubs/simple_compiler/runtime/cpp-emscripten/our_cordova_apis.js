@@ -1,5 +1,5 @@
 
-	my_log ("Started loading our_cordova_apis.js");
+	//my_log ("Started loading our_cordova_apis.js");
 
 
 /* ==========  Device Info {{{1 ======================= */
@@ -104,7 +104,7 @@
 
 	function get_geolocation_info()
 	{
-		alert("get_geolocation_info fired");
+		//alert("get_geolocation_info fired");
 		//my_log ("Enter: get_geolocation_info: navigator.geolocation:" + navigator.geolocation);
 		if (navigator.geolocation) {
 			// my_log ("get_geolocation_info: has geolocation");
@@ -176,6 +176,7 @@
 
 	/* getFileErrorHandler : {{{2 */
 	function getFileErrorHandler (file_error) {
+		my_log ("getFileErrorHandler: unable to open requested file");
 		/*var file_err_string =
 			" file_error.NOT_FOUND_ERR              "   +  file_error.NOT_FOUND_ERR + "<br />" +
 			" file_error.SECURITY_ERR               "   +  file_error.SECURITY_ERR + "<br />" +
@@ -201,6 +202,9 @@
 		*/
 
 
+		/* 28-oct-2013
+		 * We no longer need this - file merging happens by calling
+		 * exclusive = false
 		var span_event_target_trigger_file_open_write =
 			document.getElementById("span_event_target_trigger_file_open_write");
 		//my_log ("got span");
@@ -210,13 +214,19 @@
 		//my_log ("did initEvent");
 		span_event_target_trigger_file_open_write.dispatchEvent (event);
 		//my_log ("triggered click event");
+		*/
 	}
 	/* getFileErrorHandler }}}2 */
 
 	function gotFileEntry(fileEntry) {
-		my_log("Enter: gotFileEntry");
+		//my_log("Enter: gotFileEntry");
 		global_survey_related_info.current_data_file_fileEntry = fileEntry;
 		fileEntry.file(gotFile, getFileErrorHandler);
+	}
+
+	function gotVerbatimFileEntry(fileEntry) {
+		my_log("Enter: gotVerbatimFileEntry");
+		global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
 	}
 
 	function gotGPSFileEntry(fileEntry) {		
@@ -231,12 +241,14 @@
 		if(global_survey_related_info.position)
 		{
 			fw.seek(fw.length);
-			fw.write("Lat:"+global_survey_related_info.position.coords.latitude+"&Long:"+global_survey_related_info.position.coords.longitude+"&Timestamp:"+timestamp+"\n");
+			//fw.write("Lat:"+global_survey_related_info.position.coords.latitude+"&Long:"+global_survey_related_info.position.coords.longitude+"&Timestamp:"+timestamp+"\n");
+			fw.write(global_survey_related_info.position.coords.latitude+","+global_survey_related_info.position.coords.longitude+","+timestamp+"\n");
 		}
 		else
 		{
 			fw.seek(fw.length);
-			fw.write("Lat:NaN&Long:NaN&Timestamp:" + timestamp + "\n");
+			//fw.write("Lat:NaN&Long:NaN&Timestamp:" + timestamp + "\n");
+			fw.write("NaN,NaN," + timestamp + "\n");
 		}
 	}
 	
@@ -302,6 +314,7 @@
 	function save_verbatim_data(writer) {
 		//my_log ("Enter : save_verbatim_data");
 		//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
+		//writer.write(global_survey_related_info.current_verbatim_data);
 		writer.write(global_survey_related_info.current_verbatim_data);
 		//my_log ("Exit : save_verbatim_data");
 	}
@@ -329,16 +342,55 @@
 	}
 	/* fileFoundSuccess }}}2 */
 
+	function MakePathDir(path) {
+		my_log ("MakePathDir path: " + path);
+		var path_array = path.split("/");
+		var i = 0;
+		var root_dir_entry = global_survey_related_info.fileSystemObject.root;
+		//var current_dir_entry = root_dir_entry;
+		//var next_dir_entry = current_dir_entry;
+		//var path_array_copy = path_array;
+		var cumulative_path = "";
+		var dir_created_success = function (p, de) {
+						};
+		// for (; i < path_array.length; ++i) {
+		// 	my_log ("cumulative_path: " + cumulative_path);
+		// 	cumulative_path += "/" + path_array[i];
+		// 	root_dir_entry.getDirectory (cumulative_path, { create: true },
+		// 							dir_created_success,
+		// 							fileFSError);
+		// }
+		var fnGetOrCreateDir2 = function(p, de) {
+			//my_log ("fnGetOrCreateDir2 path:" + p);
+			var path_length = p.length;
+			var entry = p.shift();
+			//my_log ("fnGetOrCreateDir2 operating on entry:" + entry);
+			if (entry) {
+				if (path_length > 0) {
+					de.getDirectory(entry,
+							{ create : true },
+							function(dirEntry) {
+								//my_log("success function: made dir/file: " + entry);
+								fnGetOrCreateDir2(p, dirEntry);
+							},
+							fileFSError);
+				} else {
+				}
+			}
+		}
+		fnGetOrCreateDir2 (path_array, global_survey_related_info.fileSystemObject.root);
+	}
+
 	/* ====== fileGetDir {{{2 */
 	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
 	// This function will create all the directories required on the way
 	// but create_mode = false or true will decide if a new file will be created
 	function fileGetDir(path, cb, create_mode, handlerFileDoesNotExist, function_mode) {
 		//my_log ("Enter: fileGetDir, create_mode: " + create_mode + "create_mode.create: " + create_mode.create );
-		my_log ("Enter: fileGetDir, create_mode: " + create_mode + "create_mode.create: " + create_mode.create +
-			"function_mode: " +function_mode.toJSON());
+		//my_log ("Enter: fileGetDir, create_mode: " + create_mode + "create_mode.create: " + create_mode.create +
+		//	"function_mode: " +function_mode.toJSON());
 		var fileCreatedSuccess_serno = function (file) {
-			my_log ("Enter: fileCreatedSuccess_serno:" );
+			//my_log ("Enter: fileCreatedSuccess_serno:" );
 			//global_current_survey_data_file = file;
 			global_survey_related_info.current_survey_data_file = file;
 			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
@@ -511,50 +563,51 @@ document.addEventListener("backbutton", function() {
 // implment menu button
 document.addEventListener("menubutton", toggle_options_panel, false);
 
-//function onDeviceReady() {
-//	my_log("Enter onDeviceReady");
-//	var success = false;
-//	success = get_device_info();
-//	if (success == false) {
-//		//my_log ("Unable to get device information ... exiting the survey");
-//		return false;
+	/* =========== onDeviceReady {{{1 ========= */
+//	function onDeviceReady() {
+//		my_log("Enter onDeviceReady");
+//		var success = false;
+//		success = get_device_info();
+//		if (success == false) {
+//			//my_log ("Unable to get device information ... exiting the survey");
+//			return false;
+//		}
+//		/*
+//		success = get_compass_info();
+//		if (success == false) {
+//			//my_log ("Unable to get compass information ... exiting the survey");
+//			return false;
+//		}*/
+//		success = get_geolocation_info();
+//		if (success == false) {
+//			//my_log ("Unable to get geolocation information ... exiting the survey");
+//			return false;
+//		}
+//		
+//		getFileSystemObject();
+//		//if (success == false) {
+//		//	//my_log ("Unable to get LocalFileSystem ... exiting the survey");
+//		//	return false;
+//		//}
+//		// allow to click on start only after initializing all the things we need
+//		var return_serial_no_button = document.getElementById("btn_return_serial_no");
+//		return_serial_no_button.disabled = false;
+//		my_log("ready to start interview");
+//		// var our_path = "qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat";
+//		// fileGetDir (our_path, printSuccess);
+//		//
+//		//
+//		//
+//		//
+//		//
+//		//if(fnVerifyCurrentUserInLocalStorage())
+//		//{
+//		//	//$.mobile.changePage( "#pageSurveys", { transition: "slideup"});
+//		//	showSurveys();
+//		//}
+//		my_log ("Exit onDeviceReady");
+//		return true;
 //	}
-//	/*
-//	success = get_compass_info();
-//	if (success == false) {
-//		//my_log ("Unable to get compass information ... exiting the survey");
-//		return false;
-//	}*/
-//	success = get_geolocation_info();
-//	if (success == false) {
-//		//my_log ("Unable to get geolocation information ... exiting the survey");
-//		return false;
-//	}
-//	
-//	getFileSystemObject();
-//	//if (success == false) {
-//	//	//my_log ("Unable to get LocalFileSystem ... exiting the survey");
-//	//	return false;
-//	//}
-//	// allow to click on start only after initializing all the things we need
-//	var return_serial_no_button = document.getElementById("btn_return_serial_no");
-//	return_serial_no_button.disabled = false;
-//	my_log("ready to start interview");
-//	// var our_path = "qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat";
-//	// fileGetDir (our_path, printSuccess);
-//	//
-//	//
-//	//
-//	//
-//	//
-//	//if(fnVerifyCurrentUserInLocalStorage())
-//	//{
-//	//	//$.mobile.changePage( "#pageSurveys", { transition: "slideup"});
-//	//	showSurveys();
-//	//}
-//	my_log ("Exit onDeviceReady");
-//	return true;
-//}
 //document.addEventListener ("deviceready", onDeviceReady, false);
 
 	my_log ("Finished loading our_cordova_apis.js");

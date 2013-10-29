@@ -98,6 +98,7 @@
 		};
 		/* ============= }}}1 ==================*/
 	</script>
+
         <script type="text/javascript" src="cordova-2.7.0.js"></script>
                 <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
@@ -152,7 +153,7 @@
 		
 	<div id="auth_section">
 
-		<div id="welcome_section">
+		<div id="welcome_section" style="display:none;">
 			<div data-role="content">
                 <h1>Welcome to Qscript</h1>
                 <h2>Your data collection companion</h2>		        	
@@ -169,18 +170,19 @@
 		</div>
 
 		<div id="login_section" style="display:none;">
-			<h1>Log In </h1>
+			<!--<h1>Log In </h1>-->
             <div data-role="content">
-                <label for="txtname">Username:</label>
-                <input type="text" name="txtname" id="txtname" value="">
-                <label for="txtpassword">Password:</label>
-                <input type="password" name="txtpassword" id="txtpassword" value="">
-                <input type="button" value="Log In" id="btnlogin" data-theme="b" data-inline="true">
+                <!--<label for="txtname">Username:</label>-->
+                <input type="email" name="txtname" id="txtname" value="" placeholder="Email" />
+                <!--<label for="txtpassword">Password:</label>-->
+                <input type="password" name="txtpassword" id="txtpassword" value="" placeholder="Password" />
+                <br />
+                <input type="button" value="Log In" id="btnlogin" data-theme="b" />                
             </div>
 		</div>
 
 		<div id="signup_section" style="display:none;">
-			<h1>Register with Qscript</h1>
+			<!--<h1>Register with Qscript</h1>-->
             <div data-role="content">
                 <!--<label for="txtfullname">FUll Name:</label>
                 <input type="text" name="txtfullname" id="txtfullname" value="">
@@ -191,15 +193,16 @@
                 <label for="txtconfirmpassword">Confirm Password:</label>
                 <input type="password" name="txtconfirmpassword" id="txtconfirmpassword" value="">                
                 <input type="button" value="Sign Up" id="btnSignUp" data-theme="b" data-inline="true">-->
-                <label for="txtfullname">Full Name:</label>
-                <input type="text" name="txtfullname" id="txtfullname" value="">
-                <label for="txtusername">Username:</label>
-                <input type="text" name="txtusername" id="txtusername" value="">                
-                <label for="txtpwd">Password:</label>
-                <input type="password" name="txtpwd" id="txtpwd" value="">
-                <label for="txtconfirmpwd">Confirm Password:</label>
-                <input type="password" name="txtconfirmpwd" id="txtconfirmpwd" value="">                
-                <input type="button" value="Register" id="btnSignUp" data-theme="b" data-inline="true">
+                <!--<label for="txtfullname">Full Name:</label>-->
+                <input type="text" name="txtfullname" id="txtfullname" value="" placeholder="Full Name" />
+                <!--<label for="txtusername">Username:</label>-->
+                <input type="email" name="txtusername" id="txtusername" value="" placeholder="Email" />                
+                <!--<label for="txtpwd">Password:</label>-->
+                <input type="password" name="txtpwd" id="txtpwd" value="" placeholder="Password" />
+                <!--<label for="txtconfirmpwd">Confirm Password:</label>-->
+                <input type="password" name="txtconfirmpwd" id="txtconfirmpwd" value="" placeholder="Confirm Password" />
+                <br />
+                <input type="button" value="Register" id="btnSignUp" data-theme="b" />
                 <div data-role="popup" id="divpopinfoSignUp" data-theme="e" data-overlay-theme="a" class="ui-content">
                     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <p>All the information goes in here</p>
@@ -264,7 +267,7 @@
 		                  Begin a new Survey
 		                </h4>
 		                <br/>		                
-		                <input id="txt_serial_no"  type="number" placeholder="Enter A Serial No">
+		                <input id="txt_serial_no" type="text" onFocus="this.type='number';" onBlur="if(this.value==''){this.type='text';}" placeholder="Enter A Serial No" />
 		                <a id="btn_return_serial_no" data-transition="slide" href="#" data-role="button" data-theme="b" data-inline="true">Start Interview</a>
 		              </div>
 		            </div>
@@ -293,6 +296,10 @@
 										    <p>Searching for GPS</p>
 										    </div>
 										</div>
+
+										<div data-role="popup" id="popupSync">											
+										</div>
+
 									</div>
 								</div>
 								<br/>
@@ -434,6 +441,7 @@
 
 	</script>
 
+	
 	<script type="text/javascript" src="./js/our_cordova_apis.js"> </script>
 	<script type="text/javascript" src="./js/our_ui.js"> </script>
 	<script type="text/javascript" src="./js/localStorage.js"></script>
