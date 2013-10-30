@@ -173,6 +173,65 @@ TextExpression::TextExpression (AbstractQuestion * q)
 { }
 
 
+
+void DummyArrayQuestion::GetQuestionNames(vector<string> & question_list
+			      , AbstractStatement* endStatement)
+{
+	if (this==endStatement)
+		return;
+	if (next_) {
+		next_->GetQuestionNames(question_list, endStatement);
+	}
+}
+
+void NamedStubQuestion::GetQuestionNames(vector<string> & question_list
+			       , AbstractStatement* endStatement)
+{
+	if (qscript_debug::DEBUG_NamedStubQuestion) {
+		std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
+	}
+	if (this==endStatement)
+		return;
+	if (for_bounds_stack.size() == 0) {
+		question_list.push_back(questionName_);
+	} else {
+		//std::stringstream s;
+		//s << questionName_  << "_list.questionList["
+		//<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+		//<< "]";
+		//question_list.push_back(s.str());
+		question_list.push_back(questionName_);
+	}
+	if (next_) {
+		next_->GetQuestionNames(question_list, endStatement);
+	}
+}
+
+
+void  RangeQuestion::GetQuestionNames(vector<string> & question_list,
+			       AbstractStatement* endStatement)
+{
+	if (qscript_debug::DEBUG_RangeQuestion) {
+		std::cout << "RangeQuestion::GetQuestionNames"
+			  << std::endl;
+	}
+	if (this==endStatement)
+		return;
+	if (for_bounds_stack.size() == 0) {
+		question_list.push_back(questionName_);
+	} else {
+		//std::stringstream s;
+		//s << questionName_  << "_list.questionList["
+		//<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+		//<< "]";
+		//question_list.push_back(s.str());
+		question_list.push_back(questionName_);
+	}
+	if (next_) {
+		next_->GetQuestionNames(question_list,endStatement);
+	}
+}
+
 //Wt::WString DummyArrayQuestion::PrintSelectedAnswers()
 string DummyArrayQuestion::PrintSelectedAnswers()
 {

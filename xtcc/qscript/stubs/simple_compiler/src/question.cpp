@@ -3472,6 +3472,7 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 	}
 
 	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
 		<< ", string(\"" << file_path << "\")"
 		<< ");"
 		<< endl;
@@ -3489,6 +3490,7 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
 			<< endl;
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+#if 0
 		code.program_code
 			<< "if ((" << questionName_ << "->isAnswered_ == false) || "
 			<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && "
@@ -3512,6 +3514,10 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 			<< "\treturn " << questionName_ << ";" << endl
 			<< "}"
 			<< endl;
+#endif /*  0  */
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
 	}
 
 	code.program_code << "/* END ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"

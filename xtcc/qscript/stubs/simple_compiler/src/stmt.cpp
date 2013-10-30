@@ -214,10 +214,25 @@ string Generate_false_code_for_questions_in_other_block (string question_name, I
 	//code << "// reached here: " << question_name << endl;
 	CompoundStatement * cmpd_stmt1 =  dynamic_cast< CompoundStatement * > ( p_if_stmt->ifBody_);
 	CompoundStatement * cmpd_stmt = 0;
+	code << "// nestedCompoundStatementStack_.size(): " << cmpd_stmt1->nestedCompoundStatementStack_.size() << endl;
 	if (cmpd_stmt1->nestedCompoundStatementStack_.size() > 1) {
 		// note that cmpd_stmt1->nestedCompoundStatementStack_[size()-1] == us , the if statement
 		cmpd_stmt =  dynamic_cast< CompoundStatement * > ( 
 				cmpd_stmt1->nestedCompoundStatementStack_[cmpd_stmt1->nestedCompoundStatementStack_.size()-2]);
+		if (cmpd_stmt) {
+			code << "// cmpd_stmt->flagIsAForBody_: " << cmpd_stmt->flagIsAForBody_ << endl;
+			if (se) {
+				if ( se->type_ == QUESTION_TYPE) {
+					code << "// question_name type is QUESTION_TYPE: " << endl;
+				} else if (se->type_ == QUESTION_ARR_TYPE) {
+					code << "// question_name type is QUESTION_ARR_TYPE: " << endl;
+				} else {
+					code << "// question_name type is : " << se->type_ << endl;
+				}
+			} else {
+				code << "// se is null : " << se << ", question_name: " << question_name << endl;
+			}
+		}
 	}
 	stringstream mesg;
 	mesg << " need to check the nestedCompoundStatementStack_ that we dont have interleaving for and if statements, otherwise there are many cases where we will be generating incorrect code";
@@ -2709,7 +2724,6 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
-
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			    	int32_t l_nest_level, int32_t l_for_nest_level,
 			const vector <Unary2Expression *> & expr_vec, string err_msg)

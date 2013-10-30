@@ -277,7 +277,8 @@ struct RangeQuestion: public AbstractQuestion
 	//	return this;
 	//}
 	void  GetQuestionNames(vector<string> & question_list,
-			       AbstractStatement* endStatement)
+			       AbstractStatement* endStatement);
+	/* 
 	{
 		if (qscript_debug::DEBUG_RangeQuestion) {
 			std::cout << "RangeQuestion::GetQuestionNames"
@@ -298,6 +299,7 @@ struct RangeQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list,endStatement);
 		}
 	}
+	*/
 
 	void MakeDisplaySummaryDataRanges();
 
@@ -402,7 +404,8 @@ class NamedStubQuestion: public AbstractQuestion
 	//	return this;
 	//}
 	void  GetQuestionNames(vector<string> & question_list
-			       , AbstractStatement* endStatement)
+			       , AbstractStatement* endStatement);
+	/* 
 	{
 		if (qscript_debug::DEBUG_NamedStubQuestion) {
 			std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
@@ -422,6 +425,7 @@ class NamedStubQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+	*/
 	void MakeDisplaySummaryDataRanges();
 
 	void ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
@@ -496,7 +500,8 @@ class DummyArrayQuestion: public AbstractQuestion
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode){}
 	void GetQuestionNames(vector<string> & question_list
-			      , AbstractStatement* endStatement)
+			      , AbstractStatement* endStatement);
+	/* 
 	{
 		if (this==endStatement)
 			return;
@@ -504,6 +509,7 @@ class DummyArrayQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+	*/
 	//Wt::WString PrintSelectedAnswers();
 	//Wt::WString PrintSelectedAnswers(int code_index);
 	string PrintSelectedAnswers();

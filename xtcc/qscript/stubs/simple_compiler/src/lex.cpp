@@ -1435,30 +1435,33 @@ YY_RULE_SETUP
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return ISANSWERED;
 	}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 407 "src/lex.l"
+#line 408 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return COUNT;
 	}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 413 "src/lex.l"
+#line 415 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return NEWCARD;
 	}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 419 "src/lex.l"
+#line 422 "src/lex.l"
 {
 
 	if (qscript_parser::show_lex_error_context)
@@ -1476,7 +1479,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 434 "src/lex.l"
+#line 437 "src/lex.l"
 {
 	if (qscript_parser::show_lex_error_context)
 		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1486,7 +1489,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 441 "src/lex.l"
+#line 444 "src/lex.l"
 {
 	if (qscript_parser::show_lex_error_context)
 		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1496,7 +1499,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 448 "src/lex.l"
+#line 451 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1507,7 +1510,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 456 "src/lex.l"
+#line 459 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1518,7 +1521,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 464 "src/lex.l"
+#line 467 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1535,7 +1538,7 @@ YY_RULE_SETUP
 case 63:
 /* rule 63 can match eol */
 YY_RULE_SETUP
-#line 477 "src/lex.l"
+#line 480 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1553,7 +1556,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 492 "src/lex.l"
+#line 495 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1563,10 +1566,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 500 "src/lex.l"
+#line 503 "src/lex.l"
 ECHO;
 	YY_BREAK
-#line 1570 "src/lex.cpp"
+#line 1573 "src/lex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -2525,7 +2528,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 500 "src/lex.l"
+#line 503 "src/lex.l"
 
 
 	using qscript_parser::lex_location;
