@@ -885,3 +885,45 @@ int32_t AbstractRuntimeQuestion::GetMaxCode()
 	return maxCode_;
 }
 */
+
+
+VideoQuestion::VideoQuestion(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		, string l_page_name
+		, const string& path_to_media)
+	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE
+			 , l_question_attributes
+			 , l_isStartOfBlock, l_page_name),
+		file_path (path_to_media)
+{
+
+}
+
+int VideoQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
+{
+	return 0;
+}
+
+void VideoQuestion::WriteDataToDisk(ofstream& data_file)
+{
+}
+
+string VideoQuestion::PrintSelectedAnswers()
+{
+	//return Wt::WString("hello");
+	return string("hello");
+}
+
+
+//Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
+string VideoQuestion::PrintSelectedAnswers (int code_index)
+{
+	//return Wt::WString("hello");
+	return string("hello");
+}
+

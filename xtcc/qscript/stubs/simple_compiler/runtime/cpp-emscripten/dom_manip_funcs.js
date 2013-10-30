@@ -210,11 +210,12 @@ create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr) 
 	//my_log ("err_data: " + err_data);
 
 	var stubs_obj_arr , questions_obj_arr, err_obj_arr;
+	my_log ("question_data: " + question_data);
 	try {
 		questions_obj_arr = JSON.parse(question_data);
 		//my_log ("parsed question_data");
 	} catch (error) {
-		//my_log("Could not JSON.parse (question_data):" + error.message);
+		my_log("Could not JSON.parse (question_data):"  + question_data + ", error message" + error.message);
 	}
 	try {
 		stubs_obj_arr = JSON.parse(stubs_data);

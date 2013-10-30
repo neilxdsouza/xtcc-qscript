@@ -198,6 +198,7 @@
 	}
 
 	function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
+		my_log ("Enter create_multiple_questions_view");
 		if (questions_obj_arr[0].question_type == 'nqq') {
 			var new_question_view = "";
 
@@ -307,9 +308,16 @@
 			global_survey_related_info.fileSystemObject.root.getFile(
 				verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
 			}			
-		}
-
-		else {
+		} else if (questions_obj_arr[0].question_type == 'video_q') {
+			my_log ("Enter video_q section media_url:" + questions_obj_arr[0].media_url);
+			var new_html =
+				"<div>This is a video Question</div>" +
+				"<div>" +
+				"<video src=\"" + questions_obj_arr[0].media_url + "\" width=\"300\" height=\"200\" id=\"myVideo\">Video player not available.</video>" +
+				"</div>";
+			var new_question_view = document.getElementById("new_question_view");
+			new_question_view.innerHTML = new_html;
+		} else {
 			//my_log ("Enter:  create_multiple_questions_view" );
 			var new_question_view = document.getElementById("new_question_view");
 			//new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
@@ -515,6 +523,7 @@
 
 		var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 		if (result == "single_question") {
+			my_log ("result == single_question");
 			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr);
 		} else if (result == "multiple_questions_per_page") {
 			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr);

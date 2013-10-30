@@ -484,9 +484,18 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 				stub_name_set.insert (nq->nr_ptr->name);
 				output_comma = true;
 			}
-		} else {
+		} else if (const RangeQuestion * rq = dynamic_cast <const RangeQuestion*> (q)) {
 			question_type = "rq";
 			question_json_string << " \"rq\"";
+		} else if (const VideoQuestion * vq = dynamic_cast <const VideoQuestion*> (q)) {
+			question_type = "video_q";
+			question_json_string << " \"video_q\""
+				<<  ", \"media_url\": ";
+			if ( vq->file_path.length() == 0) {
+				question_json_string << " \"\"";
+			} else {
+				question_json_string << " \"" << vq->file_path << "\"";
+			}
 		}
 		{
 			question_json_string << ", \"current_response\": [";
