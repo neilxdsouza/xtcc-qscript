@@ -3458,6 +3458,10 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "%s\n", file_exists_check_code());
 
+	fprintf (script, "vector<string> error_messages_vec;\n");
+	fprintf (script, "error_messages_vec.clear();\n");
+
+
 	fprintf(script, "\tstart_of_questions:\n");
 	fprintf(script, "\tif(back_jump == true){\n");
 	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump: jumpToQuestion: %%s, jumpToIndex: %%d\\n\", jumpToQuestion.c_str(), jumpToIndex);\n");
