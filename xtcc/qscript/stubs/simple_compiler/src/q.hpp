@@ -44,49 +44,53 @@
      TEXT = 262,
      SINGLE_CODED = 263,
      MP = 264,
-     VOID_T = 265,
-     INT8_T = 266,
-     INT16_T = 267,
-     INT32_T = 268,
-     FLOAT_T = 269,
-     DOUBLE_T = 270,
-     STRING_T = 271,
-     IN = 272,
-     FOR = 273,
-     GOTO = 274,
-     HIDDEN = 275,
-     ALLOW_BLANK = 276,
-     MUTEX = 277,
-     CLEAR = 278,
-     COLUMN = 279,
-     ISANSWERED = 280,
-     NEWCARD = 281,
-     FIX = 282,
-     BRAND_RANK = 283,
-     DRIVERS = 284,
-     CREATE_1_0_EDIT = 285,
-     PAGE = 286,
-     GRID_SIZE = 287,
-     RANDOMIZE = 288,
-     CONST = 289,
-     LOGOR = 290,
-     LOGAND = 291,
-     NOEQ = 292,
-     ISEQ = 293,
-     GEQ = 294,
-     LEQ = 295,
-     NOT = 296,
-     UMINUS = 297,
-     COUNT = 298,
-     FUNC_CALL = 299,
-     IF = 300,
-     ELSE = 301,
-     STUBS_LIST = 302,
-     NAMED_ATTRIBUTES = 303,
-     SETDEL = 304,
-     SETADD = 305,
-     UNSET = 306,
-     SETALL = 307
+     VIDEO = 265,
+     AUDIO = 266,
+     IMAGE = 267,
+     VOID_T = 268,
+     INT8_T = 269,
+     INT16_T = 270,
+     INT32_T = 271,
+     FLOAT_T = 272,
+     DOUBLE_T = 273,
+     STRING_T = 274,
+     IN = 275,
+     FOR = 276,
+     GOTO = 277,
+     HIDDEN = 278,
+     ALLOW_BLANK = 279,
+     MUTEX = 280,
+     OTHER = 281,
+     CLEAR = 282,
+     COLUMN = 283,
+     ISANSWERED = 284,
+     NEWCARD = 285,
+     FIX = 286,
+     BRAND_RANK = 287,
+     DRIVERS = 288,
+     CREATE_1_0_EDIT = 289,
+     PAGE = 290,
+     GRID_SIZE = 291,
+     RANDOMIZE = 292,
+     CONST = 293,
+     LOGOR = 294,
+     LOGAND = 295,
+     NOEQ = 296,
+     ISEQ = 297,
+     GEQ = 298,
+     LEQ = 299,
+     NOT = 300,
+     UMINUS = 301,
+     COUNT = 302,
+     FUNC_CALL = 303,
+     IF = 304,
+     ELSE = 305,
+     STUBS_LIST = 306,
+     NAMED_ATTRIBUTES = 307,
+     SETDEL = 308,
+     SETADD = 309,
+     UNSET = 310,
+     SETALL = 311
    };
 #endif
 
@@ -97,7 +101,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 58 "src/q.ypp"
+#line 59 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int32_t ival;
@@ -110,13 +114,14 @@ typedef union YYSTYPE
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
+	struct Unary2Expression * ue2expr;
 
 
 
 
 
 /* Line 2068 of yacc.c  */
-#line 120 "src/q.hpp"
+#line 125 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

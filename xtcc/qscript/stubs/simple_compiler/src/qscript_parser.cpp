@@ -338,6 +338,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
+	fprintf(script, "bool write_mode_flag;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "bool write_data_new_way;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
@@ -737,6 +738,8 @@ const char * file_exists_check_code()
 {
 	const char * file_check_code =
 	"\t\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
+	"\t\t\t write_this_data_file = true;\n"
+	"\t\t\treset_questionnaire();\n"
 	"\t\t\tif (write_data_new_way) {\n"
 	"\t\t\t\tstring new_potential_data_file_path = data_file_iterator.get_next_data_file();\n"
 	"\t\t\t\tif (new_potential_data_file_path.length() == 0) {\n"
@@ -1511,6 +1514,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "		switch (c) {\n");
 
 	fprintf(script, "		case 'w': {\n");
+	fprintf(script, "			  write_mode_flag = true;\n");
 	fprintf(script, "			  write_data_file_flag = true;\n");
 	fprintf(script, "			  if (optarg) {\n");
 	fprintf(script, "				  output_data_file_name = optarg;\n");
@@ -1522,6 +1526,7 @@ void PrintProcessOptions(FILE * script)
 
 
 	fprintf(script, "		case 'x': {\n");
+	fprintf(script, "			  write_mode_flag = true;\n");
 	fprintf(script, "			  write_xtcc_data_file_flag = true;\n");
 	fprintf(script, "			  if (optarg) {\n");
 	fprintf(script, "				  output_xtcc_data_file_name = optarg;\n");
@@ -1532,6 +1537,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "		break;\n");
 
 	fprintf(script, "		case 'q': {\n");
+	fprintf(script, "			  write_mode_flag = true;\n");
 	fprintf(script, "			  write_qtm_data_file_flag = true;\n");
 	fprintf(script, "			  if (optarg) {\n");
 	fprintf(script, "				  output_qtm_data_file_name = optarg;\n");
@@ -3446,8 +3452,8 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf (script, "\tFILE * data_file_dump = fopen (\"op\", \"rb\");\n");
 	//fprintf (script, "\tDataFileIterator data_file_iterator (filename_pattern.str().c_str(), \".\");\n");
 	fprintf (script, "\tSequentialFileIterator data_file_iterator (data_file_dump, filename_pattern.str());\n");
-
-	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
+	fprintf (script, "\tbool write_this_data_file = true;\n");
+	fprintf (script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp
 
 	fprintf(script, "%s\n", file_exists_check_code());
@@ -3459,14 +3465,14 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "%s\n", program_code.str().c_str());
 	fprintf(script, "\tif (write_data_file_flag) {\n\n");
-	fprintf(script, "\t\t cout << \"write_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\twrite_ascii_data_to_disk();\n");
+	fprintf(script, "\t\t if (write_this_data_file) { cout << \"write_data_file_flag is set\\n\";\n");
+	fprintf(script, "\t\twrite_ascii_data_to_disk();}\n");
 	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
-	fprintf(script, "\t\t cout << \"write_qtm_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\twrite_qtm_data_to_disk();\n");
+	fprintf(script, "\t\t if (write_this_data_file) { cout << \"write_qtm_data_file_flag is set\\n\";\n");
+	fprintf(script, "\t\twrite_qtm_data_to_disk();}\n");
 	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
-	fprintf(script, "\t\t cout << \"write_xtcc_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
+	fprintf(script, "\t\t if (write_this_data_file) {cout << \"write_xtcc_data_file_flag is set\\n\";\n");
+	fprintf(script, "\t\t write_xtcc_data_to_disk();}\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");

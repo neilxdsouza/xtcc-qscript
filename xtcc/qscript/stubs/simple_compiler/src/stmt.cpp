@@ -214,10 +214,25 @@ string Generate_false_code_for_questions_in_other_block (string question_name, I
 	//code << "// reached here: " << question_name << endl;
 	CompoundStatement * cmpd_stmt1 =  dynamic_cast< CompoundStatement * > ( p_if_stmt->ifBody_);
 	CompoundStatement * cmpd_stmt = 0;
+	code << "// nestedCompoundStatementStack_.size(): " << cmpd_stmt1->nestedCompoundStatementStack_.size() << endl;
 	if (cmpd_stmt1->nestedCompoundStatementStack_.size() > 1) {
 		// note that cmpd_stmt1->nestedCompoundStatementStack_[size()-1] == us , the if statement
 		cmpd_stmt =  dynamic_cast< CompoundStatement * > ( 
 				cmpd_stmt1->nestedCompoundStatementStack_[cmpd_stmt1->nestedCompoundStatementStack_.size()-2]);
+		if (cmpd_stmt) {
+			code << "// cmpd_stmt->flagIsAForBody_: " << cmpd_stmt->flagIsAForBody_ << endl;
+			if (se) {
+				if ( se->type_ == QUESTION_TYPE) {
+					code << "// question_name type is QUESTION_TYPE: " << endl;
+				} else if (se->type_ == QUESTION_ARR_TYPE) {
+					code << "// question_name type is QUESTION_ARR_TYPE: " << endl;
+				} else {
+					code << "// question_name type is : " << se->type_ << endl;
+				}
+			} else {
+				code << "// se is null : " << se << ", question_name: " << question_name << endl;
+			}
+		}
 	}
 	stringstream mesg;
 	mesg << " need to check the nestedCompoundStatementStack_ that we dont have interleaving for and if statements, otherwise there are many cases where we will be generating incorrect code";
@@ -399,7 +414,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
 	if (qscript_debug::DEBUG_IfStatement) {
 		code.array_quest_init_area << "/* ENTER " << __PRETTY_FUNCTION__ << ", "
-				<< __FILE__ << ", " << __LINE__ 
+				<< __FILE__ << ", " << __LINE__
 				<< " source lineNo_: " << lineNo_
 				<< " */\n";
 	}
@@ -750,7 +765,7 @@ void CompoundStatement::GetQuestionNames(vector<string> & question_list,
 void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 {
 	//cout << "ENTER CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	// old code: if (flagIsAForBody_ && counterContainsQuestions_) 
+	// old code: if (flagIsAForBody_ && counterContainsQuestions_)
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		ostringstream consolidated_loop_counter;
 		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
@@ -789,7 +804,7 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 	StatementCompiledCode &code)
 {
 	if (qscript_debug::DEBUG_CompoundStatement) {
-		code.array_quest_init_area << "// ENTER " << __PRETTY_FUNCTION__ 
+		code.array_quest_init_area << "// ENTER " << __PRETTY_FUNCTION__
 			<< " source line no: " << lineNo_ <<  "\n";
 	}
 	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
@@ -949,7 +964,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	}
 #endif /* 0 */
 	code.program_code << "{" << endl;
-	/* Warning - duplicated code block - also present in 
+	/* Warning - duplicated code block - also present in
 	 * CompoundStatement::Generate_ComputeFlatFileMap */
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
@@ -961,7 +976,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	if (compoundBody_) {
 		compoundBody_->GetQuestionsInBlock(questionsInBlock_, this);
 		code.program_code << "/* compound statement on line no: " 
-			<< lineNo_ << " questionsInBlock_, size:" 
+			<< lineNo_ << " questionsInBlock_, size:"
 			<< questionsInBlock_.size() << " ";
 		for (int i=0; i< questionsInBlock_.size(); ++i) {
 			code.program_code << questionsInBlock_[i]->questionName_ << ", ";
@@ -1316,16 +1331,16 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 
 	if (forBody_->counterContainsQuestions_) {
 		if (qscript_debug::DEBUG_ForStatement) {
-			code.quest_defns << "// " << __PRETTY_FUNCTION__ 
+			code.quest_defns << "// " << __PRETTY_FUNCTION__
 				<< "// Generating array declarations\n";
 			code.array_quest_init_area << "// invoking GenerateQuestionArrayInitLoopOpen: "
-					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " \n";
 		}
 		GenerateQuestionArrayInitLoopOpen(code);
 		if (qscript_debug::DEBUG_ForStatement) {
 			code.array_quest_init_area << "// finished call to GenerateQuestionArrayInitLoopOpen: "
-					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " \n";
 		}
 	}
@@ -1747,7 +1762,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "->input_data.end(); ++set_iter){" << endl;
 			code.program_code << "\tfor (int32_t "
 				<< qscript_parser::temp_name_generator.GetNewName();
-			code.program_code 
+			code.program_code
 				<< " = 0; "
 				<< qscript_parser::temp_name_generator.GetCurrentName()
 				<< " < "
@@ -1827,19 +1842,19 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
 				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".stubs.size(); ++xtcc_i2) {\n"
 				<< "\t\tif ("
-				<< "*xtcc_set_iter1  == " 
+				<< "*xtcc_set_iter1  == "
 				<< namedStub_
 				<< ".stubs[xtcc_i2].code) {\n";
-			
+
 			if (type_ == STUB_MANIP_DEL) {
-				code.program_code 
+				code.program_code
 					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
 			} else if (type_ == STUB_MANIP_ADD) {
-				code.program_code 
+				code.program_code
 					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
 			}
 
-			code.program_code 
+			code.program_code
 				<< "\t\t}\n"
 				<< "\t}\n"
 				<< "}\n"
@@ -1859,18 +1874,18 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\tfor (int32_t xtcc_i2=0; xtcc_i2<"
 				<< namedStub_
 				<< ".stubs.size(); ++xtcc_i2) {\n"
-				<< "\t\t\tif (set_member == " 
-				<< namedStub_ 
+				<< "\t\t\tif (set_member == "
+				<< namedStub_
 				<< ".stubs[xtcc_i2].code) {\n"
 				<< "\t\t\t\t";
 			if (type_ == STUB_MANIP_DEL){
-				code.program_code 
+				code.program_code
 					<< namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
 			} else if (type_ == STUB_MANIP_ADD) {
-				code.program_code 
+				code.program_code
 					<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
 			}
-			code.program_code	
+			code.program_code
 				<< "\t\t\t}\n"
 				<< "\t\t}\n"
 				<< "\t}\n"
@@ -1939,7 +1954,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			//s << "/* not yet programmed : "
 			//	<< __FILE__ << ", " << __LINE__ << ", "
 			//	<< __PRETTY_FUNCTION__ << " */" << endl;
-			//s << "This should cause an ERROR in the generated code: " 
+			//s << "This should cause an ERROR in the generated code: "
 			//	<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			//code.program_code << s.str();
 			if (xtccSet_ . isEmpty() ) {
@@ -2003,7 +2018,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 						if (type_ == STUB_MANIP_DEL) {
 							if (lhs_->IsValid(set_member)) {
 								//lhs->input_data.insert(set_member);
-								code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+								code.program_code << lhs_->questionName_ << "->input_data.erase("
 									<< set_member << ");\n";
 							} else {
 								stringstream err_msg;
@@ -2012,7 +2027,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 							}
 						} else if (type_ == STUB_MANIP_ADD) {
 							if (lhs_->IsValid(set_member)) {
-								code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+								code.program_code << lhs_->questionName_ << "->input_data.insert("
 									<< set_member << ");\n";
 							} else {
 								stringstream err_msg;
@@ -2040,8 +2055,8 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	} else if (type_ == STUB_MANIP_UNSET_ALL || type_ == STUB_MANIP_SET_ALL) {
 		code.program_code << "for(int32_t "
 			<< qscript_parser::temp_name_generator.GetNewName();
-		code.program_code 
-			<< " = 0; " 
+		code.program_code
+			<< " = 0; "
 			<< qscript_parser::temp_name_generator.GetCurrentName()
 			<< " < "
 			<< namedStub_ << ".stubs.size(); ++"
@@ -2340,7 +2355,7 @@ FunctionInformation::~FunctionInformation()
 	if (functionScope_) { delete functionScope_; functionScope_ = 0; }
 }
 
-ErrorStatement::ErrorStatement (int lline_number 
+ErrorStatement::ErrorStatement (int lline_number
 		, int32_t l_nest_level, int32_t l_for_nest_level
 		)
 	: AbstractStatement(ERROR_TYPE, lline_number, l_nest_level, l_for_nest_level)
@@ -2357,7 +2372,7 @@ GotoStatement::GotoStatement(DataType l_type, int32_t l_line_number
 			    , int32_t l_nest_level, int32_t l_for_nest_level
 			     , string l_gotoLabel)
 	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level)
-	, gotoLabel_(l_gotoLabel) 
+	, gotoLabel_(l_gotoLabel)
 {
 	if (find_in_question_list(gotoLabel_)){
 		// I think this check ensures that we never do a forward jump
@@ -2381,95 +2396,51 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
-
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			    	int32_t l_nest_level, int32_t l_for_nest_level,
-				string l_question_name)
+			const vector <Unary2Expression *> & expr_vec, string err_msg)
 	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
-	  symbolTableEntry_(0), arrIndex_(0),
-	  errorMessage_()
+	  questionExprVec_ (expr_vec), errorMessage_ (err_msg)
 {
-#if 0
-	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
-	if (sym_it == active_scope->SymbolTable.end()){
-		std::stringstream s;
-		s << "Could not find question " << l_question_name 
-			<<"  in symbol table:  ";
-		print_err(compiler_sem_err, s.str()
-				, qscript_parser::line_no, __LINE__, __FILE__);
-	} else {
-		symbolTableEntry_ = sym_it->second;
-		if (symbolTableEntry_->question_) {
-			if (!symbolTableEntry_->question_->type_ == QUESTION_TYPE) {
-				std::stringstream s;
-				s << l_question_name  << " must be of QUESTION_TYPE ";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-			}
-		} else {
-			std::stringstream s;
-			s << l_question_name  << " must be of QUESTION_TYPE ";
-			print_err(compiler_sem_err, s.str()
-					, qscript_parser::line_no, __LINE__, __FILE__);
-		}
-	}
-#endif /* 0 */
-	VerifyForClearStatement(l_question_name, 0);
+	VerifyForClearStatement (questionExprVec_);
 }
 
-ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
-			     int32_t l_nest_level, int32_t l_for_nest_level,
-			string l_array_question_name,
-			AbstractExpression *arr_index)
-	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
-	  symbolTableEntry_(0), arrIndex_(0),
-	  errorMessage_()
+vector<bool> ClearStatement::VerifyForClearStatement (const vector<Unary2Expression*> expr_vec)
 {
-#if 0
-	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_array_question_name);
-	if (sym_it == active_scope->SymbolTable.end()){
-		std::stringstream s;
-		s << "Could not find question " << l_array_question_name 
-			<<"  in symbol table: ";
-		print_err(compiler_sem_err, s.str()
-				, qscript_parser::line_no, __LINE__, __FILE__);
-	} else {
-		symbolTableEntry_ = sym_it->second;
-		if (symbolTableEntry_->question_) {
-			if (!symbolTableEntry_->question_->type_ == QUESTION_ARR_TYPE) {
-				std::stringstream s;
-				s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
+	vector <bool> res_vec;
+	for (int i = 0; i < expr_vec.size(); ++i) {
+		//AbstractExpression * e = expr_vec[i];
+		//Unary2Expression * u2e = dynamic_cast <Unary2Expression*> (e);
+		Unary2Expression * u2e =  expr_vec[i];
+		bool result = true;
+		// if (u2e == 0) {
+		// 	stringstream err;
+		// 	err << " Grammar should not allow any other types than NAME or NAME [ expr ] for clear statement";
+		// 	print_err (compiler_internal_error, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		// 	result = false;
+		// } else
+		if (u2e -> exprOperatorType_ == oper_name) {
+			if (u2e->symbolTableEntry_->type_ != QUESTION_TYPE) {
+				stringstream err;
+				err << " NAME in clear statement should be a question";
+				print_err (compiler_sem_err, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+				result = false;
 			}
-		} else {
-			std::stringstream s;
-			s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
-			print_err(compiler_sem_err, s.str()
-					, qscript_parser::line_no, __LINE__, __FILE__);
-		}
-		DataType l_e_type = arr_index->type_;
-		if (is_of_int_type(l_e_type)){
-			DataType nametype =arr_deref_type(symbolTableEntry_->type_);
-			if (nametype == ERROR_TYPE) {
-				std::stringstream s;
-				s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type " << "\n";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-			} else {
-				type_ = nametype;
-				arrIndex_ = arr_index;
+		} else if (u2e -> exprOperatorType_ == oper_arrderef) {
+			if (u2e->symbolTableEntry_->type_ != QUESTION_ARR_TYPE) {
+				stringstream err;
+				err << " NAME in clear statement should be a question inside a for loop (array question)";
+				print_err (compiler_sem_err, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+				result = false;
 			}
-		} else {
-			stringstream s;
-			s << "ERROR: Array index not of Type Int \b" ;
-			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
 		}
+		res_vec.push_back (result);
 	}
-#endif /* 0 */
-	VerifyForClearStatement(l_array_question_name, arr_index);
+	return res_vec;
 }
 
+
+#if 0
 bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index)
 {
 	if (arr_index == 0) {
@@ -2552,6 +2523,94 @@ bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExp
 		}
 	}
 }
+#endif /*  0 */
+
+#if 0
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			    	int32_t l_nest_level, int32_t l_for_nest_level,
+				string l_question_name)
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
+	  symbolTableEntry_(0), arrIndex_(0),
+	  errorMessage_()
+{
+	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
+	if (sym_it == active_scope->SymbolTable.end()){
+		std::stringstream s;
+		s << "Could not find question " << l_question_name 
+			<<"  in symbol table:  ";
+		print_err(compiler_sem_err, s.str()
+				, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		symbolTableEntry_ = sym_it->second;
+		if (symbolTableEntry_->question_) {
+			if (!symbolTableEntry_->question_->type_ == QUESTION_TYPE) {
+				std::stringstream s;
+				s << l_question_name  << " must be of QUESTION_TYPE ";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		} else {
+			std::stringstream s;
+			s << l_question_name  << " must be of QUESTION_TYPE ";
+			print_err(compiler_sem_err, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+	VerifyForClearStatement(l_question_name, 0);
+}
+#endif /* 0 */
+
+#if 0
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			     int32_t l_nest_level, int32_t l_for_nest_level,
+			string l_array_question_name,
+			AbstractExpression *arr_index)
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
+	  symbolTableEntry_(0), arrIndex_(0),
+	  errorMessage_()
+{
+	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_array_question_name);
+	if (sym_it == active_scope->SymbolTable.end()){
+		std::stringstream s;
+		s << "Could not find question " << l_array_question_name 
+			<<"  in symbol table: ";
+		print_err(compiler_sem_err, s.str()
+				, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		symbolTableEntry_ = sym_it->second;
+		if (symbolTableEntry_->question_) {
+			if (!symbolTableEntry_->question_->type_ == QUESTION_ARR_TYPE) {
+				std::stringstream s;
+				s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		} else {
+			std::stringstream s;
+			s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
+			print_err(compiler_sem_err, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+		DataType l_e_type = arr_index->type_;
+		if (is_of_int_type(l_e_type)){
+			DataType nametype =arr_deref_type(symbolTableEntry_->type_);
+			if (nametype == ERROR_TYPE) {
+				std::stringstream s;
+				s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type " << "\n";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+			} else {
+				type_ = nametype;
+				arrIndex_ = arr_index;
+			}
+		} else {
+			stringstream s;
+			s << "ERROR: Array index not of Type Int \b" ;
+			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+	VerifyForClearStatement(l_array_question_name, arr_index);
+}
 
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
@@ -2605,6 +2664,47 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+#endif /* 0 */
+
+
+void ClearStatement::GenerateCode(StatementCompiledCode & code)
+{
+	code.program_code << " /*  Clear statement code */ " 
+		<< endl;
+	for (int i = 0; i < questionExprVec_.size(); ++i) {
+		//ExpressionCompiledCode code1;
+		//questionExprVec_[i]->PrintExpressionCode(code1);
+		//code.program_code << code1.code_bef_expr.str()
+		//		   << code1.code_expr.str();
+		//code.program_code << "->isAnswered_ = false;\n";
+		Unary2Expression * u2e =  questionExprVec_[i];
+		if (u2e -> exprOperatorType_ == oper_name && u2e -> type_ == QUESTION_TYPE) {
+			AbstractQuestion * q = u2e->symbolTableEntry_->question_;
+			code.program_code << q->questionName_ << "->isAnswered_ = false;\n";
+		} else if (u2e -> exprOperatorType_ == oper_arrderef /* && u2e -> type_ == QUESTION_ARR_TYPE */) {
+			AbstractQuestion * q = u2e->symbolTableEntry_->question_;
+			code.program_code << q->questionName_ << "_list.questionList[";
+			ExpressionCompiledCode code1;
+			u2e->operand_->PrintExpressionCode(code1);
+			code.program_code << code1.code_bef_expr.str()
+				<< code1.code_expr.str()
+				<< "]->isAnswered_ = false;\n";
+		} else {
+			code.program_code << "Internal compiler error - this should trigger a compilation failure, "
+				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+				<< endl;
+		}
+	}
+
+	code.program_code << "stopAtNextQuestion = false;\n"
+		<< "error_messages_vec.push_back(\"" << errorMessage_ << "\");\n"
+		<< "goto start_of_questions;\n"
+		<< endl;
+
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
 
 
 ColumnStatement::ColumnStatement(DataType l_type, int32_t l_line_number,
@@ -2634,9 +2734,9 @@ bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
 			s << " Currently only numbers are allowed as column expressions";
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
 			return false;
-		} 
+		}
 		return true;
-		// else all ok 
+		// else all ok
 	}
 	
 }
@@ -2659,9 +2759,9 @@ bool RunNewCardExpressionChecks(NewCardStatement * newcard_stmt)
 			s << " Currently only numbers are allowed as column expressions";
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
 			return false;
-		} 
+		}
 		return true;
-		// else all ok 
+		// else all ok
 	}
 	
 }

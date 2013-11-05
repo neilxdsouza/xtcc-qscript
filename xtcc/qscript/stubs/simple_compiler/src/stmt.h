@@ -534,6 +534,7 @@ struct GotoStatement: public AbstractStatement
 
 struct ClearStatement: public AbstractStatement 
 {
+	/* 
 	ClearStatement(DataType l_type, int32_t l_line_number
 		       , int32_t l_nest_level, int32_t l_for_nest_level
 		       , string l_question_name);
@@ -548,10 +549,16 @@ struct ClearStatement: public AbstractStatement
 		       , int32_t l_nest_level, int32_t l_for_nest_level
 		       , string l_array_question_name
 		       , AbstractExpression *e, string err_msg);
+	*/
+	ClearStatement(DataType l_type, int32_t l_line_number,
+		        int32_t l_nest_level, int32_t l_for_nest_level,
+			const vector <Unary2Expression *> & expr_vec, string err_msg);
 	void GenerateCode(StatementCompiledCode & code);
-	bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
-	SymbolTableEntry* symbolTableEntry_ ;
-	AbstractExpression * arrIndex_;
+	//bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
+	vector<bool> VerifyForClearStatement(const vector<Unary2Expression*> expr_vec);
+	//SymbolTableEntry* symbolTableEntry_ ;
+	//AbstractExpression * arrIndex_;
+	vector <Unary2Expression*> questionExprVec_;
 	string errorMessage_;
 	private:
 	ClearStatement& operator=(const ClearStatement&);

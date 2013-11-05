@@ -50,6 +50,7 @@
 	vector <std::string> driver_list;
 	vector<TextExpression*> text_expr_vec;
 	vector<string> vec_named_attribute_list;
+	vector<Unary2Expression*> clear_questions_list;
 	
 
 %}
@@ -67,6 +68,7 @@
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
+	struct Unary2Expression * ue2expr;
 
 
 }
@@ -78,6 +80,9 @@
 %token <text_buf> TEXT
 %token SINGLE_CODED
 %token MP
+%token VIDEO
+%token AUDIO
+%token IMAGE
 %token <dt> VOID_T
 %token <dt> INT8_T
 %token <dt> INT16_T
@@ -92,6 +97,7 @@
 %token HIDDEN
 %token ALLOW_BLANK
 %token MUTEX
+%token OTHER
 %token CLEAR
 %token COLUMN
 %token ISANSWERED
@@ -151,11 +157,9 @@
 %type <stmt> for_loop_stmt
 %type <stmt> stub_manip_stmts
 %type <stmt> page_stmt
-
+%type <stmt> randomize_stmt
 %type <v_list> var_decl
 %type <v_list> decl_comma_list
-%type <stmt> randomize_stmt
-
 
 %token IF ELSE
 
@@ -169,6 +173,8 @@
 
 %type <expr> expression
 %type <expr> expr_list
+%type <ue2expr> question_expr
+%type <ue2expr> question_expr_list
 
 
 %%
@@ -380,34 +386,6 @@ cmpd_stmt: open_curly stmt_list '}' {
 	}
 	;
 
-page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; } cmpd_stmt {
-		std::stringstream mesg;
-		mesg << "Need to add check that names for pages are unique";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
-		string page_name ($2);
-		PageStatement * a_page =
-			new PageStatement (PAGE_STMT,
-					qscript_parser::line_no,
-					qscript_parser::nest_lev,
-					qscript_parser::flagIsAForBody_,
-					page_name, $4);
-		$$ = a_page;
-		qscript_parser::globalActivePageName_ = string("");
-	}
-	| PAGE NAME {qscript_parser::globalActivePageName_ = $2;} GRID_SIZE '=' INUMBER cmpd_stmt {
-		string page_name ($2);
-		int32_t grid_size = $6;
-		PageStatement * a_page =
-			new PageStatement (PAGE_STMT,
-					qscript_parser::line_no,
-					qscript_parser::nest_lev,
-					qscript_parser::flagIsAForBody_,
-					page_name, $7, grid_size);
-		$$ = a_page;
-		qscript_parser::globalActivePageName_ = string("");
-	}
-	;
-
 
 
 
@@ -439,6 +417,33 @@ randomize_stmt: NAME '.' RANDOMIZE ';' {
 	}
 	;
 
+page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; } cmpd_stmt {
+		std::stringstream mesg;
+		mesg << "Need to add check that names for pages are unique";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		string page_name ($2);
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no,
+					qscript_parser::nest_lev,
+					qscript_parser::flagIsAForBody_,
+					page_name, $4);
+		$$ = a_page;
+		qscript_parser::globalActivePageName_ = string("");
+	}
+	| PAGE NAME {qscript_parser::globalActivePageName_ = $2;} GRID_SIZE '=' INUMBER cmpd_stmt {
+		string page_name ($2);
+		int32_t grid_size = $6;
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no,
+					qscript_parser::nest_lev,
+					qscript_parser::flagIsAForBody_,
+					page_name, $7, grid_size);
+		$$ = a_page;
+		qscript_parser::globalActivePageName_ = string("");
+	}
+	;
 open_curly:	'{' {
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
 		//qscript_parser::compound_body_stack.push_back(cmpdStmt);
@@ -537,7 +542,26 @@ goto_stmt: GOTO NAME ';' {
 		// free($2); ? is this required here
 	}
 
-clear_stmt: CLEAR '(' NAME ')' ';' {
+question_expr_list: question_expr {
+			clear_questions_list.push_back ($1);
+		}
+		| question_expr_list ',' question_expr {
+		  	clear_questions_list.push_back ($3);
+		}
+		;
+
+question_expr: NAME {
+		$$ = new Unary2Expression ($1, oper_name);
+	     }
+	     | NAME '[' expression ']' {
+		$$ = new Unary2Expression (oper_arrderef, $1, $3);
+		}
+	     ;
+
+
+	/*
+
+	clear_stmt: CLEAR '(' NAME ')' ';' {
 		// free($3); ? is this required here
 		using qscript_parser::nest_lev;
 		using qscript_parser::flagIsAForBody_;
@@ -561,6 +585,18 @@ clear_stmt: CLEAR '(' NAME ')' ';' {
 		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3, $5);
 	}
 	;
+	*/
+
+clear_stmt: CLEAR '(' question_expr_list ',' TEXT  ')' ';' {
+	  	//$$ = 0;
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ClearStatement (CLEAR_STMT, qscript_parser::line_no,
+			nest_lev, flagIsAForBody_,
+			clear_questions_list, $5);
+		clear_questions_list.clear();
+	  }
+	  ;
 
 column_stmt: COLUMN '(' expression ')' ';' {
 		using qscript_parser::nest_lev;
@@ -588,7 +624,7 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		std::stringstream mesg;
 		mesg << "fix memory leak problem introduced at this point";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
-		// huge memory leak 
+		// huge memory leak
 		text_expr_vec.clear();
 	}
 	| NAME text_expr_list qtype datatype range_allowed_values mutex_range attribute_list';' {
@@ -601,7 +637,7 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		std::stringstream mesg;
 		mesg << "fix memory leak problem introduced at this point";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
-		// huge memory leak 
+		// huge memory leak
 		text_expr_vec.clear();
 	}
 	| NAME text_expr_list qtype datatype NAME attribute_list';' {
@@ -611,7 +647,7 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		std::stringstream mesg;
 		mesg << "fix memory leak problem introduced at this point";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
-		// huge memory leak 
+		// huge memory leak
 		text_expr_vec.clear();
 	}
 	;
@@ -1032,18 +1068,27 @@ expr_list: expression { $$=$1; }
 	}
 	;
 
-qtype: SINGLE_CODED { 
-	       qscript_parser::q_type = spn; 
+qtype: SINGLE_CODED {
+	       qscript_parser::q_type = spn;
 	       // we need this =1 when generating
 	       // code for flat file creation
 		qscript_parser::no_mpn = 1;
-       }
+	}
 	| MP '(' INUMBER ')' { qscript_parser::q_type = mpn;
 		qscript_parser::no_mpn = $3;
 	}
+	| VIDEO {
+	       qscript_parser::q_type = video;
+	}
+	| IMAGE {
+	       qscript_parser::q_type = image;
+	}
+	| AUDIO {
+	       qscript_parser::q_type = audio;
+	}
 	;
 
-mutex_range: MUTEX '(' mutex_range_list ')' { 
+mutex_range: MUTEX '(' mutex_range_list ')' {
 		     qscript_parser::has_mutex_range = true;
 	     }
 	;
@@ -1110,7 +1155,7 @@ stubs:     STUBS_LIST NAME {
                         std::stringstream err_mesg;
                         err_mesg << "stub by this name already exist: "
                                 << $2;
-                        print_err (compiler_sem_err, 
+                        print_err (compiler_sem_err,
                                 err_mesg.str().c_str(),
                                 qscript_parser::line_no, __LINE__,
                                         __FILE__);
@@ -1147,7 +1192,7 @@ named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list ';' {
 		//qscript_parser::delete_manually_in_cleanup.push_back(
 		$$ = qscript_parser::active_scope_list[0]->insert(
 				$2, NAMED_ATTRIBUTE_TYPE
-				, qscript_parser::line_no 
+				, qscript_parser::line_no
 				, qscript_parser::nest_lev
 				, qscript_parser::flagIsAForBody_
 				, vec_named_attribute_list);
@@ -1163,12 +1208,39 @@ named_attribute_list: TEXT {
 		vec_named_attribute_list.push_back ($3);
 	}
 	;
-	
+
 
 
 stub_list: stub
-	| stub_list stub
+	| stub_list ',' stub
 	;
+
+
+stub_options_list: stub_option {
+		 }
+		 | stub_options_list '|' stub_option
+		 ;
+
+stub_option: MUTEX {
+		current_stub_pair_options.is_mutex = true;
+	   }
+	   | OTHER {
+		current_stub_pair_options.is_other_specify = true;
+	   }
+	   | IMAGE TEXT {
+	   	current_stub_pair_options.stub_media_type = stub_pair_options::image;
+	   	current_stub_pair_options.url = $2;
+	   }
+	   | AUDIO TEXT {
+	   	current_stub_pair_options.stub_media_type = stub_pair_options::audio;
+	   	current_stub_pair_options.url = $2;
+		}
+
+	   | VIDEO TEXT {
+	   	current_stub_pair_options.stub_media_type = stub_pair_options::video;
+	   	current_stub_pair_options.url = $2;
+		}
+	   ;
 
 stub:	TEXT INUMBER {
 		using qscript_parser::stub_list;
@@ -1616,8 +1688,8 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	} else {
 		q= new RangeQuestion(QUESTION_TYPE, line_no,
 				nest_lev, flagIsAForBody_,
-				name, ::text_expr_vec, q_type, no_mpn, dt, xs, 
-				cmpd_stmt_ptr, av_info, 
+				name, ::text_expr_vec, q_type, no_mpn, dt, xs,
+				cmpd_stmt_ptr, av_info,
 				question_attributes, mutex_range_set
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
@@ -1684,7 +1756,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	struct named_range* nr_ptr = 0;
 	for (uint32_t i=0; i<named_stubs_list.size(); ++i) {
 		nr_ptr = named_stubs_list[i];
-		if (nr_ptr->name==attribute_list_name) {
+		if (nr_ptr->name == attribute_list_name) {
 			found=true; break;
 		}
 	}
@@ -1696,7 +1768,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		print_err(compiler_sem_err, string("named_stubs_list ")
 			+ attribute_list_name + string(" not found \n"), line_no,
 			__LINE__, __FILE__);
-                return  new ErrorStatement(qscript_parser::line_no, 
+                return  new ErrorStatement(qscript_parser::line_no,
 				nest_lev, flagIsAForBody_);
 	}
 
@@ -1709,7 +1781,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	AbstractExpression * arr_sz=0;
 	NamedStubQuestion* q=0;
-	if(qscript_parser::flagIsAForBody_){
+	if (qscript_parser::flagIsAForBody_) {
 		//cout << "flagIsAForBody_: "
 		//	<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(

@@ -13,11 +13,13 @@ named_attribute_list::named_attribute_list(DataType dt, int32_t lline_no
 					   , vector<string> l_attr)
 	: AbstractStatement(dt, lline_no, l_nest_level, l_for_nest_level)
 	, name(l_name), attribute(l_attr), symbolTableEntry_(0)
+	  , isRandomized_ (0)
 { }
 
 named_attribute_list::named_attribute_list()
 	: AbstractStatement(NAMED_ATTRIBUTE_TYPE, 0, -1, -1)
 	, name(), attribute(), symbolTableEntry_(0)
+	  , isRandomized_ (0)
 { }
 
 named_attribute_list::~named_attribute_list()
@@ -99,6 +101,6 @@ void named_attribute_list::WriteDataToDisk(std::ofstream& data_file, const strin
 		for (int i=0; i < randomized_order.size(); ++i) {
 			data_file << " " << i << "->" << randomized_order[i];
 		}
+		data_file << endl;
 	}
-	data_file << endl;
 }

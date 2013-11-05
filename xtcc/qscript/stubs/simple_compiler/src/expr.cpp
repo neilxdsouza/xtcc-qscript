@@ -570,10 +570,10 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
 	if (qscript_debug::DEBUG_Unary2Expression)
 		code.code_bef_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
-	switch(exprOperatorType_){
+	switch (exprOperatorType_) {
 	case oper_name:{
 		//code.code_bef_expr << " /* case  oper_name */ \n";
-		if (type_ == QUESTION_TYPE){
+		if (type_ == QUESTION_TYPE) {
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_TYPE){
 				code.code_bef_expr

@@ -70,9 +70,9 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: 
+	:
 	AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
-	, questionName_(l_name), textExprVec_ (text_expr_vec)
+	, questionName_(l_name), textExprVec_(text_expr_vec)
 	, questionDiskName_()
 	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -131,7 +131,7 @@ AbstractQuestion::AbstractQuestion(
 	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level), questionName_(l_name)
-	, textExprVec_ (text_expr_vec)
+	, textExprVec_(text_expr_vec)
 	, questionDiskName_()
 	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -347,14 +347,16 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
 	program_code << "if ( ("
-		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
+		//<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
+		<< questionName_ << "->isAnswered_ == false && !(write_mode_flag)) ||" << endl
 		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		<< "stopAtNextQuestion ||" << endl
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
+		//<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
+		<< "( write_mode_flag " 
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
-		<< questionName_ << "->isAnswered_ == false " 
+		<< questionName_ << "->isAnswered_ == false "
 		<< ")"
 	        << ") {" << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
@@ -372,8 +374,37 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
 		// new: 12-may-2011
 		<< "\t\t stopAtNextQuestion = false;\n"
-		<< questionName_.c_str()
-		<< "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
+		<< "if ( write_mode_flag\n"
+		<< "	&& ( (" <<  questionName_ << " ->question_attributes.isAllowBlank() == false && "<< questionName_ << "->isAnswered_ == false)\n"
+		<< "		|| (" << questionName_ << "->isAnswered_ && !" << questionName_ << "->VerifyQuestionIntegrity())) ) {\n"
+		<< "       fprintf (qscript_stdout, \"inconsistent data at " << questionName_ << " - skipping this serial no: %d\\n\", ser_no);\n"
+		<< "\twrite_this_data_file = false;\n"
+		<< "       continue;\n"
+		<< "} else {\n"
+		<< "	//fprintf (qscript_stdout, \"consistent data at " << questionName_ <<": %d\\n\", *" << questionName_ << "->input_data.begin());\n"
+		<< "	" << questionName_ << "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n"
+		<< "}\n"
+		<< "}\n" << endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//<< questionName_.c_str()
+		//<< "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -387,13 +418,13 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\tAsciiFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new AsciiFlatFileQuestionDiskMap(" << questionName_ 
+			<<  " = new AsciiFlatFileQuestionDiskMap(" << questionName_
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
 			<< ", current_map_pos);\n";
 	}
 	code.program_code << "\tcurrent_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
 	code.program_code << "\tascii_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
-	
+
 
 	code.program_code << "\tif (write_xtcc_data_file_flag) {\n";
 	if (for_bounds_stack.size() == 0) {
@@ -402,7 +433,7 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\t XtccDataFileDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new XtccDataFileDiskMap(" << questionName_ 
+			<<  " = new XtccDataFileDiskMap(" << questionName_
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
 			<< ", current_xtcc_map_pos);\n";
 	}
@@ -420,7 +451,7 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\tqtm_data_file_ns::QtmDataDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_ 
+			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
 			<< ", qtm_data_file, base_text_vec.back());\n";
 	}
@@ -607,7 +638,7 @@ ask_again:
 		pos_1st_invalid_data = re_arranged_buffer.length() - 1;
 		do {
 label_ask_again:
-			user_response::UserResponseType user_resp 
+			user_response::UserResponseType user_resp
 				= read_data_from_window(
 						data_entry_window, err_mesg.c_str()
 					      //, (!invalid_code), re_arranged_buffer
@@ -620,7 +651,7 @@ label_ask_again:
 			if (isAnswered_ == false && user_navigation == NAVIGATE_PREVIOUS
 					&& user_resp == user_response::UserEnteredNavigation) {
 				// allow this behaviour - they can go back to the
-				// previous question without answering anything - 
+				// previous question without answering anything -
 				// no harm done
 				return user_resp;
 			} else if (isAnswered_ == false && user_navigation == NAVIGATE_NEXT
@@ -731,10 +762,9 @@ RangeQuestion::RangeQuestion(
 			, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 			   , l_enclosing_scope, l_av_info, l_question_attributes
-			   , p_mutexCodeList )
+			   , p_mutexCodeList)
 			, r_data(new XtccSet(l_r_data)), displayData_()
-	
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 
@@ -750,7 +780,7 @@ RangeQuestion::RangeQuestion(
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 #endif /* 0 */
@@ -939,7 +969,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 			if (currXpos + s.str().length() > maxWinX) {
 				currXpos =1, ++currYpos;
-			} 
+			}
 			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
 			currXpos += s.str().length() + 1;
 		}
@@ -1509,7 +1539,7 @@ NamedStubQuestion::NamedStubQuestion(
 	AbstractQuestion(this_stmt_type, line_number,
 		l_nest_level, l_for_nest_level,
 		l_name, text_expr_vec,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, 
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info,
 		l_question_attributes
 		)
 	, named_list()
@@ -1709,14 +1739,14 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		// the code below should be extracted to a method: NxD 11-Jun-2010
 
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupSimpleQuestionRestore(code);
 		code.program_code << "if( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump = false;\n}\n";
 		code.program_code << "}" << endl;
 
 
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupSimpleQuestionSave(code);
 	} else {
 		// Handle Array Question here
@@ -1727,11 +1757,11 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_ == true ) {" << endl;
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupArrayQuestionRestore(code);
 		s << "}" << endl;
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupArrayQuestionSave(code);
 	}
 	code.program_code << "/* EXIT: AbstractQuestion::PrintSetupBackJump()  */\n";
@@ -1749,7 +1779,10 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< questionName_ << "_list.questionList[";
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)) ||" << endl
+	code.program_code
+		<< "]->isAnswered_ == false && "
+		//<< " !(write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)) ||" << endl
+		<< " !(write_mode_flag)) ||" << endl
  		<< "(" 
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->isAnswered_"
@@ -1762,7 +1795,8 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< " && " << "jumpToIndex ==  "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ") ||" << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
+		//<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
+		<< "((write_mode_flag) " << endl
 		<< "  && !(" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< "->question_attributes.isAllowBlank()) &&"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
@@ -1801,7 +1835,20 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "}\n";
 	// new: 12-may-2011
 	code.program_code << "\t\t stopAtNextQuestion = false;\n";
-	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
+	code.program_code
+		<< "if ( write_mode_flag\n"
+		<< "\t&& ( (" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "] ->question_attributes.isAllowBlank() == false &&" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_ == false)\n"
+		<< "\t\t|| (" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_ && !" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->VerifyQuestionIntegrity())) ) {\n"
+		<< "\tfprintf (qscript_stdout, \"inconsistent data at " << questionName_ << "[%d]"<< " - skipping this serial no: %d\\n\", " << consolidated_for_loop_index << ", ser_no);\n"
+		<< "\twrite_this_data_file = false;\n"
+		<< "\tcontinue;\n"
+		<< "} else {\n"
+		<< "\t//fprintf (qscript_stdout, \"consistent data at " << questionName_ << ": %d\\n\", *" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]" << "->input_data.begin());\n"
+		<< "\t" << questionName_ << "_list.questionList[" <<  consolidated_for_loop_index << "]->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n"
+		<< "}\n"
+		<< endl;
+
+	code.program_code << "\t\t//" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
 	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
