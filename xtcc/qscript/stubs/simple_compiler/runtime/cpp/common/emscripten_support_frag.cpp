@@ -91,6 +91,15 @@ void callback_ui_input (UserInput p_user_input,
 	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
 		vector <string> err_mesg_vec;
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
+		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserViewedImage) {
+		vector <string> err_mesg_vec;
+		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
+		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserListenedToAudio) {
+		vector <string> err_mesg_vec;
+		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
+		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		vector <string> err_mesg_vec;
 		cout << "mode: user_response::UserEnteredData" << endl;
@@ -414,13 +423,10 @@ void called_from_the_dom (char * data)
 #endif /*  0  */
 		if (q->q_type == video) {
 			user_input.theUserResponse_ = user_response::UserViewedVideo;
-			user_input.questionResponseDataVec_.push_back(question_data_vec[i]);
 		} else if (q->q_type == image) {
 			user_input.theUserResponse_ = user_response::UserViewedImage;
-			user_input.questionResponseDataVec_.push_back(question_data_vec[i]);
 		} else if (q->q_type == audio) {
 			user_input.theUserResponse_ = user_response::UserListenedToAudio;
-			user_input.questionResponseDataVec_.push_back(question_data_vec[i]);
 		} else {
 
 			if (question_data_vec[i].length() > 0) {
