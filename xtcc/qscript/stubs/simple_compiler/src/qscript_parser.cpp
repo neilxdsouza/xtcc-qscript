@@ -1560,6 +1560,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "		case 'n': {\n");
 	fprintf(script, "				string option_arg(optarg);\n");
 	fprintf(script, "				write_data_new_way = true;\n");
+	fprintf(script, "				  write_mode_flag = true;\n");
 	fprintf(script, "				if (option_arg == string(\"qtm\")) {\n");
 	fprintf(script, "					write_qtm_data_file_flag = true;\n");
 	fprintf(script, "				} else if (option_arg == string(\"spss\")) {\n");
