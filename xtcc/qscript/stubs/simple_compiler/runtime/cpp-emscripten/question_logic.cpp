@@ -111,6 +111,12 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 				}
 #endif /* 0 */
 		}
+	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
+
+		for (int i = 0 ; i < q_vec.size(); ++ i) {
+			q_vec[i] -> isAnswered_ = true;
+		}
+		//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	}
 	//cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
 	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
