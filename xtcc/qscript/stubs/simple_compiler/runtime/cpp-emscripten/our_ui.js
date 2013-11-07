@@ -2,7 +2,7 @@
 	var geolocationTimer = 60;
 	//var geolocationTimerInterval = 8000;
 
-	//my_log ("Started loading our_ui.js");
+	my_log ("Started loading our_ui.js : global_survey_related_info.job_name: " + global_survey_related_info.job_name);
 
 	/* Next Question Button {{{2 */
 	/*
@@ -92,23 +92,25 @@
 			//my_log ("sanity checks passed");
 
 			var our_dir_path = "qscript/" +
-					global_survey_related_info.device.uuid +
-					"/project_name/interviewer_id/completed";
+					global_survey_related_info.device.uuid + "/" +
+					global_survey_related_info.job_name +  "/interviewer_id/incomplete";
 			MakePathDir (our_dir_path);
-			var our_path = "qscript/" +
-					global_survey_related_info.device.uuid +
-					"/project_name/interviewer_id/completed/vegetable_interviewer_id_" +
-					serial_no +
-					".dat";
-			var our_gps_path = "qscript/" +
-					global_survey_related_info.device.uuid +
-					"/project_name/interviewer_id/completed/vegetable_interviewer_id_" +
-					serial_no +
-					".gps";				
+			var our_path =  our_dir_path +
+					//"qscript/" +
+					//global_survey_related_info.device.uuid +
+					//global_survey_related_info.job_name + interviewer_id + "/incomplete/" +
+					"/" + global_survey_related_info.job_name + "_interviewer_id_" +
+					serial_no + ".dat";
+			var our_gps_path = our_dir_path +
+						//"qscript/" +
+						//global_survey_related_info.device.uuid +
+						//"/project_name/interviewer_id/completed/vegetable_interviewer_id_" +
+						"/" + serial_no + ".gps";				
 			//alert ("our_path:" + our_path);
 			// first try to open the file and see if it exists
 			//my_log("opening file:" + our_path);
 			global_survey_related_info.serial_no = serial_no;
+			global_survey_related_info.our_dir_path = our_dir_path;
 			global_survey_related_info.open_file_path = our_path;
 			global_survey_related_info.fileSystemObject.root.getFile(
 				our_path, {create: true}, gotFileEntry, getFileErrorHandler);
@@ -302,11 +304,11 @@
 
 				var verbatim_response_path = "qscript/" +
 				global_survey_related_info.device.uuid +
-				"/project_name/interviewer_id/completed/" +
+				"/" + global_survey_related_info.job_name + "/interviewer_id/incomplete/" +
 				//global_survey_related_info.questionName_ +
 				//"q1_1" +
 				questions_obj_arr[0].qno +
-				".vegetable_interviewer_id_" +
+				"." + global_survey_related_info.job_name + " _interviewer_id_" +
 				global_survey_related_info.serial_no +
 				".dat";
 				//alert(verbatim_response_path);
@@ -325,7 +327,7 @@
 				*/
 			global_survey_related_info.fileSystemObject.root.getFile(
 				verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
-			}			
+			}
 		} else if (questions_obj_arr[0].question_type == 'video_q') {
 			my_log ("Enter video_q section media_url:" + questions_obj_arr[0].media_url);
 			var new_html =
