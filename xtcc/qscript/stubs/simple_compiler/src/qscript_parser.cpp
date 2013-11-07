@@ -1753,10 +1753,28 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 			<< endl;
 		exit(1);
 	}
+
+	string output_shell_filename = string("/tmp/") + string("shell-phonegap-dom-callback-") + project_name + ".html";
+	string sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html > ")
+				+ output_shell_filename;
+
+	cout << "sed command: " << endl
+		<< sed_command 
+		<< endl;
+	if (system (sed_command.c_str()) != 0) {
+		cout << "sed command to create temp shell file failed ... exiting" << endl;
+		exit(1);
+	}
+
+
+	cout << "output_shell_filename: " << output_shell_filename << endl;
+
 	string emscripten_cc_cmd =
 		//"emcc -Wunused-function  -o " + executable_file_name + string(" ")
 		"emcc -Wunused-function --llvm-opts 1 --llvm-lto 1 -O2 -o " + executable_file_name + string(" ")
-		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
+		+ string(" --shell-file ") 
+		//+ QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
+		+ output_shell_filename + string(" ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
 		+ " -s OUTLINING_LIMIT=20000 "
 		+ " -s DISABLE_EXCEPTION_CATCHING=1 "
