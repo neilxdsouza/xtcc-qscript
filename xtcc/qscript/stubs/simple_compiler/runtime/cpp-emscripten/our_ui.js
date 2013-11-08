@@ -268,22 +268,53 @@
 				var is_question_text_same = true;
 				 
 				for (var i=1; i<questions_obj_arr.length; i++) {
-					if( questions_obj_arr[i].question_text_arr[0] != questions_obj_arr[0].question_text_arr[0]) {
+					new_question_view += "comparing: " + questions_obj_arr[i].question_text_arr[0] + "," + questions_obj_arr[0].question_text_arr[0];
+					if (questions_obj_arr[i].question_text_arr[0] != questions_obj_arr[0].question_text_arr[0]) {
 						is_question_text_same = false;
 						break;
 					}
 				}
-				
-				new_question_view = "<table>";
-				if(is_question_text_same) {
-					new_question_view += "<tr><th>" + questions_obj_arr[0].question_text_arr[0] + "</th></tr>";
+
+
+				/*
+				if (global_survey_related_info.qnre_hi_obj) {
+					my_log ("deferencing hindi translation array question_text_obj_arr.length :" + question_text_obj_arr.question_text_arr.length);
+					var translated_text = "";
+					//question_title_div.innerHTML += "<p>nxd:" + global_survey_related_info.qnre_hi_obj[
+					//	question_text_obj_arr.question_text_arr[0] ] + "</p>";
+					for (var t1=0; t1 < question_text_obj_arr.question_text_arr.length; ++t1) {
+						if (question_text_obj_arr.question_text_arr[t1].texpr_type === "simple_text") {
+							translated_text += qnre_hi_obj[question_text_obj_arr.question_text_arr[t1].key[0]];
+						}
+						if (question_text_obj_arr.question_text_arr[t1].texpr_type === "named_attr") {
+							translated_text += qnre_hi_obj[question_text_obj_arr.question_text_arr[t1].key[0]];
+						}
+						if (question_text_obj_arr.question_text_arr[t1].texpr_type === "nq") {
+							translated_text += qnre_hi_stubs_obj[question_text_obj_arr.question_text_arr[t1].key[0]];
+						}
+					}
+					question_title_div.innerHTML += "<p>nxd:" + translated_text + "</p>";
+				} else {
+					my_log ("global_survey_related_info does not have qnre_hi_obj");
 				}
+				*/
+				
+				new_question_view = "<p> is_question_text_same : " + is_question_text_same +  " </p><table>";
+				if (is_question_text_same) {
+					var translated_text = "";
+					new_question_view += "<tr><th>" + questions_obj_arr[0].question_text_arr[0];
+					if (question_text_obj_arr[0].question_text_arr[0].texpr_type === "simple_text") {
+						translated_text += qnre_hi_obj[question_text_obj_arr[0].question_text_arr[0].key[0]];
+					}
+					new_question_view += "<b>" + translated_text + "</b>" + "</th></tr>";
+				}
+
 				for (var i=0; i<questions_obj_arr.length; i++) {
 					var curr_question_obj = questions_obj_arr[i];
 					if(!is_question_text_same) {
-						new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[0] + "</td></tr>";
+						new_question_view += "<tr><td>hello-1" + curr_question_obj.question_text_arr[0] + "</td></tr>";
 					}
-					new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[1] + "</td>";
+					new_question_view += "<tr><td>hello-2" + curr_question_obj.question_text_arr[1] + "</td>";
 					new_question_view += "<td><form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' >";			
 					new_question_view += "<input cols='40' rows='8' type='number' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
 					new_question_view += "</form></td></tr>";
@@ -329,6 +360,15 @@
 				verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
 			}
 		} else if (questions_obj_arr[0].question_type == 'video_q') {
+
+
+
+
+
+
+
+
+
 			my_log ("Enter video_q section media_url:" + questions_obj_arr[0].media_url);
 			var new_html =
 				"<div>This is a video Question</div>" +
@@ -339,6 +379,39 @@
 			new_question_view.innerHTML = new_html;
 		} else {
 			my_log ("case else ");
+
+			/*
+			var dummy_question_title_data = "{" + 
+			    "\"q_text_arr\": [" + 
+				"{" +
+				    "\"texpr_type\": \"simple_text\"," + 
+				    "\"key\": [" +
+					"\"q3_0\"" +
+				    "]" + 
+				"}," +
+				"{" +
+				    "\"texpr_type\": \"named_attr\"," +
+				    "\"key\": [" +
+					"\"veg_seg_att_0\"" +
+				    "]" + 
+				"}," + 
+				"{" +
+				    "\"texpr_type\": \"nq\"," +
+				    "\"key\": [" +
+					"\"veg_4\"" + 
+				    "]" +
+				"}" +
+			    "]" +
+			"}";
+			try { 
+				dummy_question_title_obj = JSON.parse(dummy_question_title_data);
+			} catch (error) {
+				my_log ("unable to parse dummy_question_title_data" + error.message);
+			}
+
+			my_log ("dummy_question_title_data: " + dummy_question_title_data);
+			my_log ("dummy_question_title_obj.q_text_arr.length: " + dummy_question_title_obj.q_text_arr.length);
+			*/
 			//my_log ("Enter:  create_multiple_questions_view" );
 			var new_question_view = document.getElementById("new_question_view");
 			//new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
@@ -358,12 +431,50 @@
 				}
 
 				if (global_survey_related_info.qnre_hi_obj) {
-					my_log ("deferencing hindi translation array");
-					question_title_div.innerHTML += "<p>nxd:" + global_survey_related_info.qnre_hi_obj[
-						question_text_obj_arr.question_text_arr[0] ] + "</p>";
+					my_log ("deferencing hindi translation array question_text_obj_arr.length :" + question_text_obj_arr.length );
+					//my_log ("deferencing hindi translation array question_text_obj_arr.length :" + question_text_obj_arr.question_text_arr.length);
+					var translated_text = "";
+					////question_title_div.innerHTML += "<p>nxd:" + global_survey_related_info.qnre_hi_obj[
+					////	question_text_obj_arr.question_text_arr[0] ] + "</p>";
+					//var question_text_arr = question_text_obj_arr[i].question_text_arr;
+					for (var t1=0; t1 < question_text_obj_arr[i].question_text_arr.length; ++t1) {
+						if (question_text_obj_arr[i].question_text_arr[t1].texpr_type === "simple_text") {
+							translated_text += qnre_hi_obj[question_text_obj_arr[i].question_text_arr[t1].key[0]];
+						}
+						if (question_text_obj_arr[i].question_text_arr[t1].texpr_type === "named_attr") {
+							translated_text += qnre_hi_obj[question_text_obj_arr[i].question_text_arr[t1].key[0]];
+						}
+						if (question_text_obj_arr[i].question_text_arr[t1].texpr_type === "nq") {
+							translated_text += qnre_hi_stubs_obj[question_text_obj_arr[i].question_text_arr[t1].key[0]];
+						}
+					}
+					question_title_div.innerHTML += "<p>nxd:" + translated_text + "</p>";
 				} else {
 					my_log ("global_survey_related_info does not have qnre_hi_obj");
 				}
+
+
+				/*
+				var dummy_question_title = "";
+				for (var j = 0; j < dummy_question_title_obj.q_text_arr.length; ++j) {
+					dummy_question_title += "dummy_question_title_obj.q_text_arr[j].texpr_type : " +
+							dummy_question_title_obj.q_text_arr[j].texpr_type + "<br />";
+					if (dummy_question_title_obj.q_text_arr[j].texpr_type === "simple_text") {
+						dummy_question_title += "simple_text: " + qnre_hi_obj[dummy_question_title_obj.q_text_arr[j].key[0]];
+					} 
+
+					if (dummy_question_title_obj.q_text_arr[j].texpr_type === "named_attr") {
+						dummy_question_title += "n_attr: " + qnre_hi_obj[dummy_question_title_obj.q_text_arr[j].key[0]];
+					}
+
+					if (dummy_question_title_obj.q_text_arr[j].texpr_type === "nq") {
+						dummy_question_title += "nq: " + qnre_hi_stubs_obj[dummy_question_title_obj.q_text_arr[j].key[0]];
+					}
+				}
+				question_title_div.innerHTML += dummy_question_title;
+				*/
+
+
 				//my_log ("after curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
 				question_stubs_div = document.createElement("div");
 				//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";

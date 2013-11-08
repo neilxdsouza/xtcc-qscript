@@ -237,7 +237,7 @@ create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr,
 	try {
 		question_text_obj_arr = JSON.parse (question_data2); 
 	} catch (error) {
-		my_log("Could not JSON.parse (question_data2):" + error.message);
+		my_log("<p style=\"color:red;\">Could not JSON.parse (question_data2):" + error.message + "</p>");
 	}
 	global_survey_related_info.questions_obj_arr = questions_obj_arr;
 	global_survey_related_info.stubs_obj_arr = stubs_obj_arr;
