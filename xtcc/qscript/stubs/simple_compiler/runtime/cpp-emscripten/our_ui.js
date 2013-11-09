@@ -200,14 +200,17 @@
 	}
 
 	function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr, question_text_obj_arr) {
-		my_log ("Enter create_multiple_questions_view");
+		my_log ("Enter create_multiple_questions_view:" + 
+				"questions_obj_arr.length: " + questions_obj_arr.length + 
+				"question_text_obj_arr[0].question_text_arr.length: " + question_text_obj_arr[0].question_text_arr.length 
+				);
 		//my_log ("question_text_obj_arr.question_text_arr[0]: " + question_text_obj_arr.question_text_arr[0]);
 		if (question_text_obj_arr) {
 			my_log ("question_text_obj_arr exists");
-			if (question_text_obj_arr.question_text_arr) {
-				my_log ("question_text_obj_arr.question_text_arr exists");
-				my_log ("question_text_obj_arr.question_text_arr[0]: " + question_text_obj_arr.question_text_arr[0]);
-			}
+			//if (question_text_obj_arr.question_text_arr) {
+			//	my_log ("question_text_obj_arr.question_text_arr exists");
+			//	my_log ("question_text_obj_arr.question_text_arr[0]: " + question_text_obj_arr.question_text_arr[0]);
+			//}
 		}
 		//if (questions_obj_arr[0].question_type == 'nqq')
 		if (questions_obj_arr[0].question_type == "nqq") {
@@ -311,10 +314,15 @@
 
 				for (var i=0; i<questions_obj_arr.length; i++) {
 					var curr_question_obj = questions_obj_arr[i];
-					if(!is_question_text_same) {
+					if (!is_question_text_same) {
 						new_question_view += "<tr><td>hello-1" + curr_question_obj.question_text_arr[0] + "</td></tr>";
 					}
-					new_question_view += "<tr><td>hello-2" + curr_question_obj.question_text_arr[1] + "</td>";
+					new_question_view += "<tr><td>:" + curr_question_obj.question_text_arr[1];
+					//new_question_view += "len: " + question_text_obj_arr[i].question_text_arr.length;
+					for (var j=1; j < question_text_obj_arr[i].question_text_arr.length; ++j) {
+						new_question_view += "/" + qnre_hi_stubs_obj[question_text_obj_arr[i].question_text_arr[j].key[0]];
+					}
+					new_question_view += "</td>";
 					new_question_view += "<td><form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' >";			
 					new_question_view += "<input cols='40' rows='8' type='number' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
 					new_question_view += "</form></td></tr>";

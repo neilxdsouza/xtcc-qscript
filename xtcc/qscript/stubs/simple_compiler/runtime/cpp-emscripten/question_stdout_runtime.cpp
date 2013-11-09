@@ -432,6 +432,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	stringstream question_json_string;
 	stringstream question_json_string2;
 	question_json_string << "[" << endl;
+	question_json_string2 << "[" << endl;
 	stringstream stub_json_string;
 	stub_json_string << "[" << endl;
 	set<string> stub_name_set;
@@ -444,6 +445,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	for (int32_t i=0; i < q_vec.size(); ++i ) {
 		if (i > 0) {
 			question_json_string << ", ";
+			question_json_string2 << ", ";
 		}
 		//if (/*i > 0 &&*/ output_comma == true) {
 		//	stub_json_string << ", ";
@@ -465,18 +467,67 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		question_json_string << "{"
 			<< "\"qno\":\"" << qno_and_qtxt[0] << "\"," << endl
 			<< "\"question_text_arr\": [";
-		question_json_string2 << "{ \"question_text_arr\":[";
-		for (int i=1; i <qno_and_qtxt.size(); ++i) {
-			if (i > 1) {
+		//question_json_string2 << "{ \"question_text_arr\":[";
+		for (int i1=1; i1 <qno_and_qtxt.size(); ++i1) {
+			if (i1 > 1) {
 				question_json_string << ", ";
-				question_json_string2 << ", ";
+				//question_json_string2 << ", ";
 			}
 			question_json_string
-				<< "\"" << qno_and_qtxt[i] << "\"";
-			question_json_string2
-				<< "\"" << part_mesg_id.str() << "_" << i-1 << "\"";
+				<< "\"" << qno_and_qtxt[i1] << "\"";
+			//question_json_string2
+			//	<< "\"" << part_mesg_id.str() << "_" << i1-1 << "\"";
+		}
+		//question_json_string2 << " ] }";
+		// new ====================
+		//for (int i=0; i<q->loop_index_values.size(); ++i) {
+		//	part_mesg_id << "_" << q->loop_index_values[i];
+		//}
+		question_json_string2 << "{ \"question_text_arr\":[";
+		for (int i2 = 0; i2 < q->textExprVec_.size(); ++i2) {
+			if (i2 > 0) {
+				question_json_string2 << ", ";
+			}
+			if (q->textExprVec_[i2]->teType_ == TextExpression::simple_text_type) {
+				question_json_string2
+					<< "{"
+					<< "\"texpr_type\": \"simple_text\","
+					<< "\"key\":["
+					<< "\"" << part_mesg_id.str() << "_" << i2 << "\""
+					<< "]" << "}";
+			} else if (q->textExprVec_[i2]->teType_ == TextExpression::named_attribute_type) {
+				question_json_string2
+					<< "{"
+					<< "\"texpr_type\": \"named_attr\","
+					<< "\"key\":[\""
+					<< q->textExprVec_[i2]->naPtr_->name << "_" <<  q->textExprVec_[i2]->naIndex_
+					<< "\"]" << "}";
+			} else if (q->textExprVec_[i2]->teType_ == TextExpression::question_type) {
+				NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion *> (q->textExprVec_[i2]->pipedQuestion_);
+				if (nq) {
+					if (q->textExprVec_[i2]->codeIndex_ != -1) {
+						question_json_string2
+							<< "{"
+							<< "\"texpr_type\": \"nq\","
+							<< "\"key\":[\""
+							<< nq->nr_ptr->name << "_" << q->textExprVec_[i2]->codeIndex_
+							<< "\"] }";
+					} else {
+						question_json_string2
+							<< "{"
+							<< "\"texpr_type\": \"nq\","
+							<< "\"key\":["
+							<< "\"veg_5\", \"veg_31\", \"veg_11\""
+							<< "] }";
+					}
+				} else {
+					question_json_string2
+						<< "{}";
+				}
+			}
 		}
 		question_json_string2 << " ] }";
+		// ========================	
 		question_json_string
 			<< "]" << endl
 			<< ", \"no_mpn\":" << q->no_mpn
@@ -536,6 +587,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		//	s.str().c_str(), ++counter);
 	}
 	question_json_string << "]" << endl;
+	question_json_string2 << "]" << endl;
 	stub_json_string << "]" << endl;
 	//printf ("question_json_string: %s\n", question_json_string.str().c_str());
 	//printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
