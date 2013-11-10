@@ -481,6 +481,42 @@ public:
 	string PrintSelectedAnswers(int code_index);
 };
 
+class VideoCaptureQuestion: public AbstractQuestion
+{
+public:
+
+	VideoCaptureQuestion(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GetQuestionNames(vector<string> & question_list
+			, AbstractStatement* endStatement)
+	{
+		if (this == endStatement)
+			return;
+		if (next_) {
+			next_->GetQuestionNames(question_list, endStatement);
+		}
+	}
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+	virtual bool IsValid(int32_t value)
+	{
+		return true;
+	}
+	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+};
+
 class DummyArrayQuestion: public AbstractQuestion
 {
 	public:

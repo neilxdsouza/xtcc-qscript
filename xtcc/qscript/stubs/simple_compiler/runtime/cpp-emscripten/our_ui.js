@@ -368,15 +368,6 @@
 				verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
 			}
 		} else if (questions_obj_arr[0].question_type == 'video_q') {
-
-
-
-
-
-
-
-
-
 			my_log ("Enter video_q section media_url:" + questions_obj_arr[0].media_url);
 			var new_html =
 				"<div>This is a video Question</div>" +
@@ -385,6 +376,53 @@
 				"</div>";
 			var new_question_view = document.getElementById("new_question_view");
 			new_question_view.innerHTML = new_html;
+		} else if (questions_obj_arr[0].question_type == 'video_capture') {
+			var media_capture_file_path = "qscript/" +
+				global_survey_related_info.device.uuid +
+				"/" + global_survey_related_info.job_name + "/interviewer_id/incomplete/" +
+				//global_survey_related_info.questionName_ +
+				//"q1_1" +
+				questions_obj_arr[0].qno +
+				"." + global_survey_related_info.job_name + " _interviewer_id_" +
+				global_survey_related_info.serial_no +
+				".dat";
+			global_survey_related_info.fileSystemObject.root.getFile(
+						media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
+			var new_html = "<button onclick=\"captureVideo();\">Capture Video</button> <br>"+
+			    			"<img style='display:none;width:60px;height:60px;' id='smallImage' src='' /><br>";
+			var new_question_view = document.getElementById("new_question_view");
+			new_question_view.innerHTML = new_html;
+		} else if (questions_obj_arr[0].question_type == 'image_capture') {
+			var media_capture_file_path = "qscript/" +
+				global_survey_related_info.device.uuid +
+				"/" + global_survey_related_info.job_name + "/interviewer_id/incomplete/" +
+				//global_survey_related_info.questionName_ +
+				//"q1_1" +
+				questions_obj_arr[0].qno +
+				"." + global_survey_related_info.job_name + " _interviewer_id_" +
+				global_survey_related_info.serial_no +
+				".dat";
+			global_survey_related_info.fileSystemObject.root.getFile(
+						media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
+			var new_html = "<button onclick=\"capturePhoto();\">Capture Photo</button> <br>" + 
+			    			"<img style='display:none;width:60px;height:60px;' id='smallImage' src='' /><br>"
+			var new_question_view = document.getElementById("new_question_view");
+			new_question_view.innerHTML = new_html;
+		} else if (questions_obj_arr[0].question_type == 'audio_capture') {
+			var media_capture_file_path = "qscript/" +
+				global_survey_related_info.device.uuid +
+				"/" + global_survey_related_info.job_name + "/interviewer_id/incomplete/" +
+				//global_survey_related_info.questionName_ +
+				//"q1_1" +
+				questions_obj_arr[0].qno +
+				"." + global_survey_related_info.job_name + " _interviewer_id_" +
+				global_survey_related_info.serial_no +
+				".dat";
+			global_survey_related_info.fileSystemObject.root.getFile(
+						media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
+			var new_html = "<button onclick=\"captureAudio();\">Capture Audio</button> <br>" +
+			    			"<img style='display:none;width:60px;height:60px;' id='smallImage' src='' /><br>"
+
 		} else {
 			my_log ("case else ");
 
@@ -523,11 +561,11 @@
 	}
 
 	function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
-		/*my_log ("Enter: create_multiple_questions_view" );
+		/*my_log ("Enter: create_grid_questions_view" );
 		var new_question_view = document.getElementById("new_question_view");
 		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
 		$( '#stubs_form_div' ).trigger( 'create' );
-		my_log ("Exit: create_multiple_questions_view"  );*/
+		my_log ("Exit: create_grid_questions_view"  );*/
 
 		if (questions_obj_arr.length > 0) {
 			var gridTable = document.createElement("div");

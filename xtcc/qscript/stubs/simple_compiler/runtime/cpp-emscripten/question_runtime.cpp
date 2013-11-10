@@ -927,3 +927,45 @@ string VideoQuestion::PrintSelectedAnswers (int code_index)
 	return string("hello");
 }
 
+
+// ==============================================
+//
+
+VideoCaptureQuestion::VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		, string l_page_name)
+	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE
+			 , l_question_attributes
+			 , l_isStartOfBlock, l_page_name)
+{
+
+}
+
+int VideoCaptureQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
+{
+	return 0;
+}
+
+void VideoCaptureQuestion::WriteDataToDisk(ofstream& data_file)
+{
+}
+
+string VideoCaptureQuestion::PrintSelectedAnswers()
+{
+	//return Wt::WString("hello");
+	return string("hello");
+}
+
+
+string VideoCaptureQuestion::PrintSelectedAnswers (int code_index)
+{
+	//return Wt::WString("hello");
+	return string("hello");
+}
+
+

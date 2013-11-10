@@ -566,6 +566,15 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 			} else {
 				question_json_string << " \"" << vq->file_path << "\"";
 			}
+		} else if (q->q_type == video_capture) {
+			question_type = "video_capture";
+			question_json_string << " \"video_capture\"";
+		} else if (q->q_type == image_capture) {
+			question_type = "image_capture";
+			question_json_string << " \"image_capture\"";
+		} else if (q->q_type == audio_capture) {
+			question_type = "audio_capture";
+			question_json_string << " \"audio_capture\"";
 		}
 		{
 			question_json_string << ", \"current_response\": [";

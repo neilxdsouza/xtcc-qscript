@@ -80,6 +80,10 @@
 %token VIDEO
 %token AUDIO
 %token IMAGE
+
+%token VIDEO_CAPTURE
+%token AUDIO_CAPTURE
+%token IMAGE_CAPTURE
 %token <dt> VOID_T
 %token <dt> INT8_T
 %token <dt> INT16_T
@@ -663,6 +667,11 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		text_expr_vec.clear();
 		question_attributes.Reset();
 	}
+	|NAME text_expr_list qtype ';' {
+		$$ = qscript_parser::ProcessCaptureQuestion($1, "dummy question text");
+		text_expr_vec.clear();
+		question_attributes.Reset();
+	}
 	;
 
 
@@ -1077,6 +1086,15 @@ qtype: SINGLE_CODED {
 	}
 	| AUDIO {
 	       qscript_parser::q_type = audio;
+	}
+	| VIDEO_CAPTURE {
+	       qscript_parser::q_type = video_capture;
+	}
+	| IMAGE_CAPTURE {
+	       qscript_parser::q_type = image_capture;
+	}
+	| AUDIO_CAPTURE {
+	       qscript_parser::q_type = audio_capture;
 	}
 	;
 
@@ -1781,6 +1799,45 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		//cout << endl;
 	}
 
+	return q;
+}
+
+AbstractStatement * ProcessCaptureQuestion (const string &name
+	, const string & q_txt)
+{
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	VideoCaptureQuestion* q=0;
+	if (q_type == video_capture) {
+		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes);
+	} else if (q_type == audio_capture) {
+		//q = new AudioCaptureQuestion (QUESTION_TYPE, line_no
+		//		, nest_lev, flagIsAForBody_
+		//		, name, ::text_expr_vec, q_type
+		//		, cmpd_stmt_ptr
+		//		, av_info, question_attributes);
+	} else if (q_type == image_capture) {
+		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes);
+	} else {
+		std::stringstream err_mesg;
+		err_mesg << " Question has to be of video, audio or image type";
+		print_err (compiler_sem_err , err_mesg.str().c_str(),
+				qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	if (flag_next_question_start_of_block) {
+		q->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+	}
 	return q;
 }
 

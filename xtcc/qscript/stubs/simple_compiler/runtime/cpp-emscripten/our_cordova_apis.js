@@ -229,6 +229,11 @@
 		global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
 	}
 
+	function gotMediaFileEntry(fileEntry) {
+		my_log("Enter: gotMediaFileEntry");
+		global_survey_related_info.current_media_capture_file_fileEntry = fileEntry;
+	}
+
 	function gotGPSFileEntry(fileEntry) {		
 		//alert("File Entry");
 		fileEntry.createWriter(gotGPSFileWriter, getFileErrorHandler);
@@ -319,6 +324,14 @@
 		//my_log ("Exit : save_verbatim_data");
 	}
 	/* save_verbatim_data }}}2 */
+
+	/* save_media_data{{{2 */
+	function save_media_path_data(writer) {
+		my_log ("Enter : save_media_data");
+		writer.write(global_survey_related_info.media_path_data);
+		my_log ("Exit : save_media_data");
+	}
+	/* save_media_data }}}2 */
 
 	/* save_verbatim_data_file_handle {{{2 */
 	function save_verbatim_data_file_handle (fileEntry) {
@@ -609,5 +622,50 @@ document.addEventListener("menubutton", toggle_options_panel, false);
 //		return true;
 //	}
 //document.addEventListener ("deviceready", onDeviceReady, false);
+
+
+function capturePhoto() 
+{
+	navigator.device.capture.captureImage(FileCaptureSuccess, onFail, null);
+}
+
+function captureAudio()
+{
+	navigator.device.capture.captureAudio(FileCaptureSuccess, onFail, null);
+}
+
+function captureVideo()
+{
+	navigator.device.capture.captureVideo(FileCaptureSuccess, onFail, null);
+}    
+
+function FileCaptureSuccess(mediaFiles)
+{
+	var media_file_paths = "";
+	for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+		//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
+		my_log ("filename captured: " + mediaFiles[i].fullPath);
+		media_file_paths += mediaFiles[i].fullPath + '\n';
+	}
+	global_survey_related_info.media_path_data = media_file_paths;
+	global_survey_related_info.current_media_capture_file_fileEntry.createWriter (save_media_path_data, fail_to_write_file);
+
+	
+}
+
+function moveFile(fileEntry)
+{      
+	window.resolveLocalFileSystemURI("file:///storage/sdcard0/Qscript", 
+	//window.resolveLocalFileSystemURI("file:///storage/sdcard0/qscript", 
+		function(dirEntry){
+			fileEntry.moveTo(dirEntry, fileEntry.name, function(){alert("done");}, onFail);
+		}, onFail);
+}
+
+function onFail(error)
+{
+	alert("Error occured"+ error.code);
+}    
+
 
 	my_log ("Finished loading our_cordova_apis.js");

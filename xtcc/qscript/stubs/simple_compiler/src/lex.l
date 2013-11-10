@@ -302,6 +302,13 @@ video		{
 		return VIDEO;
 	}
 
+video		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return VIDEO_CAPTURE;
+	}
+
 image		{
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -309,11 +316,25 @@ image		{
 		return IMAGE;
 	}
 
+image_capture		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return IMAGE_CAPTURE;
+	}
+
 audio		{
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return AUDIO;
+	}
+
+audio_capture		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return AUDIO_CAPTURE;
 	}
 
 const 		{
