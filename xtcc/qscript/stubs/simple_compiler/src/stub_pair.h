@@ -23,7 +23,8 @@ struct	stub_pair
 	string url_image;
 	
 	stub_pair()
-		: stub_text(""), code(-1), mask(false), is_mutex(false)
+		: stub_text(""), code(-1), mask(false), is_mutex(false),
+		  url_image(), is_other_specify (false)
 	{ }
 	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true),
