@@ -31,6 +31,7 @@
 #include "QuestionAttributes.h"
 
 #include "qscript_parser.h"
+#include "stub_pair_options.h"
 
 	//using qscript_parser::yyerror;
 	//using qscript_parser::yylex;
@@ -51,6 +52,7 @@
 	vector<TextExpression*> text_expr_vec;
 	vector<string> vec_named_attribute_list;
 	vector<Unary2Expression*> clear_questions_list;
+	stub_pair_options current_stub_pair_options;
 	
 
 %}
@@ -355,7 +357,7 @@ stmt:	question
 		yyerrok;
 		using qscript_parser::nest_lev;
 		using qscript_parser::flagIsAForBody_;
-		$$ = new ErrorStatement(qscript_parser::line_no, 
+		$$ = new ErrorStatement(qscript_parser::line_no,
 				nest_lev, flagIsAForBody_);
 	}
 	;
@@ -467,7 +469,7 @@ if_stmt:  IF '(' expression ')' stmt {
 			IfStatement * if_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, cmpd_stmt, 0);
 			cmpd_stmt->ifStatement_ = if_stmt;
 			$$ = if_stmt;
-		} else 
+		} else
 			$$=new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, $5, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -491,11 +493,11 @@ if_stmt:  IF '(' expression ')' stmt {
 		IfStatement * if_else_stmt = 0;
 		if (cmpd_stmt_if_body==0 && cmpd_stmt_else_body==0)
 			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3 , $5, $7);
-		else if (cmpd_stmt_if_body != 0 && cmpd_stmt_else_body !=0 ) 
+		else if (cmpd_stmt_if_body != 0 && cmpd_stmt_else_body !=0 )
 			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, cmpd_stmt_if_body, cmpd_stmt_else_body);
-		else if (cmpd_stmt_else_body !=0 && cmpd_stmt_if_body==0) 
+		else if (cmpd_stmt_else_body !=0 && cmpd_stmt_if_body==0)
 			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, $5, cmpd_stmt_else_body);
-		else 
+		else
 			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, cmpd_stmt_if_body, $7);
 		
 		$$ = if_else_stmt;
@@ -1243,9 +1245,11 @@ stub_option: MUTEX {
 	   ;
 
 stub:	TEXT INUMBER {
+		string s1 = $1;
+		int32_t code = $2;
+		qscript_parser::do_stub_pair_checks (s1, code, current_stub_pair_options);
+		/*
 		using qscript_parser::stub_list;
-		string s1=$1;
-		int32_t code=$2;
 		struct stub_pair pair1(s1,code);
 		stub_list.push_back(pair1);
 
@@ -1271,7 +1275,16 @@ stub:	TEXT INUMBER {
 		} else {
 			set_duplicate_stub_entry_check.insert(code);
 		}
+		*/
 	}
+	| TEXT INUMBER ':' stub_options_list {
+		string s1 = $1;
+		int32_t code = $2;
+		cout << "parsed stub with options" << endl;
+		qscript_parser::do_stub_pair_checks (s1, code, current_stub_pair_options);
+		current_stub_pair_options.reset();
+	}
+	/*
 	| TEXT INUMBER MUTEX {
 		using qscript_parser::stub_list;
 		string s1=$1;
@@ -1303,6 +1316,7 @@ stub:	TEXT INUMBER {
 			set_duplicate_stub_entry_check.insert(code);
 		}
 	}
+	*/
 	;
 
 stub_manip_stmts:
@@ -1343,7 +1357,7 @@ stub_manip_stmts:
 				, $3, 0, un2e);
 	}
 	| SETADD '(' NAME '[' expression ']' ',' NAME '[' expression ']' ')' ';' {
-		cout << __LINE__ << "|^: reached here" << endl;		
+		cout << __LINE__ << "|^: reached here" << endl;
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, $3, $5, $8, $10);
         }
@@ -1351,14 +1365,14 @@ stub_manip_stmts:
 	| SETADD '(' NAME '[' expression ']' ',' '(' NAME ')' ')' ';' {
                 // 2nd NAME is an expression
                 //Unary2Expression * arr_index = new Unary2Expression ($5, oper_name);
-                Unary2Expression * arr_index = 
+                Unary2Expression * arr_index =
 			dynamic_cast<Unary2Expression*> ($5);
-       		if (arr_index) { 
-	                Unary2Expression * un2e = new Unary2Expression ($9, oper_name);
+		if (arr_index) {
+			Unary2Expression * un2e = new Unary2Expression ($9, oper_name);
 			$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, $3, arr_index, un2e);
 		} else {
-			$$ = new ErrorStatement(qscript_parser::line_no, 
+			$$ = new ErrorStatement(qscript_parser::line_no,
 				qscript_parser::nest_lev, qscript_parser::flagIsAForBody_);
 		}
 	}
@@ -1822,6 +1836,40 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 
 	return q;
 }
+
+
+	void do_stub_pair_checks (const string & stub_text, int code, const stub_pair_options & current_stub_pair_options)
+	{
+		using qscript_parser::stub_list;
+		string s1=stub_text;
+		//int32_t code=$2;
+		struct stub_pair pair1(s1, code, current_stub_pair_options);
+		stub_list.push_back(pair1);
+
+		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);
+		//cout << "searching for : " << s1 << " in map" << endl;
+		if (map_iter != map_duplicate_stub_entry_check.end()) {
+			std::stringstream err_msg;
+			err_msg << "the stub text: \"" << s1
+				<< "\" with code: " << code
+				<< " already exists with a code value of : "
+				<< map_iter->second;
+			print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			map_duplicate_stub_entry_check[s1] = code;
+		}
+
+		set<int>::iterator set_iter = set_duplicate_stub_entry_check.find (code);
+		if (set_iter != set_duplicate_stub_entry_check.end()) {
+			std::stringstream err_msg;
+			err_msg << "the code: " << code
+				<< " already exists in the stub list: ";
+			print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			set_duplicate_stub_entry_check.insert(code);
+		}
+	}
+
 
 // Close namespace
 }

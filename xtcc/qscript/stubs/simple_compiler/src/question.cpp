@@ -1297,11 +1297,13 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		//cerr << "mutex_range_set_name: " << mutex_range_set_name << endl;
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << "}\n";
 	}
 
@@ -1428,6 +1430,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+
 
 		quest_decl
 			//<< "/*  "
@@ -1442,6 +1446,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";

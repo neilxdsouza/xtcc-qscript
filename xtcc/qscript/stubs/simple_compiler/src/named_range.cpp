@@ -42,6 +42,20 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 	code.quest_defns_init_code << name << ".set_range_data(\""
 		<< name << "\", " << qscript_parser::temp_name_generator.GetCurrentName()
 		<< ");" << endl;
+
+	code.quest_defns_init_code
+		<< "\tif (write_messages_flag) {\n"
+		<< "\tfor (int i=0; i<"
+		<< qscript_parser::temp_name_generator.GetCurrentName()<< ".size(); ++i) {\n"
+		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+		<<	" << "
+		<< qscript_parser::temp_name_generator.GetCurrentName()
+		<< "[i].stub_text << \"</message>\\n\" << endl;\n"
+		<< "\t}\n"
+		<< "}\n";
+
+
+
 	stringstream mesg;
 	mesg << "Review source of this file: check we are not allowing duplicate codes in the stubs ";
 	LOG_MAINTAINER_MESSAGE(mesg.str());

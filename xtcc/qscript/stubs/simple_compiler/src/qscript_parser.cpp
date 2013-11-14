@@ -191,6 +191,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	tree_root->GenerateCode(code);
 
 	fprintf(script, "struct TheQuestionnaire\n{\n");
+	fprintf (script, "std::fstream messages;\n");
+	fprintf (script, "std::fstream json_messages;\n");
 	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
@@ -200,11 +202,40 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
 	fprintf(script, "{\n");
+
+	//fprintf (script, "if (write_messages_flag) {\n");
+	//fprintf (script, "messages.open (\"shop_obs.xml\", ios_base::out|ios_base::trunc);\n");
+	//fprintf (script, "if(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
+	//fprintf (script, "messages << \\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\\n");
+	//fprintf (script, "messages << \"<messages>\n");
+	//fprintf (script, "messages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";}\n");
+
+	fprintf(script, "if (write_messages_flag) {\n");
+	fprintf(script, "\tmessages.open (\"%s.xml\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
+	fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
+	fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
+	fprintf(script, "\tmessages << \"<messages>\\n\";");
+	fprintf(script, "\tmessages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";");
+	fprintf(script, "}\n");
+
+
+
+
+
+
+
+
+
 	//fprintf(script, "last_question_answered = 0;\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
 	fprintf(script, "questions_start_from_here_index = question_list.size();\n");
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
+	fprintf(script, "\tif (write_messages_flag) {\n");
+	fprintf(script, "\tmessages << \"</messages>\\n\";\n");
+	fprintf(script, "\tmessages.flush() ;\n");
+	fprintf(script, "\t}\n");
+
 	fprintf(script, "}\n\n");
 	//print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
@@ -227,6 +258,27 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_do_freq_counts(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
+	//
+
+	fprintf (script, "void print_question_messages(AbstractQuestion * q)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "stringstream question_name;\n");
+	fprintf (script, "question_name << q->questionName_;\n");
+	fprintf (script, "for (int i=0; i< q->loop_index_values.size(); ++i)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	question_name << \"_\" << q->loop_index_values[i];\n");
+	fprintf (script, "}\n");
+	fprintf (script, "for (int i=0; i< q->textExprVec_.size(); ++i)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	messages << \"<message id=\\\"\" << question_name.str()\n");
+	fprintf (script, "		<< \"_\" << i << \"\\\">\"\n");
+	fprintf (script, "		<< q->textExprVec_[i]->text_\n");
+	fprintf (script, "		<< \"</message>\\n\" << endl;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "}\n");
+
+
+	
 	fprintf(script, "};\n");
 	//print_GetQuestionMapEntry(script);
 	//print_GetQuestionMapEntryArrayQ(script);
@@ -330,6 +382,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
+	fprintf(script, "bool write_messages_flag;\n");
+
 	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
 	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
 			"\t\tAbstractQuestion * & p_last_question_answered,\n"
@@ -1509,7 +1563,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "\t		{ \"uuid\", required_argument, 0, UUID},\n");
 	fprintf(script, "\t		{ 0, 0, 0, 0}\n");
 	fprintf(script, "\t	};\n\n\n\n");
-	fprintf(script, "	while ( (c = getopt_long(argc, argv, \"sxwqn:\", long_options, &optind)) != -1) {\n");
+	fprintf(script, "	while ( (c = getopt_long(argc, argv, \"msxwqn:\", long_options, &optind)) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
 
@@ -1556,7 +1610,11 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		break;\n");
-
+	fprintf(script, "		case 'm':\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			write_messages_flag = true;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		break;\n");
 	fprintf(script, "		case 'n': {\n");
 	fprintf(script, "				string option_arg(optarg);\n");
 	fprintf(script, "				write_data_new_way = true;\n");
@@ -1623,6 +1681,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 {
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
+	fprintf(script, "\t if (write_messages_flag) { TheQuestionnaire qnre; exit(1); }\n");
 	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n");
 	fprintf(script, "\t	qtm_data_file_ns::init();\n");

@@ -24,6 +24,7 @@
 #include "active_var_info.h"
 #include "lex_location.h"
 #include "TempNameGenerator.h"
+#include "stub_pair_options.h"
 
 using std::ofstream;
 using std::vector;
@@ -154,6 +155,7 @@ namespace qscript_parser
 	extern TempNameGenerator temp_set_name_generator;
 	extern TempNameGenerator temp_name_generator;
 	string ExtractBaseFileName(const string & fname);
+	void do_stub_pair_checks (const string & stub_text, int code, const stub_pair_options & current_stub_pair_options);
 	bool verify_stubs_list (struct named_range * nr_ptr);
 
 }
