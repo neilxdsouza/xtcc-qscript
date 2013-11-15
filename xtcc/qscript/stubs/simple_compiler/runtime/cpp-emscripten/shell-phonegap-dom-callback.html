@@ -53,7 +53,7 @@
 	<link rel="stylesheet" href="css/font-awesome.min.css">
 	<script type="text/javascript">
 		// big fat global variable
-		global_survey_related_info = { job_name: "JOB_NAME" };
+		global_survey_related_info = { job_name: "JOB_NAME", current_language: "en" };
 		/* ===== EventUtil and FormSerialization {{{1 =============== */
 		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
 		var EventUtil = {
@@ -322,6 +322,16 @@
 										<a id="btnLogout" data-transition="slide" href="#" data-role="button" data-theme="b" data-inline="true">Logout</a>
 									</div>
 								</div>
+								<div class="ui-grid-b">
+									<div class="ui-block-a">
+										<input type="button" onclick="set_lang('en');" value="Lang: En"/> 
+									</div>
+									<div class="ui-block-b">
+									</div>
+									<div class="ui-block-c">
+										<input type="button" onclick="set_lang('hi');" value="Lang: Hi"/>
+									</div>
+								</div>
 					      </div>
 					  </div>
 					</div>
@@ -441,7 +451,8 @@
 
 	</script>
 
-	<script type="text/javascript" src="./js/qnre-lang-pack.js"> </script>
+	<!-- <script type="text/javascript" src="./js/qnre-lang-pack.js"> </script> -->
+	<script type="text/javascript" src="./js/shop_obs.js"> </script>
 	
 	<script type="text/javascript" src="./js/our_cordova_apis.js"> </script>
 	<script type="text/javascript" src="./js/our_ui.js"> </script>

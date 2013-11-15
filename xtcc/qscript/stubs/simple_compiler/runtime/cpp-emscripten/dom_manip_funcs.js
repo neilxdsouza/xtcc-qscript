@@ -210,10 +210,10 @@ create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr,
 	var err_data = Pointer_stringify (err_json_ptr);
 	//my_log ("err_data: " + err_data);
 	var question_data2 = Pointer_stringify (question_json_ptr2);
-	my_log ("question_data2: " + question_data2);
+	//my_log ("question_data2: " + question_data2);
 
 	var stubs_obj_arr , questions_obj_arr, err_obj_arr;
-	my_log ("question_data: " + question_data);
+	//my_log ("question_data: " + question_data);
 	try {
 		questions_obj_arr = JSON.parse(question_data);
 		//my_log ("parsed question_data");
