@@ -216,6 +216,9 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
 	fprintf(script, "\tmessages << \"<messages>\\n\";");
 	fprintf(script, "\tmessages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";");
+	fprintf(script, "\t json_messages.open (\"%s.json\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
+	fprintf(script, "\tif(!json_messages) { cerr << \"unable to open file json_messages for output of json messages... exiting\\n\"; exit(1); }\n");
+	fprintf(script, "\t json_messages << \"var qnre_lang_obj = {\\n\\t\\\"en\\\":{\\n\";\n", project_name.c_str());
 	fprintf(script, "}\n");
 
 
@@ -234,6 +237,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\tif (write_messages_flag) {\n");
 	fprintf(script, "\tmessages << \"</messages>\\n\";\n");
 	fprintf(script, "\tmessages.flush() ;\n");
+	fprintf(script, "\t json_messages << \"\\t}\\n};\\n\";\n");
+	fprintf(script, "\t json_messages.flush() ;\n");
 	fprintf(script, "\t}\n");
 
 	fprintf(script, "}\n\n");
@@ -274,6 +279,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf (script, "		<< \"_\" << i << \"\\\">\"\n");
 	fprintf (script, "		<< q->textExprVec_[i]->text_\n");
 	fprintf (script, "		<< \"</message>\\n\" << endl;\n");
+	fprintf (script, "	json_messages << \"\\\"\" << question_name.str() << \"_\" << i << \"\\\"\" <<  \":\" << \"\\\"\" << q->textExprVec_[i]->text_ << \"\\\"\" << \",\" << endl;\n");
 	fprintf (script, "}\n");
 	fprintf (script, "}\n");
 

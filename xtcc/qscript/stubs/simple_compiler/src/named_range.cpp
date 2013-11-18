@@ -47,10 +47,14 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		<< "\tif (write_messages_flag) {\n"
 		<< "\tfor (int i=0; i<"
 		<< qscript_parser::temp_name_generator.GetCurrentName()<< ".size(); ++i) {\n"
-		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << " << qscript_parser::temp_name_generator.GetCurrentName() << "[i].code " << " << \"\\\">\""
 		<<	" << "
 		<< qscript_parser::temp_name_generator.GetCurrentName()
 		<< "[i].stub_text << \"</message>\\n\" << endl;\n"
+
+		<< "\t json_messages << \"\\\"\" << \"" <<   name  << "\" << \"_\" << " <<  qscript_parser::temp_name_generator.GetCurrentName() << "[i].code" << " << \"\\\":\\\"\" <<  "
+		<< qscript_parser::temp_name_generator.GetCurrentName()
+		<< "[i].stub_text << \"\\\",\" << endl;\n"
 		<< "\t}\n"
 		<< "}\n";
 
