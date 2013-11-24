@@ -510,7 +510,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 							<< "{"
 							<< "\"texpr_type\": \"nq\","
 							<< "\"key\":[\""
-							<< nq->nr_ptr->name << "_" << q->textExprVec_[i2]->codeIndex_
+							<< nq->nr_ptr->name << "_" << nq->nr_ptr->stubs[q->textExprVec_[i2]->codeIndex_].code
 							<< "\"] }";
 					} else {
 						question_json_string2

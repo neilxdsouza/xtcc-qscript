@@ -202,11 +202,11 @@ show_end_of_qnre_page: function() {
 
 create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr,
 				question_json_ptr2) {
-	//my_log ("Entered: create_question_form");
+	my_log ("Entered: create_question_form");
 	var question_data = Pointer_stringify (question_json_ptr);
 	//my_log ("question_data: " + question_data);
 	var stubs_data = Pointer_stringify (stubs_json_ptr);
-	//my_log ("stub_data: " + stubs_data);
+	my_log ("stub_data: " + stubs_data);
 	var err_data = Pointer_stringify (err_json_ptr);
 	//my_log ("err_data: " + err_data);
 	var question_data2 = Pointer_stringify (question_json_ptr2);
@@ -222,7 +222,7 @@ create_question_form: function(question_json_ptr, stubs_json_ptr, err_json_ptr,
 	}
 	try {
 		stubs_obj_arr = JSON.parse(stubs_data);
-		//my_log ("parsed stub_data");
+		my_log ("parsed stub_data: " + stub_data);
 	} catch (error) {
 		//my_log("Could not JSON.parse (stubs_data):" + error.message);
 	}

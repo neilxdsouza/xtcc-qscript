@@ -17,9 +17,10 @@ struct	stub_pair
 	int32_t code;
 	bool mask;
 	bool is_mutex;
+	bool is_other;
 	string url_image;
 	stub_pair()
-		: stub_text(""), code(-1), mask(false), is_mutex(false)
+		: stub_text(""), code(-1), mask(false), is_mutex(false), is_other(false), url_image()
 	{ }
 	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true),
@@ -27,12 +28,19 @@ struct	stub_pair
 	{ }
 	stub_pair(string l_txt, int32_t l_code, bool p_mutex)
 		: stub_text(l_txt), code(l_code), mask(true),
-		  is_mutex(p_mutex), url_image()
+		  is_mutex(p_mutex), is_other(false), url_image()
 	{ }
 	stub_pair(string l_txt, int32_t l_code, bool p_mutex, string p_image_url)
 		: stub_text(l_txt), code(l_code), mask(true),
-		  is_mutex(p_mutex), url_image (p_image_url)
+		  is_mutex(p_mutex), is_other(false), url_image (p_image_url)
 	{ }
+	stub_pair(string l_txt, int32_t l_code, bool p_mutex, bool p_other_specify, string p_image_url)
+		: stub_text(l_txt), code(l_code), mask(true),
+		  is_mutex(p_mutex), is_other(p_other_specify), url_image (p_image_url)
+	{ }
+	void set_is_other() {
+		is_other = true;
+	}
 	/*
 
 	stub_pair(const stub_pair & p1) 
@@ -55,6 +63,7 @@ struct	stub_pair
 			<< "\"stub_text\":" << "\"" << stub_text << "\"" << ","
 			<< "\"stub_code\":" << code << ","
 			<< "\"mask\":" << mask << ","
+			<< "\"is_other\":" << is_other << ","
 			<< "\"is_mutex\":" << is_mutex << ","
 			<< "\"url_image\":" << "\"" << url_image << "\""
 			//<< ","

@@ -29,11 +29,12 @@
 	var newNextQ= document.getElementById("newNextQ");
 	EventUtil.addHandler (newNextQ, "click", function(event) {
 		//my_log ("Enter newNextQ");
-		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string','string']);
 		//console.log("newNextQ called");
 		var returnValue = new_serialize ();
+		var other_spec_data = "[ {\"code\": 1, \"stub\": \"My Other Brand 1\"}, {\"code\": 2, \"stub\": \"My Other Brand 2\"} , {\"code\": 3, \"stub\": \"My Other Brand 3\"} ]";
 		//my_log ("new_serialize done: " + returnValue);
-		called_from_the_dom(returnValue.join("|"));
+		called_from_the_dom(returnValue.join("|"), other_spec_data);
 	});
 	//my_log ("created newNextQ handler function");
 	/* newNextQ Button }}}2 */
@@ -205,13 +206,13 @@
 				"question_text_obj_arr[0].question_text_arr.length: " + question_text_obj_arr[0].question_text_arr.length 
 				);
 		//my_log ("question_text_obj_arr.question_text_arr[0]: " + question_text_obj_arr.question_text_arr[0]);
-		if (question_text_obj_arr) {
-			my_log ("question_text_obj_arr exists");
-			//if (question_text_obj_arr.question_text_arr) {
-			//	my_log ("question_text_obj_arr.question_text_arr exists");
-			//	my_log ("question_text_obj_arr.question_text_arr[0]: " + question_text_obj_arr.question_text_arr[0]);
-			//}
-		}
+		//if (question_text_obj_arr) {
+		//	my_log ("question_text_obj_arr exists");
+		//	//if (question_text_obj_arr.question_text_arr) {
+		//	//	my_log ("question_text_obj_arr.question_text_arr exists");
+		//	//	my_log ("question_text_obj_arr.question_text_arr[0]: " + question_text_obj_arr.question_text_arr[0]);
+		//	//}
+		//}
 		//if (questions_obj_arr[0].question_type == 'nqq')
 		if (questions_obj_arr[0].question_type == "nqq") {
 			my_log ("case nqq");
@@ -260,7 +261,7 @@
 		}
 
 		else if (questions_obj_arr[0].question_type == 'rq') {
-			var new_question_view = "";
+			var new_question_view = "case rq";
 			if (questions_obj_arr.length == 1 && questions_obj_arr[0].question_text_arr.length == 1) {
 				new_question_view += "<div>" + questions_obj_arr[0].question_text_arr[0] + "</div>";
 				new_question_view += "<div><form id ='id_form_" + questions_obj_arr[0].qno + "' name ='form_" + questions_obj_arr[0].qno + "' >";			
@@ -326,6 +327,7 @@
 					for (var j=1; j < question_text_obj_arr[i].question_text_arr.length; ++j) {
 						//new_question_view += "/" + qnre_hi_stubs_obj[question_text_obj_arr[i].question_text_arr[j].key[0]];
 						var key =  question_text_obj_arr[i].question_text_arr[j].key[0];
+						new_question_view += ", key:" + key;
 						new_question_view += "/" + language_translation_obj[key];
 					}
 					new_question_view += "</td>";
@@ -666,22 +668,47 @@
 			//my_log ("assigned res2 , length:" + res2.stubs.length);
 			//alert (res2.name);
 			//alert (res2.stubs);
-			var my_li = null;
+			var my_li = null, current_stub_obj = null;
 			for (var i=0; i<res2.stubs.length;  ++i) {
+				current_stub_obj = res2.stubs[i];
+				//my_log ("current_stub_obj.mask: " + current_stub_obj.mask);
+				//my_log ("current_stub_obj.is_other: " + current_stub_obj.is_other);
+				//my_log ("current_stub_obj.is_mutex: " + current_stub_obj.is_mutex);
 				//my_log ("looping i = " + i);
 				if (res2.stubs[i].mask == 1) {
-					var input   = document.createElement("input");
+					var language_translation_obj = qnre_lang_obj[global_survey_related_info.current_language];
+					var input = document.createElement("input");
+					var index = null;
+					index = question_obj.stub_name + "_" + res2.stubs[i].stub_code;
 					//my_log ("after document.createElement i = " + i);
-					if (question_obj.no_mpn == 1) {
-						input.type  = "radio";
+					if (current_stub_obj.is_other == 1) {
+						if (global_survey_related_info.other_specify_stub_info[index] !== undefined) {
+							if (question_obj.no_mpn == 1) {
+								input.type  = "radio";
+							} else {
+								input.type  = "checkbox";
+								input.style.class="custom";
+							}
+							input.value = res2.stubs[i].stub_code;
+						} else {
+							input.type  = "text";
+							input.setAttribute("qscript_stub_code", current_stub_obj.stub_code);
+							input.setAttribute("qscript_stub_key", index);
+							//input_label.innerHTML += language_translation_obj[index];
+							input.value = language_translation_obj[index];
+						}
 					} else {
-						input.type  = "checkbox";
-						input.style.class="custom";
+						if (question_obj.no_mpn == 1) {
+							input.type  = "radio";
+						} else {
+							input.type  = "checkbox";
+							input.style.class="custom";
+						}
+						input.value = res2.stubs[i].stub_code;
 					}
 					//my_log ("created input i = " + i);
 					//input.name  = "stub_response";
 					input.name  = "radio-choice";
-					input.value = res2.stubs[i].stub_code;
 					//my_log ("after setting input.value i = " + i);
 					//var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
 					var id_text = res2.name + res2.stubs[i].stub_code ;
@@ -693,11 +720,8 @@
 					//input_label.innerHTML = "<table><tr><td nowrap>" + res2.stubs[i].stub_text + "</td>";
 					//input_label.innerHTML = "<table><tr><td>" + res2.stubs[i].stub_text + "</td>";
 					//if (question_obj.stub_name === "yn") {
-						var index;
-						index = question_obj.stub_name + "_" + res2.stubs[i].stub_code;
 						//my_log ("stub_name === yn : index: " + index);
 						//input_label.innerHTML = "<table><tr><td>" + global_survey_related_info.qnre_hi_stubs_obj[index] + "</td>";
-						var language_translation_obj = qnre_lang_obj[global_survey_related_info.current_language];
 						//input_label.innerHTML = "<table><tr><td> index: " + index + ":deref:" + qnre_lang_obj[global_survey_related_info.current_language].index + "</td>";
 						input_label.innerHTML = "<table><tr><td>";
 						//input_label.innerHTML += " index: " + index + ":deref:" ;
@@ -834,6 +858,21 @@
 						//}
 						//global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
 						global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
+					}
+				} // new code
+
+				else if (my_question_obj.question_type === "nq") {
+					// capture the other specify response and save it in a 
+					// verbatim text response file and replace the other specify
+					// place holder with the user input text in the stub list
+					var the_oth_spc_text = field.value;
+					if (the_oth_spc_text.length > 0) {
+						my_log ("the_oth_spc_text: " + the_oth_spc_text);
+						var other_spc_code = field.getAttribute ("qscript_stub_code");
+						var stub_key =  field.getAttribute("qscript_stub_key");
+						(qnre_lang_obj[global_survey_related_info.current_language])[stub_key] = the_oth_spc_text;
+						global_survey_related_info.other_specify_stub_info[stub_key] = 1;
+						parts.push(other_spc_code);
 					}
 				}
 			break;
