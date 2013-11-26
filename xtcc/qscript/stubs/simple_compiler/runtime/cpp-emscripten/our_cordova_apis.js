@@ -229,6 +229,15 @@
 		global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
 	}
 
+	function gotOtherSpecifyFileEntry(fileEntry) {
+		my_log("Enter: gotVerbatimFileEntry");
+		//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
+		if (global_survey_related_info.other_specify_data_file_fileEntry_arr === undefined) {
+			global_survey_related_info.other_specify_data_file_fileEntry_arr = [];
+		}
+		global_survey_related_info.other_specify_data_file_fileEntry_arr.push(fileEntry); 
+	}
+
 	function gotMediaFileEntry(fileEntry) {
 		my_log("Enter: gotMediaFileEntry");
 		global_survey_related_info.current_media_capture_file_fileEntry = fileEntry;
@@ -324,6 +333,18 @@
 		//my_log ("Exit : save_verbatim_data");
 	}
 	/* save_verbatim_data }}}2 */
+
+	/* save_other_specify_data {{{2 */
+	function save_other_specify_data (writer) {
+		my_log ("Enter : save_other_specify_data");
+		//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
+		//writer.write(global_survey_related_info.current_verbatim_data);
+
+		writer.write(global_survey_related_info.other_specify_data_arr[global_survey_related_info.current_other_specify_index]);
+
+		my_log ("Exit : save_other_specify_data");
+	}
+	/* save_other_specify_data  }}}2 */
 
 	/* save_media_data{{{2 */
 	function save_media_path_data(writer) {

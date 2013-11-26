@@ -653,6 +653,8 @@
 		question_type = question_obj.question_type;
 		//my_log ("After question_type.question_type");
 		var doc_frag2 = document.createDocumentFragment();
+		var other_specify_file_names;
+		other_specify_file_names = [];
 		if (question_type === "nq") {
 			//var res2 = JSON.parse(json_rep2);
 			var res2 = null;
@@ -692,10 +694,21 @@
 							input.value = res2.stubs[i].stub_code;
 						} else {
 							input.type  = "text";
+							input.setAttribute("placeholder", language_translation_obj[index]);
 							input.setAttribute("qscript_stub_code", current_stub_obj.stub_code);
 							input.setAttribute("qscript_stub_key", index);
 							//input_label.innerHTML += language_translation_obj[index];
-							input.value = language_translation_obj[index];
+							//input.value = language_translation_obj[index];
+							var other_spc_fn = "";
+							other_spc_fn = "qscript/" +
+								global_survey_related_info.device.uuid +
+								"/" + global_survey_related_info.job_name + "/interviewer_id/incomplete/" +
+								question_obj.qno + "_other_" + current_stub_obj.stub_code +
+								"." + global_survey_related_info.job_name + "_interviewer_id_" +
+								global_survey_related_info.serial_no +
+								".dat";
+							other_specify_file_names.push(other_spc_fn);
+							my_log ("other_spc_fn: " + other_spc_fn);
 						}
 					} else {
 						if (question_obj.no_mpn == 1) {
@@ -765,9 +778,10 @@
 			//clear_prev_node_sub_child (stubs_form_div);
 
 			//stubs_form_div.appendChild(doc_frag2);
-
-
-
+			for (i = 0; i < other_specify_file_names.length; ++i) {
+				global_survey_related_info.fileSystemObject.root.getFile(
+					other_specify_file_names[i], {create: true}, gotOtherSpecifyFileEntry, getFileErrorHandler);
+			}
 		} else {
 			var input_text = document.createElement("input");
 			input_text.type  = "text";
@@ -805,6 +819,10 @@
 		//my_log("Enter: serialize");
 		var parts = new Array();
 		var field = null;
+		if (global_survey_related_info.other_specify_data_arr === undefined) {
+			global_survey_related_info.other_specify_data_arr = [];
+		}
+		global_survey_related_info.other_specify_data_arr = [];
 		for (var i=0; i < form.elements.length; ++i ) {
 			field = form.elements[i];
 			switch (field.type) {
@@ -873,10 +891,19 @@
 						(qnre_lang_obj[global_survey_related_info.current_language])[stub_key] = the_oth_spc_text;
 						global_survey_related_info.other_specify_stub_info[stub_key] = 1;
 						parts.push(other_spc_code);
+						global_survey_related_info.other_specify_data_arr.push(the_oth_spc_text);
+						// global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 					}
 				}
 			break;
 			}
+		}
+
+		for (i = 0; i < global_survey_related_info.other_specify_data_arr.length; ++i) {
+			//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
+			global_survey_related_info.current_other_specify_index = i;
+			global_survey_related_info.other_specify_data_file_fileEntry_arr [i].createWriter (save_other_specify_data, 
+							fail_to_write_file);
 		}
 		var return_value = parts.join(" ");
 		//my_log("Exiting: serialize return_value:" + return_value);
