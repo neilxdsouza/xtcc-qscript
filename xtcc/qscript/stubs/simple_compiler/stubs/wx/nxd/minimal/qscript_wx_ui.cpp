@@ -41,6 +41,7 @@
 #endif
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -48,6 +49,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::stringstream;
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -95,7 +97,8 @@ enum
     // it is important for the id corresponding to the "About" command to have
     // this standard value as otherwise it won't be handled properly under Mac
     // (where it is special and put into the "Apple" menu)
-    Minimal_About = wxID_ABOUT
+    Minimal_About = wxID_ABOUT,
+    ID_NEXT_BUTTON
 };
 
 // Define a new canvas which can receive some events
@@ -191,6 +194,7 @@ END_EVENT_TABLE()
 		{ }
 	};
 
+	vector <stub_info> brands;
 	vector <stub_info> agree;
 	vector <stub_info> gender;
 
@@ -206,7 +210,7 @@ END_EVENT_TABLE()
 		{ }
 	};
 
-	Question * q1, * q2, *q3;
+	Question * q1, * q2, *q3, *q4;
 	vector <Question*> question_vec;
 	
 void init_data()
@@ -220,13 +224,25 @@ void init_data()
 	gender.push_back (stub_info ("Male", 1, false));
 	gender.push_back (stub_info ("Female", 2, false));
 
+	brands.push_back (stub_info ("Nike", 1, false)); 
+	brands.push_back (stub_info ("Adidas", 2, false)); 
+	brands.push_back (stub_info ("Puma", 3, false)); 
+	brands.push_back (stub_info ("Reebok", 4, false)); 
+	brands.push_back (stub_info ("Aasics", 5, false)); 
+	brands.push_back (stub_info ("Saucony", 6, false)); 
+	brands.push_back (stub_info ("Fila", 7, false)); 
+	brands.push_back (stub_info ("New Balance", 8, false)); 
+
+
 	q1 = new Question ("Please state your agreement with", &agree, nq, 1);
 	q2 = new Question ("Please state your Gender", &gender, nq, 1);
 	q3 = new Question ("Please state your income", &agree, rq, 1);
+	q4 = new Question ("Which of these brands of shoes are you aware of", &brands, nq, 5);
 			
 	question_vec.push_back (q1);
 	question_vec.push_back (q2);
 	question_vec.push_back (q3);
+	question_vec.push_back (q4);
 }
 
 	//struct stub_info agree [] = {
@@ -257,8 +273,13 @@ public:
     wxBoxSizer *topsizer;
     void DrawQuestions (vector<Question*> & p_question_vec);
     void DrawSingleAnswerStubs (Question* & p_q, QuestionView * & p_qv);
+    void DrawMultiAnswerStubs (Question* & p_q, QuestionView * & p_qv);
     void DrawStubs (Question* & p_q, QuestionView * & p_qv);
     vector <QuestionView *> currentQuestionView_;
+	void handleDataInput(wxCommandEvent& WXUNUSED(event));
+	vector <Question*> current_questions_vec; 
+	string GetSingleAnswersFromQuestionView (QuestionView * qv);
+	string GetMultiAnswersFromQuestionView (QuestionView * qv);
 
     DECLARE_DYNAMIC_CLASS(MyQScriptCanvas)
     DECLARE_EVENT_TABLE()
@@ -290,6 +311,32 @@ void MyQScriptCanvas::DrawSingleAnswerStubs (Question* & p_q, QuestionView * & p
 	}
 }
 
+void MyQScriptCanvas::DrawMultiAnswerStubs (Question* & p_q, QuestionView * & p_qv)
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	p_qv->cbVec_.clear();
+	vector<stub_info> & stub_info_vec = * p_q->vec_stub_ptr;
+	p_qv->stubSizer_ = new wxBoxSizer (wxVERTICAL);
+	for (int i=0; i < stub_info_vec.size(); ++i) {
+		wxBoxSizer * this_stub_sizer = new wxBoxSizer (wxHORIZONTAL);
+		wxCheckBox * cb = 0;
+		if (i == 0) {
+			cb = new wxCheckBox (this, wxID_ANY, wxString (stub_info_vec[i].name.c_str(), wxConvUTF8),
+				wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+		} else {
+			cb = new wxCheckBox (this, wxID_ANY, wxString (stub_info_vec[i].name.c_str(), wxConvUTF8)
+				);
+		}
+		cb->SetValue (false);
+		p_qv->cbVec_.push_back(cb);
+		MyImageCanvas * img_cnv = new MyImageCanvas (this, wxPoint(0,0), wxSize (100, 100), "artichokes.jpeg");
+		//wxImage * img = new wxImage (wxString("artichokes.jpeg", wxConvUTF8));
+		this_stub_sizer->Add(img_cnv);
+		this_stub_sizer -> Add (cb);
+		p_qv->stubSizer_->Add (this_stub_sizer);
+	}
+}
+
 void MyQScriptCanvas::DrawStubs (Question* & p_q, QuestionView * & p_qv)
 {
 	if (p_q->question_type == nq) {
@@ -297,7 +344,14 @@ void MyQScriptCanvas::DrawStubs (Question* & p_q, QuestionView * & p_qv)
 			DrawSingleAnswerStubs (p_q, p_qv);
 		} else {
 			cout << "Unhanled stub type" << endl;
+			DrawMultiAnswerStubs (p_q, p_qv);
 		}
+	} else if (p_q->question_type == rq) {
+		wxBoxSizer * this_stub_sizer = new wxBoxSizer (wxHORIZONTAL);
+		wxTextCtrl * txt_data_entry_line = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(500, 25));
+		this_stub_sizer -> Add (txt_data_entry_line);
+		p_qv->stubSizer_ = new wxBoxSizer (wxVERTICAL);
+		p_qv->stubSizer_->Add (this_stub_sizer);
 	} else {
 		cout << "Unhanled question type" << endl;
 	}
@@ -305,6 +359,7 @@ void MyQScriptCanvas::DrawStubs (Question* & p_q, QuestionView * & p_qv)
 
 void MyQScriptCanvas::DrawQuestions (vector<Question*> & p_question_vec)
 {
+	current_questions_vec = p_question_vec;
 	for (int i = 0; i < p_question_vec.size(); ++i) {
 		QuestionView * qv = new QuestionView();
 		qv->theQuestionText_ = new wxStaticText (this, -1, wxT("dummy"));
@@ -318,6 +373,9 @@ void MyQScriptCanvas::DrawQuestions (vector<Question*> & p_question_vec)
 		}
 		currentQuestionView_.push_back(qv);
 	}
+	wxButton *next = new wxButton(this, ID_NEXT_BUTTON, wxT("NexT") );
+	topsizer->Add (next);
+
 
 }
 
@@ -346,6 +404,7 @@ BEGIN_EVENT_TABLE(MyQScriptCanvas, wxScrolledWindow)
   //EVT_BUTTON( ID_DELBUTTON,   MyCanvas::OnDeleteButton)
   //EVT_BUTTON( ID_MOVEBUTTON,  MyCanvas::OnMoveButton)
   //EVT_BUTTON( ID_SCROLLWIN,   MyCanvas::OnScrollWin)
+	EVT_BUTTON(ID_NEXT_BUTTON,  MyQScriptCanvas::handleDataInput)
 END_EVENT_TABLE()
 
 
@@ -461,4 +520,54 @@ void MyQScriptFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
                  _T("About wxWidgets minimal sample"),
                  wxOK | wxICON_INFORMATION,
                  this);
+}
+
+string  MyQScriptCanvas::GetSingleAnswersFromQuestionView (QuestionView * qv)
+{
+	stringstream r_val;
+	for (int i = 0; i < qv->rbVec_.size(); ++i) {
+		wxRadioButton * rb = qv->rbVec_[i];
+		if (rb->GetValue()) {
+			cout << "index: " << i << " is selected";
+			r_val << i ;
+			break;
+		}
+	}
+	return r_val.str();
+}
+
+string MyQScriptCanvas::GetMultiAnswersFromQuestionView (QuestionView * qv)
+{
+	stringstream r_val;
+	for (int i = 0; i < qv->cbVec_.size(); ++i) {
+		wxCheckBox * cb = qv->cbVec_[i];
+		if (cb->GetValue()) {
+			cout << "index: " << i << " is selected";
+			r_val << " " << i ;
+		}
+	}
+	return r_val.str();
+}
+
+
+void MyQScriptCanvas::handleDataInput(wxCommandEvent& WXUNUSED(event))
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	for (int i = 0; i < current_questions_vec.size(); ++i) {
+		Question * q = current_questions_vec[i];
+		QuestionView * qv = currentQuestionView_[i];
+		string answers;
+		if (q->question_type == nq) {
+			if (q->no_mpn == 1) {
+				cout << "single answer named stub question " << endl;
+				answers = GetSingleAnswersFromQuestionView (qv);
+			} else {
+				cout << "multi answer nq question" << endl;
+				answers = GetMultiAnswersFromQuestionView (qv);
+			}
+		} else {
+			cout << "unhandled rq question" << endl;
+		}
+		cout << "answers: " << answers << endl;
+	}
 }
