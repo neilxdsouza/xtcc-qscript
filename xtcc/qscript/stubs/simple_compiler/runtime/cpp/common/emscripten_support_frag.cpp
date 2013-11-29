@@ -1,4 +1,5 @@
 #include "question_logic.h"
+#include "json.h"
 /* ============= new_logic_support_frag event driven - emscripten =========*/
 struct TheQuestionnaire * make_questionnaire ()
 {
@@ -97,6 +98,10 @@ void callback_ui_input (UserInput p_user_input,
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserListenedToAudio) {
+		vector <string> err_mesg_vec;
+		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
+		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
 		vector <string> err_mesg_vec;
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
@@ -250,6 +255,10 @@ void question_eval_loop2 (
 				// do nothing
 				// once we exit this major block == last_question_visited
 				// the bottom of this function will handle it
+		} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
+				// do nothing
+				// once we exit this major block == last_question_visited
+				// the bottom of this function will handle it
 		} else {
 			cout << "Unhandled case userNavigation_ ... exiting" << endl;
 			exit(1);
@@ -324,7 +333,7 @@ void callback_return_serial (int serial_no, char * survey_data)
 	callback_get_ser_no_from_ui (serial_no, 1, survey_data);
 }
 
-void called_from_the_dom (char * data)
+void called_from_the_dom (char * data, char * other_specify_data)
 {
 	//current_question_errors (ptr);
 	//emscripten_pause_main_loop();
@@ -336,6 +345,17 @@ void called_from_the_dom (char * data)
 	//my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
+	string str_other_specify_data(other_specify_data);
+	if (str_other_specify_data.length() > 0) {
+		json_value * the_json_object = json_parse (str_other_specify_data.c_str(), str_other_specify_data.length());
+		if ( AbstractQuestionnaire::qnre_ptr->last_question_visited.size() == 1) {
+			NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (AbstractQuestionnaire::qnre_ptr->last_question_visited[0]);
+			if (nq) {
+				nq->nr_ptr->stubs[6].stub_text = "New Other Specify Brand 1";
+				nq->nr_ptr->stubs[7].stub_text = "New Other Specify Brand 2";
+			}
+		}
+	}
 #if 0
 	//printf ("data: %s\n", data);
 	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
@@ -427,6 +447,8 @@ void called_from_the_dom (char * data)
 			user_input.theUserResponse_ = user_response::UserViewedImage;
 		} else if (q->q_type == audio) {
 			user_input.theUserResponse_ = user_response::UserListenedToAudio;
+		} else if (q->q_type == video_capture || q->q_type == audio_capture || q->q_type == image_capture) {
+			user_input.theUserResponse_ = user_response::UserCapturedTime;
 		} else {
 
 			if (question_data_vec[i].length() > 0) {
