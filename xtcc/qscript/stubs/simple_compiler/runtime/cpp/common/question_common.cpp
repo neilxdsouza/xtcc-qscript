@@ -17,6 +17,7 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
+	, string l_page_name
 	)
 	: //AbstractStatement(l_type, l_no),
 	  questionName_(l_name)
@@ -33,6 +34,8 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
 	, questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
+	, pageName_ (l_page_name)  
+	, array_q_ptr_(0), index_in_array_question(-1)
 	//, baseQuestionNoIndexForArray_ (0)
 {
 	cout << __PRETTY_FUNCTION__ << ", : questionName_" << questionName_
@@ -94,7 +97,7 @@ DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bou
 			//, string(l_qno + "_dummy")
 			, vector<TextExpression*>()
 			, spn, 0
-			, INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
+			, INT32_TYPE, QuestionAttributes(true, true), false, string("") /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
 {
 	++AbstractRuntimeQuestion::nQuestions_;

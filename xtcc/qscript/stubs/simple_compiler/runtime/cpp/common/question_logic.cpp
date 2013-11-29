@@ -120,6 +120,7 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 								<< "Did not Get valid data for : "
 								<< " asking for input again (calling GetUserInput): "
 								<< q->questionName_ << endl;
+							err_mesg_vec.push_back (err_mesg);
 							//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 							all_questions_success = false;
 						}
@@ -133,7 +134,11 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			q_vec[i] -> isAnswered_ = true;
 		}
-		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+		//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
+		for (int i = 0 ; i < q_vec.size(); ++ i) {
+			q_vec[i] -> isAnswered_ = true;
+		}
 	}
 	cout << "EXIT:" << __PRETTY_FUNCTION__
 		<< " all_questions_success:"

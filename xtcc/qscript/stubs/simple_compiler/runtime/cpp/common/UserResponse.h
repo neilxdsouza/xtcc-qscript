@@ -10,7 +10,8 @@ enum UserResponseType {
 	UserClearedData,
 	UserSavedData,
 	UserViewedVideo,
-	UserViewedImage
+	UserViewedImage,
+	UserCapturedTime
 };
 
 }

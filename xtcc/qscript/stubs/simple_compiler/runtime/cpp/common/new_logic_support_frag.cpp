@@ -54,8 +54,9 @@ void parse_input_data(vector<int> * data_ptr, int & success);
 //		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 void callback_ui_input (UserInput p_user_input,
-		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level)
+		vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level,
+		vector <string> & err_mesg_vec)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	// this will be called by the UI - it is the UI's responsibility to
@@ -69,6 +70,7 @@ void callback_ui_input (UserInput p_user_input,
 	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
 		vector <string> err_mesg_vec;
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
+		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		//eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
 		vector <string> err_mesg_vec;
@@ -106,7 +108,7 @@ void callback_ui_input (UserInput p_user_input,
 
 void question_eval_loop2 (
 	UserInput p_user_input,
-	const vector<AbstractRuntimeQuestion *> & last_question_visited,
+	vector<AbstractRuntimeQuestion *> & last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << endl << "Enter: " << __PRETTY_FUNCTION__
@@ -212,16 +214,18 @@ void question_eval_loop2 (
 	} // else {
 	// should reach here - end of :
 		//vector<AbstractRuntimeQuestion *> q_vec =
+		string dummy_group_name2;
 		EvalReturnValue eval_ret_val =
 			theQuestionnaire->eval2 (
-				NAVIGATE_NEXT, last_question_visited, jump_to_question);
+				NAVIGATE_NEXT, last_question_visited, jump_to_question,
+				dummy_group_name2);
 		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
 		if (q_vec.size() == 0) {
 			cout << "End of qnre();" << endl << ">";
 		} else {
 			cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return first q in vec = "
 				<< q_vec[0]->questionName_ << endl;
-			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1);
+			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1, eval_ret_val.errMessageVec_);
 		}
 	//}
 }

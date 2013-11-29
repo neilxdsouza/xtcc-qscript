@@ -210,6 +210,7 @@ struct AbstractQuestion: public AbstractStatement
 };
 #endif /* 0 */
 
+struct ArrayQuestion;
 struct AbstractRuntimeQuestion
 {
 	string questionName_;
@@ -237,6 +238,11 @@ struct AbstractRuntimeQuestion
 	int questionNoIndex_;
 	//int baseQuestionNoIndexForArray_;
 	static int32_t nQuestions_;
+	string pageName_;
+	ArrayQuestion * array_q_ptr_;
+	int index_in_array_question;
+
+
 	//! this is only called in the compile time environment
 #if 0
 	AbstractRuntimeQuestion(
@@ -255,6 +261,7 @@ struct AbstractRuntimeQuestion
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 #if 0
@@ -277,6 +284,7 @@ struct AbstractRuntimeQuestion
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 	virtual ~AbstractRuntimeQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
@@ -338,11 +346,11 @@ struct AbstractRuntimeQuestion
 	//virtual Wt::WString PrintSelectedAnswers(int code_index)=0;
 	virtual string PrintSelectedAnswers()=0;
 	virtual string PrintSelectedAnswers(int code_index)=0;
+	void setQuestionIndexNo (int & p_q_no_index);
 
 	bool check_and_store_input_data_single_question
 		(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
 		 vector <int> & data);
-	void setQuestionIndexNo (int & p_q_no_index);
 	private:
 		AbstractRuntimeQuestion& operator=(const AbstractRuntimeQuestion&);
 		AbstractRuntimeQuestion (const AbstractRuntimeQuestion&);
@@ -382,6 +390,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, DataType l_dt, XtccSet& l_r_data
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 
@@ -407,6 +416,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 	//void GenerateCode(StatementCompiledCode &code);
@@ -511,6 +521,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number
@@ -519,6 +530,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, DataType l_dt, named_range * l_nr_ptr
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
@@ -530,6 +542,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		);
 
 	//void GenerateCode(StatementCompiledCode &code);
@@ -603,6 +616,7 @@ public:
 			//, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes
 			, bool l_isStartOfBlock
+			, string l_page_name
 			, const string& path_to_media);
 
 	virtual bool IsValid(int32_t value)

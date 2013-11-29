@@ -44,11 +44,22 @@ public:
 
 };
 
+struct QuestionView
+{
+	wxBoxSizer * check_box_sizer;
+	wxBoxSizer * radio_box_sizer;
+	wxBoxSizer *media_panel_sizer_ ;
+	wxCheckListBox * m_pListBox;
+	wxListBox * m_rListBox;
+	wxStaticText *the_question ;
+
+};
+
 struct wxQuestionnaireGUI : public wxFrame
 {
 public:
 	wxQuestionnaireGUI(const wxString& title);
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+	void (*callback_ui_input) (UserInput p_user_input, vector <AbstractRuntimeQuestion *> & q_vec, struct TheQuestionnaire * theQuestionnaire, int nest_level, vector<string> & err_mesg_vec);
 	int (*return_ser_no) (int, struct TheQuestionnaire *);
 	wxTextCtrl *txt_ctrl_ser_no;
 	wxBoxSizer *serial_row_sizer;
@@ -66,18 +77,19 @@ public:
 	// warning - need to delete this
 	wxMediaCtrl * mediactrl_;
 
-	AbstractRuntimeQuestion * last_question_visited;
+	vector <AbstractRuntimeQuestion *> last_question_visited;
 	AbstractRuntimeQuestion * jump_to_question;
+	vector <QuestionView*> 
 
 	void get_serial_no (wxCommandEvent& event);
 	struct TheQuestionnaire * theQuestionnaire_;
-	void ConstructQuestionForm( AbstractRuntimeQuestion *q );
+	void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec);
 	void DisplayQuestionTextView (const vector <string> & qno_and_qtxt);
 
 	void PrepareSingleCodedStubDisplay (NamedStubQuestion * nq);
 	void PrepareMultiCodedStubDisplay (NamedStubQuestion * nq);
 	void DisplayStubs (AbstractRuntimeQuestion * q);
-	void DisplayVideo (AbstractRuntimeQuestion * q);
+	void DisplayVideo (const AbstractRuntimeQuestion * q);
 
 	void OnSingleAnswerToggle(wxCommandEvent& event);
 
@@ -131,7 +143,9 @@ public:
 	void OnMediaLoaded(wxMediaEvent& WXUNUSED(evt));
 
 	void set_callback_ui_input (
-			void (*p_callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+			void (*p_callback_ui_input)
+				(UserInput p_user_input, vector <AbstractRuntimeQuestion *> & q_vec,
+				 struct TheQuestionnaire * theQuestionnaire, int nest_level, vector<string> & err_mesg_vec)
 			);
 
 private:
@@ -179,8 +193,9 @@ void wxQuestionnaireGUI::handleCBDataInput (int nest_level)
 		s1 << " " << (*it);
 	}
 	user_input.theUserResponse_ = user_response::UserEnteredData;
-	user_input.questionResponseData_ = s1.str();
-	AbstractRuntimeQuestion * q = last_question_visited;
+	//user_input.questionResponseData_ = s1.str();
+	user_input.questionResponseDataVec_.push_back(s1.str());
+	AbstractRuntimeQuestion * q = last_question_visited[0];
 	string err_mesg;
 	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 	if (valid_input) {
@@ -192,13 +207,15 @@ void wxQuestionnaireGUI::handleCBDataInput (int nest_level)
 			// this call will return really fast
 			//  (if you consider io fast)
 			//  but what I mean is we wont add much to the call stack
-			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
+			vector <string> err_mesg_vec;
+			callback_ui_input (user_input, last_question_visited, theQuestionnaire_, nest_level + 1, err_mesg_vec);
 			//GetUserInput (callback_ui_input, q, theQuestionnaire);
 			cout << "callback_ui_input has returned after UserSavedData" << endl;
 		} else {
+			vector <string> err_mesg_vec;
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
+			callback_ui_input (user_input, last_question_visited, theQuestionnaire_, nest_level + 1, err_mesg_vec);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}
@@ -221,8 +238,9 @@ void wxQuestionnaireGUI::handleRBDataInput (int nest_level)
 	stringstream s1;
 	s1 << rbData_;
 	user_input.theUserResponse_ = user_response::UserEnteredData;
-	user_input.questionResponseData_ = s1.str();
-	AbstractRuntimeQuestion * q = last_question_visited;
+	//user_input.questionResponseData_ = s1.str();
+	user_input.questionResponseDataVec_.push_back (s1.str());
+	AbstractRuntimeQuestion * q = last_question_visited[0];
 	string err_mesg;
 	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 	if (valid_input) {
@@ -234,13 +252,15 @@ void wxQuestionnaireGUI::handleRBDataInput (int nest_level)
 			// this call will return really fast
 			//  (if you consider io fast)
 			//  but what I mean is we wont add much to the call stack
-			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
+			vector <string> err_mesg_vec;
+			callback_ui_input (user_input, last_question_visited, theQuestionnaire_, nest_level + 1, err_mesg_vec);
 			//GetUserInput (callback_ui_input, q, theQuestionnaire);
 			cout << "callback_ui_input has returned after UserSavedData" << endl;
 		} else {
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
+			vector <string> err_mesg_vec;
+			callback_ui_input (user_input, last_question_visited, theQuestionnaire_, nest_level + 1, err_mesg_vec);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}
@@ -260,7 +280,9 @@ void wxQuestionnaireGUI::handlePrevNavigation(wxCommandEvent& WXUNUSED(event))
 	UserInput user_input;
 	user_input.userNavigation_ = NAVIGATE_PREVIOUS;
 	user_input.theUserResponse_ = user_response::UserEnteredNavigation;
-	callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1);
+
+	vector <string> err_mesg_vec;
+	callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1, err_mesg_vec);
 	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
@@ -270,19 +292,20 @@ void wxQuestionnaireGUI::handleSave(wxCommandEvent& WXUNUSED(event))
 	UserInput user_input;
 	user_input.userNavigation_ = SAVE_DATA;
 	user_input.theUserResponse_ = user_response::UserSavedData;
-	callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1);
+	vector <string> err_mesg_vec;
+	callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1, err_mesg_vec);
 	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 {
-	cout << "Enter: " << __PRETTY_FUNCTION__
-		<< ", last_question_visited: " << last_question_visited
-		<< endl;
+	//cout << "Enter: " << __PRETTY_FUNCTION__
+	//	<< ", last_question_visited: " << last_question_visited
+	//	<< endl;
 
-	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
+	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited[0]))
 	{
-		AbstractRuntimeQuestion * last_question_served = last_question_visited;
+		AbstractRuntimeQuestion * last_question_served = last_question_visited[0];
 		vector<int32_t> data;
 		bool isAnswered = false;
 		cout << "returned back data from question: " << nq->questionName_ << endl;
@@ -332,8 +355,8 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 		} else {
 			handleCBDataInput(1);
 		}
-	} else if (VideoQuestion * vq = dynamic_cast<VideoQuestion *>(last_question_visited)) {
-		AbstractRuntimeQuestion * last_question_served = last_question_visited;
+	} else if (VideoQuestion * vq = dynamic_cast<VideoQuestion *>(last_question_visited[0])) {
+		AbstractRuntimeQuestion * last_question_served = last_question_visited[0];
 		cout << __PRETTY_FUNCTION__ << "doing nothing : case VideoQuestion" << endl;
 		UserInput user_input;
 		user_input.theUserResponse_ = user_response::UserViewedVideo;
@@ -342,10 +365,11 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 			<< " to ensure user saw at least 30 secs of video etc" << endl
 			<< endl;
 		// we dont call verify - maybe later -
-		callback_ui_input (user_input, last_question_served, theQuestionnaire_,  1);
-	} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(last_question_visited) ) {
+		vector <string> err_mesg_vec;
+		callback_ui_input (user_input, last_question_visited, theQuestionnaire_,  1, err_mesg_vec);
+	} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(last_question_visited[0]) ) {
 		cout << __PRETTY_FUNCTION__ << "Case RangeQuestion: " << endl;
-		AbstractRuntimeQuestion * q = last_question_visited;
+		AbstractRuntimeQuestion * q = last_question_visited[0];
 		string current_response ((txt_data_entry_line->GetValue()).utf8_str()  );
 		cout << current_response << endl;
 		if (current_response.size() > 0) {
@@ -363,7 +387,8 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 				//user_input.userNavigation_ = NAVIGATE_NEXT;
 				//user_input.theUserResponse_ = user_response::UserEnteredNavigation;
 				user_input.theUserResponse_ = user_response::UserEnteredData;
-				user_input.questionResponseData_ = current_response;
+				//user_input.questionResponseData_ = current_response;
+				user_input.questionResponseDataVec_.push_back (current_response);
 #if 0
 			} else if (current_response[0] == 'S') {
 				user_input.userNavigation_ = SAVE_DATA;
@@ -414,13 +439,15 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 					// this call will return really fast
 					//  (if you consider io fast)
 					//  but what I mean is we wont add much to the call stack
-					callback_ui_input (user_input, q, theQuestionnaire_, 1);
+					vector <string> err_mesg_vec;
+					callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1, err_mesg_vec);
 					//GetUserInput (callback_ui_input, q, theQuestionnaire);
 					cout << "callback_ui_input has returned after UserSavedData" << endl;
 				} else {
 					cout << "reached here: "
 						<< __PRETTY_FUNCTION__ << endl;
-					callback_ui_input (user_input, q, theQuestionnaire_, 1);
+					vector <string> err_mesg_vec;
+					callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1, err_mesg_vec);
 					cout << "callback_ui_input has returned"
 						<< __PRETTY_FUNCTION__ << endl;
 				}
@@ -457,14 +484,14 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 		}
 
 	}
-	cout << "Exit: " << __PRETTY_FUNCTION__
-		<< ", last_question_visited: " << last_question_visited
-		<< endl;
-	if (last_question_visited) {
-		cout << "last_question_visited is not null, it is: "
-			<< last_question_visited->questionName_
-			<< endl;
-	}
+	//cout << "Exit: " << __PRETTY_FUNCTION__
+	//	<< ", last_question_visited: " << last_question_visited
+	//	<< endl;
+	//if (last_question_visited) {
+	//	cout << "last_question_visited is not null, it is: "
+	//		<< last_question_visited->questionName_
+	//		<< endl;
+	//}
 	cout << endl;
 }
 
@@ -641,7 +668,8 @@ void GetUserInput (
 			cout << "Got SAVE_DATA from user" << endl;
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
-			user_input.questionResponseData_ = current_response;
+			//user_input.questionResponseData_ = current_response;
+			user_input.questionResponseDataVec_.push_back (current_response);
 		}
 
 		cout << "reached here" << endl;
@@ -725,7 +753,7 @@ void GetUserInput (
 }
 
 
-vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
+vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 {
 	using std::string;
 	using std::stringstream;
@@ -825,20 +853,22 @@ void PrepareStubs (AbstractRuntimeQuestion *q)
 
 }
 
+
+#if 1
 void DisplayStubs (AbstractRuntimeQuestion *q)
 {
 	string marker_start ("------------------------------- STUBS ------------------------------------");
 	string marker_end   ("----------------------------- STUBS END ----------------------------------");
 	cout << marker_start << endl;
-	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q) ) {
+	if (const NamedStubQuestion * nq = dynamic_cast<const NamedStubQuestion*> (q) ) {
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		for (int i=0; i<vec.size(); ++i) {
 			cout 	<< vec[i].code << " : " << vec[i].stub_text
 				<< endl;
 		}
-	} else if (RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q) ) {
-		rq->MakeDisplaySummaryDataRanges();
-		for(	vector<display_data::DisplayDataUnit>::iterator it = rq->displayData_.begin();
+	} else if (const RangeQuestion * rq = dynamic_cast<const RangeQuestion*> (q) ) {
+		//rq->MakeDisplaySummaryDataRanges();
+		for(	vector<display_data::DisplayDataUnit>::const_iterator it = rq->displayData_.begin();
 				it != rq->displayData_.end(); ++it) {
 			//cout << *it << endl;
 			if ( (*it).displayDataType_ == display_data::single_element) {
@@ -854,6 +884,7 @@ void DisplayStubs (AbstractRuntimeQuestion *q)
 	}
 	cout << marker_end << endl;
 }
+#endif /*  0 */
 
 
 void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
@@ -873,10 +904,14 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 
 
 
-void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level), int nest_level)
+void stdout_eval (vector <AbstractRuntimeQuestion *> & q_vec, struct TheQuestionnaire * theQuestionnaire,
+	void (*callback_ui_input) 
+		(UserInput p_user_input, vector <AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level, vector<string> & err_mesg_vec),
+	int nest_level,
+	vector<string> & p_error_messages_vec)
 {
+	AbstractRuntimeQuestion * q = q_vec[0];
 	if (q) {
 		cout << __PRETTY_FUNCTION__
 			<< ": nest_level: " << nest_level
@@ -897,7 +932,7 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 		//		//, gtkQuestionnaireApplication->this_users_session
 		//		);
 
-		wxGUI->ConstructQuestionForm( q );
+		wxGUI->ConstructQuestionForm( q_vec, p_error_messages_vec );
 		//GetUserInput (callback_ui_input, q, theQuestionnaire);
 		//
 	} else {
@@ -906,35 +941,38 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	}
 }
 
-void wxQuestionnaireGUI::ConstructQuestionForm( AbstractRuntimeQuestion *q )
+void wxQuestionnaireGUI::ConstructQuestionForm(const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
 
-	vector <string> question_text_vec = PrepareQuestionText (q);
-	//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
-	DisplayQuestionTextView (question_text_vec);
-	// Hack to Display Radio Buttons
-	if (q->q_type == spn || q->q_type == mpn) {
-		DisplayStubs (q);
-	} else if (q->q_type == video) {
-		DisplayVideo (q);
-		//panel_sizer->Hide (end_of_qnre_sizer);
-		//panel_sizer->Hide (fgs);
-		//panel_sizer->Show (media_panel_);
-		panel_sizer->Layout();
+	for (int32_t i=0; i < q_vec.size(); ++i ) {
+		AbstractRuntimeQuestion * q = q_vec[i];
+		vector <string> question_text_vec = PrepareQuestionText (q);
+		//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
+		DisplayQuestionTextView (question_text_vec);
+		// Hack to Display Radio Buttons
+		if (q->q_type == spn || q->q_type == mpn) {
+			DisplayStubs (q);
+		} else if (q->q_type == video) {
+			DisplayVideo (q);
+			//panel_sizer->Hide (end_of_qnre_sizer);
+			//panel_sizer->Hide (fgs);
+			//panel_sizer->Show (media_panel_);
+			panel_sizer->Layout();
+		}
+		last_question_visited .push_back( q);
 	}
-	last_question_visited = q;
 
 }
 
 
-void wxQuestionnaireGUI::DisplayVideo (AbstractRuntimeQuestion * q)
+void wxQuestionnaireGUI::DisplayVideo (const AbstractRuntimeQuestion * q)
 {
 	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	rbQnreCodeMap_.clear();
 	rbQnreReverseCodeMap_.clear();
 	ClearStubsArea();
 	data_entry_and_navg_sizer->Hide(data_entry_line_sizer);
-	VideoQuestion * vq = dynamic_cast <VideoQuestion*> (q);
+	const VideoQuestion * vq = dynamic_cast <const VideoQuestion*> (q);
 	if (vq) {
 		cout << " is a VideoQuestion" << endl;
 #if 0
@@ -1004,6 +1042,7 @@ void wxQuestionnaireGUI::DisplayQuestionTextView (const vector <string> & qno_an
 	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 }
 
+#if 1
 void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
@@ -1024,6 +1063,7 @@ void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
 		ClearStubsArea();
 	}
 }
+#endif /*  0 */
 
 void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 {
@@ -1348,7 +1388,9 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 
 
 void wxQuestionnaireGUI::set_callback_ui_input (
-			void (*p_callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+			void (*p_callback_ui_input) 
+				(UserInput p_user_input, vector <AbstractRuntimeQuestion *> & q_vec,
+				 struct TheQuestionnaire * theQuestionnaire, int nest_level, vector<string> & err_mesg_vec)
 			)
 {
 	callback_ui_input = p_callback_ui_input;

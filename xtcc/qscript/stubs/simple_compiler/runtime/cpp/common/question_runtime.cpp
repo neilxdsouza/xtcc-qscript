@@ -24,10 +24,11 @@ RangeQuestion::RangeQuestion(
 	, DataType l_dt , XtccSet& l_r_data
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
+	, string l_page_name
 	)
 	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
-			   , l_isStartOfBlock)
+			   , l_isStartOfBlock, l_page_name)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 {
 	maxCode_ = r_data->GetMax();
@@ -66,10 +67,11 @@ RangeQuestion::RangeQuestion(
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
+	, string l_page_name
 	):
 	AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
-		, l_question_attributes, l_isStartOfBlock
+		, l_question_attributes, l_isStartOfBlock, l_page_name
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 {
@@ -89,6 +91,7 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
+	, string l_page_name
 	)
 	: //AbstractStatement(l_type, l_no),
 	  questionName_(l_name)
@@ -104,8 +107,10 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, mutexCodeList_()
 	, maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
-	, questionNoIndex_(0)
+	, questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
+	, pageName_ (l_page_name) 
 	//, baseQuestionNoIndexForArray_ (1)
+	, array_q_ptr_(0), index_in_array_question(-1)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -148,9 +153,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
+	, string l_page_name
 	):
 	AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
-		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock,
+		l_page_name
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
@@ -488,10 +495,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, DataType l_dt, named_range * l_nr_ptr
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
+	, string l_page_name
 	):
 	AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes
-			 , l_isStartOfBlock)
+			 , l_isStartOfBlock, l_page_name)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 {
@@ -791,11 +799,12 @@ VideoQuestion::VideoQuestion(
 		, QuestionType l_q_type
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
+		, string l_page_name
 		, const string& path_to_media)
 	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			 , l_q_type, 1, INT32_TYPE
 			 , l_question_attributes
-			 , l_isStartOfBlock),
+			 , l_isStartOfBlock, l_page_name),
 		file_path (path_to_media)
 {
 
