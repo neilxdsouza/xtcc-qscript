@@ -92,16 +92,22 @@ void named_range::Serialize(Writer& writer) const
 }
 #endif
 
-void named_range::toString (stringstream & s) const
+std::string named_range::toString ()
 {
+	char buffer[100000];
+	char * ptr = buffer;
+	std::stringstream s;
 	using std::endl;
 	s << "{" << endl;
 	s << "\"name\"" << ":" << "\""<< name << "\"" << ",";
 	s << "\"stubs\" : ";
-	//s << "\""<< name << "\"" << ":" << endl;
 	s << "[" << endl;
+	int n = sprintf (ptr, "{"); ptr += n;
+	n += sprintf (ptr, "\"name\":\"%s\",", name.c_str());
+	n += sprintf (ptr, "\"stubs\" : ");
+	n += sprintf (ptr, "[");
 	int i = 0;
-	for (std::vector<stub_pair>::const_iterator stub_pair_itr = stubs.begin();
+	for (std::vector<stub_pair>::iterator stub_pair_itr = stubs.begin();
 			stub_pair_itr != stubs.end(); ++ stub_pair_itr, ++i
 		) {
 		if (i==0) {
@@ -109,8 +115,14 @@ void named_range::toString (stringstream & s) const
 		} else {
 			s << ",";
 		}
-		stub_pair_itr->toString(s);
+		//stub_pair_itr->toString(s);
+		s << stub_pair_itr->toString();
 	}
 	s << "]" << endl;
 	s << "}" << endl;
+	return s.str();
+	//char buffer[10000];
+	//printf (buffer, "{\n" );
+	//printf (buffer, "\"name\":\" %s"<< name << "\"" << ",", name.c_str());
+	//printf (buffer, "\"stubs\" : ";
 }

@@ -428,7 +428,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
-	//my_log_from_cpp ("Entered ConstructQuestionForm");
+	my_log_from_cpp ("Entered ConstructQuestionForm");
 	stringstream question_json_string;
 	stringstream question_json_string2;
 	question_json_string << "[" << endl;
@@ -537,10 +537,12 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		string question_type;
 		if (const NamedStubQuestion * nq = dynamic_cast <const NamedStubQuestion*> (q)) {
 			//nq->nr_ptr->Serialize (writer);
-			nq->nr_ptr->toString(s);
+			//nq->nr_ptr->toString(s);
+			//s << nq->nr_ptr->toString();
 			//std::string str = s.GetString();
 			//cout << s.str() << endl;
 			//printf ("stubs : %s\n", s.str().c_str() );
+			my_log_from_cpp ( (nq->nr_ptr->toString()).c_str()); 
 			question_type = "nq";
 			question_json_string
 				<< " \"nq\"" << endl
@@ -550,7 +552,9 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 				if (output_comma) {
 					stub_json_string << ", ";
 				}
-				stub_json_string << s.str() << endl;
+				//stub_json_string << s.str() << endl;
+				//s << nq->nr_ptr->toString();
+				stub_json_string << nq->nr_ptr->toString() << endl;
 				stub_name_set.insert (nq->nr_ptr->name);
 				output_comma = true;
 			}
@@ -613,6 +617,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	err_json_string << "]" << endl;
 
 	//printf ("before call to create_question_form\n");
+	my_log_from_cpp ("before call to create_question_form");
 	create_question_form (question_json_string.str().c_str(),
 				stub_json_string.str().c_str(),
 				err_json_string.str().c_str(),

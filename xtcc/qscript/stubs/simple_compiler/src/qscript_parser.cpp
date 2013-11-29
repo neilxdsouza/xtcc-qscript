@@ -1803,6 +1803,8 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/utils_common.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/xtcc_set.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_stdout_runtime.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/json.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/stub_pair.o "
 		+ intermediate_obj_file_name + string(" ")
 		;
 	cout << "cpp_compile_command: " << emscripten_cc_cmd << endl;

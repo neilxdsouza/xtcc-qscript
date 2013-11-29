@@ -48,19 +48,17 @@ function onDeviceReady() {
 	// allow to click on start only after initializing all the things we need
 	var return_serial_no_button = document.getElementById("btn_return_serial_no");
 	return_serial_no_button.disabled = false;
-	//my_log("ready to start interview");
-	// var our_path = "qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat";
-	// fileGetDir (our_path, printSuccess);
-	//
-	//
-	//
-	//
-	//
-	//if(fnVerifyCurrentUserInLocalStorage())
-	//{
-	//	//$.mobile.changePage( "#pageSurveys", { transition: "slideup"});
-	//	showSurveys();
-	//}
+
+	///////////////////////////////////////////////////////////////////////////////////
+	var user_id = window.localStorage.getItem('userid');
+
+	// extracting project id from link, disable line bewlo to use old JOB_NAME
+	global_survey_related_info.job_name = window.location.href.split("/survey/")[1].split("/www")[0];
+	var project_id = global_survey_related_info.job_name;
+
+	global_survey_related_info.our_dir_path = "qscript/" + global_survey_related_info.device.uuid + "/" + project_id +  "/" + user_id;
+	global_survey_related_info.our_dir_fullPath = global_survey_related_info.fileSystemObject.root.fullPath + "/" + global_survey_related_info.our_dir_path;
+	global_survey_related_info.our_file_name = project_id + "_" + user_id + "_";
 	//my_log ("Exit onDeviceReady");
 	return true;
 }

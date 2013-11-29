@@ -56,7 +56,8 @@ struct	stub_pair
 	}
 	*/
 
-	void toString(std::stringstream & s) const
+#if 0
+	void toString(std::stringstream & s)
 	{
 	using std::endl;
 		s 	<< "{"
@@ -70,6 +71,8 @@ struct	stub_pair
 			<< "}"
 			<< endl;
 	}
+#endif /*  0  */
+	string toString();
 
 };
 

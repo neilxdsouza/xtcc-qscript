@@ -13,7 +13,8 @@ SRC= $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
 	$(SOURCE_DIR)/QuestionAttributes.cpp \
      $(SOURCE_DIR)/question_common.cpp $(SOURCE_DIR)/question_logic.cpp $(SOURCE_DIR)/question_runtime.cpp \
      $(SOURCE_DIR)/read_disk_data.cpp $(SOURCE_DIR)/scan_data.cpp \
-     $(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/question_stdout_runtime.cpp
+     $(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/question_stdout_runtime.cpp \
+     $(SOURCE_DIR)/json.c $(SOURCE_DIR)/stub_pair.cpp
      #$(SOURCE_DIR)/TempNameGenerator.cpp $(SOURCE_DIR)/AbstractStatement.cpp  $(SOURCE_DIR)/qscript_readline.cpp 
      #$(SOURCE_DIR)/qtm_datafile_conf.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp 
      #$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_data_file.cpp 
@@ -24,6 +25,7 @@ BUILD_DIR=emscript-build
 
 OBJS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(SRC))
 OBJS := $(OBJS:.cpp=.o)
+OBJS := $(OBJS:.c=.o)
 
 # uncomment this to see what is going on with the substitutes
 #dummy_show_target:
@@ -84,6 +86,9 @@ test_2.js: $(OBJS) test_2.o
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 	$(CC) -o $@ $(CFLAGS) $(OPT_FLAGS) -c $<
 
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
+	$(CC) -o $@ $(CFLAGS) $(OPT_FLAGS) -c $<
+
 #test_2.o: test_2.C
 #	$(CC) $(CFLAGS)  -c $<
 #
@@ -104,6 +109,12 @@ exe_clean:
 
 
 $(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
+	@set -e; rm -f $@; \
+		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
+		rm -f $@.$$$$
+
+$(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.c
 	@set -e; rm -f $@; \
 		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
 		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \

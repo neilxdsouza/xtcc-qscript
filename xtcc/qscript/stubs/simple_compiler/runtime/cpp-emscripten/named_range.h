@@ -49,7 +49,8 @@ struct named_range
 	named_range(named_range & nr);
 	//template <typename Writer>
 	//void Serialize(Writer& writer) const ;
-	void toString (std::stringstream & s) const;
+	//void toString (std::stringstream & s) ;
+	std::string toString () ;
 
 };
 

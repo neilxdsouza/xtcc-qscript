@@ -24,11 +24,14 @@ struct	stub_pair
 	
 	stub_pair()
 		: stub_text(""), code(-1), mask(false), is_mutex(false),
-		  url_image(), is_other_specify (false)
+		  is_other_specify (false),
+		  url_image()
 	{ }
 	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true),
-		  is_mutex(false), url_image()
+		  is_mutex(false),
+		  is_other_specify (false),
+		  url_image()
 	{ }
 	/* 
 	stub_pair(string l_txt, int32_t l_code, bool p_mutex)
@@ -40,6 +43,10 @@ struct	stub_pair
 		  is_mutex(p_mutex), url_image (p_image_url)
 	{ }
 	*/
+	stub_pair(string l_txt, int32_t l_code, bool p_mutex, bool p_other_specify, string p_image_url)
+		: stub_text(l_txt), code(l_code), mask(true),
+		  is_mutex(p_mutex), is_other_specify(p_other_specify), url_image (p_image_url)
+	{ }
 
 	stub_pair (string l_txt, int32_t l_code, const stub_pair_options & current_stub_pair_options);
 
