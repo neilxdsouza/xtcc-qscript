@@ -14,7 +14,8 @@ SRC= $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
      $(SOURCE_DIR)/question_common.cpp $(SOURCE_DIR)/question_logic.cpp $(SOURCE_DIR)/question_runtime.cpp \
      $(SOURCE_DIR)/read_disk_data.cpp $(SOURCE_DIR)/scan_data.cpp \
      $(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/question_stdout_runtime.cpp \
-     $(SOURCE_DIR)/json.c $(SOURCE_DIR)/stub_pair.cpp
+     $(SOURCE_DIR)/stub_pair.cpp
+	#$(SOURCE_DIR)/json.c 
      #$(SOURCE_DIR)/TempNameGenerator.cpp $(SOURCE_DIR)/AbstractStatement.cpp  $(SOURCE_DIR)/qscript_readline.cpp 
      #$(SOURCE_DIR)/qtm_datafile_conf.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp 
      #$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_data_file.cpp 

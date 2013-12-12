@@ -48,6 +48,7 @@ namespace program_options_ns {
 	int wx_flag = 0;
 	int gtk_flag = 0;
 	int emscripten_flag = 0;
+	int browser_only_flag = 0;
 	int data_export_flag = false;
 	string QSCRIPT_HOME;
 }
@@ -332,6 +333,7 @@ void process_options (int32_t argc, char* argv[])
 			{ "wx", no_argument, &program_options_ns::wx_flag, 1},
 			{ "gtk", no_argument, &program_options_ns::gtk_flag, 1},
 			{ "emscripten", no_argument, &program_options_ns::emscripten_flag, 1},
+			{ "browser-only", no_argument, &program_options_ns::browser_only_flag, 1},
 			{ "data-export", no_argument, &program_options_ns::data_export_flag, 1}
 		};
 	int option_index = 0;

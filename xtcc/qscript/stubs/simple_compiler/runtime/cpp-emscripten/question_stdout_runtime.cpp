@@ -428,7 +428,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
-	my_log_from_cpp ("Entered ConstructQuestionForm");
+	//my_log_from_cpp ("Entered ConstructQuestionForm");
 	stringstream question_json_string;
 	stringstream question_json_string2;
 	question_json_string << "[" << endl;
@@ -542,7 +542,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 			//std::string str = s.GetString();
 			//cout << s.str() << endl;
 			//printf ("stubs : %s\n", s.str().c_str() );
-			my_log_from_cpp ( (nq->nr_ptr->toString()).c_str()); 
+			//my_log_from_cpp ( (nq->nr_ptr->toString()).c_str()); 
 			question_type = "nq";
 			question_json_string
 				<< " \"nq\"" << endl
@@ -561,6 +561,16 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		} else if (const RangeQuestion * rq = dynamic_cast <const RangeQuestion*> (q)) {
 			question_type = "rq";
 			question_json_string << " \"rq\"";
+		} else if (q->q_type == image/*  const VideoQuestion * vq = dynamic_cast <const VideoQuestion*> (q)*/) {
+			const VideoQuestion * vq = dynamic_cast <const VideoQuestion*> (q);
+			question_type = "image_q";
+			question_json_string << " \"image_q\""
+				<<  ", \"media_url\": ";
+			if ( vq->file_path.length() == 0) {
+				question_json_string << " \"\"";
+			} else {
+				question_json_string << " \"" << vq->file_path << "\"";
+			}
 		} else if (const VideoQuestion * vq = dynamic_cast <const VideoQuestion*> (q)) {
 			question_type = "video_q";
 			question_json_string << " \"video_q\""
@@ -617,7 +627,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 	err_json_string << "]" << endl;
 
 	//printf ("before call to create_question_form\n");
-	my_log_from_cpp ("before call to create_question_form");
+	//my_log_from_cpp ("before call to create_question_form");
 	create_question_form (question_json_string.str().c_str(),
 				stub_json_string.str().c_str(),
 				err_json_string.str().c_str(),

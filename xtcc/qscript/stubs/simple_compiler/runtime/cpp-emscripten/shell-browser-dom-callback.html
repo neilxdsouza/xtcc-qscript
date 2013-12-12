@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+
+    <!-- local css styling {{{1 -->
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 90%; }
+      div.emscripten { text-align: center; }
+	div.emscripten_border {
+		border: 1px solid black;
+		display: none;
+	}
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; }
+	div.qscript_question {
+		display:none;
+	}
+	div.qscript-logger {
+		background: "#dedede";
+		border: "1px solid silver";
+		padding: "5px";
+		width: 85%;
+	}
+	div.thank_you {
+		display: none;
+		/*display: block;*/
+	}
+	qscript_hidden: {
+		display: none;
+	}
+	.center-wrapper {
+		text-align: center;
+	}
+	/* custom radio and checkbox style on cheked */
+	.ui-radio .ui-radio-on span {
+      background-color: #5E87B0 !important;
+      color: white;
+      font-weight: normal;
+    }
+    .ui-checkbox .ui-checkbox-on span {
+      background-color: #5E87B0 !important;
+      color: white;
+      font-weight: normal;
+    }
+    </style>
+    <!-- local css styling }}}1 -->
+
+	<link rel="stylesheet" href="js/jquery.mobile-1.3.2.css">
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<script type="text/javascript">
+		// big fat global variable
+	global_survey_related_info = { job_name: "JOB_NAME", current_language: "en", other_specify_stub_info: {}  };
+		/* ===== EventUtil and FormSerialization {{{1 =============== */
+		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
+		var EventUtil = {
+			addHandler: function (element, type, handler) {
+				if (element.addEventListener) {
+					element.addEventListener (type, handler, false);
+				} else if (element.attachEvent) {
+					element.attachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = handler;
+				}
+			},
+			getEvent: function (event) {
+				return event ? event : window.event;
+			},
+			getTarget: function (event) {
+				return event.target || event.srcElement;
+			},
+			preventDefault: function (event) {
+				if (event.preventDefault) {
+					event.preventDefault();
+				} else {
+					event.returnValue = false;
+				}
+			},
+			removeHandler: function (element, type, handler) {
+				if (element.removeEventListener) {
+					element.removeEventListener (type, handler, false);
+				} else if (element.detachEvent) {
+					element.detachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = null;
+				}
+			},
+			stopPropagation: function (event) {
+				if (event.stopPropagation) {
+					event.stopPropagation();
+				} else {
+					event.cancelBubble = true;
+				}
+			}
+		};
+		/* ============= }}}1 ==================*/
+	</script>
+
+	<!-- <script type="text/javascript" src="cordova-2.7.0.js"></script> -->
+                <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
+<script src="js/jquery-lang.js" charset="utf-8" type="text/javascript"></script>
+<script src="js/langpack/hi.js" charset="utf-8" type="text/javascript"></script>
+
+  </head>
+  <body>
+
+
+	<!--
+	<div id="question_display_area" class="qscript_question"  data-dojo-type="dojox/mobile/ScrollableView" data-dojo-props="selected: true">
+	<div id="question_display_area" >
+	-->
+	<div id="question_display_area" class="qscript_question"  data-role="page">
+
+		<div data-role="header">
+			<!--<span onClick="toggle_options_panel();" style="float: left; margin-top: 10px; margin-left: 20px;">
+				<i class="icon-reorder icon-large"></i>
+			</span>-->
+			<h1>QScript</h1>
+		</div>
+
+		<!--options panel ->
+		<div data-role="panel" id="options-panel">
+		<div id="options-menu">  
+			<header>  
+				<h1>Options</h1>  
+			</header>  
+
+			<ul> 
+				<li><a rel="external" href="#" class="navlink">Home</a></li>  
+				<li><a rel="external" href="#" class="navlink">About Us</a></li>  
+				<li><a rel="external" href="#" class="navlink">Advertise</a></li>  
+				<li><a rel="external" href="#" class="navlink">Write for Us</a></li>  
+				<li><a rel="external" href="#" class="navlink">Contacts</a></li>  
+				<li><a rel="external" href="#" class="navlink">Privacy Policy</a></li>  
+			</ul>  
+		</div> 
+		</div><!-- /panel -->
+
+		<div data-role="content">
+			<div id="langChanger" style="display:none;">
+				<!--
+				<a href="javascript:window.lang.change('en');">Switch to English</a> |
+				<a href="javascript:window.lang.change('hi');">Switch to Hindi</a>
+				-->
+
+				<input lang="en" type="button" value="Switch to Hindi"   id="btn_chg_lang_hi">
+				<input lang="en" type="button" value="Switch to English" id="btn_chg_lang_en">
+			</div>
+		
+	<div id="auth_section">
+
+		<div id="welcome_section" style="display:none;">
+			<div data-role="content">
+                <h1>Welcome to Qscript</h1>
+                <h2>Your data collection companion</h2>		        	
+
+                <div class="ui-grid-a" style="margin-top:50%;">
+					<div class="ui-block-a">
+						<input type="button" data-theme="b" value="Log In" onClick="goToLogin();" />
+					</div>
+					<div class="ui-block-b">
+						<input type="button" data-theme="b" value="Register" onClick="goToSignUp();" />
+					</div>
+				</div>
+            </div>
+		</div>
+
+		<div id="login_section" style="display:none;">
+			<!--<h1>Log In </h1>-->
+            <div data-role="content">
+                <!--<label for="txtname">Username:</label>-->
+                <input type="email" name="txtname" id="txtname" value="" placeholder="Email" />
+                <!--<label for="txtpassword">Password:</label>-->
+                <input type="password" name="txtpassword" id="txtpassword" value="" placeholder="Password" />
+                <br />
+                <input type="button" value="Log In" id="btnlogin" data-theme="b" />                
+            </div>
+		</div>
+
+		<div id="signup_section" style="display:none;">
+			<!--<h1>Register with Qscript</h1>-->
+            <div data-role="content">
+                <!--<label for="txtfullname">FUll Name:</label>
+                <input type="text" name="txtfullname" id="txtfullname" value="">
+                <label for="txtusername">User Name:</label>
+                <input type="text" name="txtusername" id="txtusername" value="">                
+                <label for="txtpassword">Password:</label>
+                <input type="password" name="txtpassword" id="txtpassword" value="">
+                <label for="txtconfirmpassword">Confirm Password:</label>
+                <input type="password" name="txtconfirmpassword" id="txtconfirmpassword" value="">                
+                <input type="button" value="Sign Up" id="btnSignUp" data-theme="b" data-inline="true">-->
+                <!--<label for="txtfullname">Full Name:</label>-->
+                <input type="text" name="txtfullname" id="txtfullname" value="" placeholder="Full Name" />
+                <!--<label for="txtusername">Username:</label>-->
+                <input type="email" name="txtusername" id="txtusername" value="" placeholder="Email" />                
+                <!--<label for="txtpwd">Password:</label>-->
+                <input type="password" name="txtpwd" id="txtpwd" value="" placeholder="Password" />
+                <!--<label for="txtconfirmpwd">Confirm Password:</label>-->
+                <input type="password" name="txtconfirmpwd" id="txtconfirmpwd" value="" placeholder="Confirm Password" />
+                <br />
+                <input type="button" value="Register" id="btnSignUp" data-theme="b" />
+                <div data-role="popup" id="divpopinfoSignUp" data-theme="e" data-overlay-theme="a" class="ui-content">
+                    <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                    <p>All the information goes in here</p>
+                </div>
+            </div>
+		</div>
+	</div>
+		<!-- delete this code once login functionality testing completes
+			<div id="login_section" style="margin-top: 20%;">
+				<form id="loginForm">
+			        <div data-role="fieldcontain" class="ui-hide-label">
+			            <label for="username">Email:</label>
+			            <input type="text" name="username" id="username" value="" placeholder="Email" />
+			        </div>
+
+			        <div data-role="fieldcontain" class="ui-hide-label">
+			            <label for="password">Password:</label>
+			            <input type="password" name="password" id="password" value="" placeholder="Password" />
+			        </div>			        
+		        </form>
+		        <input type="button" data-theme="b" value="Login" onClick="btnLogin();" />
+		        <input type="button" data-theme="b" value="Sign Up" onClick="btnSignup();" />
+		    </div>
+
+		    <div id="signup_section" style="margin-top: 20%; display:none">
+				<form id="singupForm">
+					<div data-role="fieldcontain" class="ui-hide-label">
+			            <label for="username">First Name:</label>
+			            <input type="text" name="username" id="username" value="" placeholder="First Name" />
+			        </div>
+
+			        <div data-role="fieldcontain" class="ui-hide-label">
+			            <label for="username">Email:</label>
+			            <input type="text" name="username" id="username" value="" placeholder="Email" />
+			        </div>
+
+			        <div data-role="fieldcontain" class="ui-hide-label">
+			            <label for="password">Password:</label>
+			            <input type="password" name="password" id="password" value="" placeholder="Password" />
+			        </div>			        
+		        </form>
+		        <input type="button" data-theme="b" value="Sign Up" onClick="goToLogin();" />
+		        <input type="button" data-theme="b" value="Login" onClick="goToLogin();" />
+		        
+		    </div>
+		-->
+
+		<!-- <div id="div_serial_no" style="display:none;"> -->
+			<div id="div_serial_no" style="">
+				<div data-role="content">
+		          <h3 class="center-wrapper">
+		            SURVEY_TITLE
+		          </h3>
+		          <h5>
+		            SURVEY_DESCRIPTTION
+		          </h5>
+		          <br/>
+		          <div class="ui-grid">
+		            <div class="ui-block">
+		              <div class="ui-body ui-body-d center-wrapper">
+		                <h4>
+		                  Begin a new Survey
+		                </h4>
+		                <br/>		                
+		                <input id="txt_serial_no" type="text" onFocus="this.type='number';" onBlur="if(this.value==''){this.type='text';}" placeholder="Enter A Serial No" />
+		                <a id="btn_return_serial_no" data-transition="slide" href="#" data-role="button" data-theme="b" data-inline="true">Start Interview</a>
+		              </div>
+		            </div>
+		          </div>
+		          <div style="text-align:center;">
+		          	<br/>
+		          	<br/>
+		          	<br/>
+		          	<div class="ui-grid">
+		            	<div class="ui-block">
+		            		<div class="ui-body ui-body-d center-wrapper">
+
+		            			<div class="ui-grid-b">
+									<div class="ui-block-a">GPS</div>
+									<div class="ui-block-b"></div>
+									<div class="ui-block-c">
+										<select id="selectGPS" data-role="slider">
+											<option value="off" selected="selected">Off</option>
+											<option value="on">On</option>
+										</select>
+
+										<div data-role="popup" id="popupUndismissible" data-theme="a" class="ui-content" style="max-width:280px" data-dismissible="false">
+										    <a href="#" id="aCancelGPSLocation" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+										    <div>
+										    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="images/ajax-loader.gif" alt="loading">
+										    <p>Searching for GPS</p>
+										    </div>
+										</div>
+
+										<div data-role="popup" id="popupSync">											
+										</div>
+
+									</div>
+								</div>
+								<br/>
+								<br/>
+								<div class="ui-grid-b">
+									<div class="ui-block-a">Upload data to server</div>
+									<div class="ui-block-b"></div>
+									<div class="ui-block-c">
+										<a data-transition="slide" href="#" data-role="button" data-theme="b" data-inline="true" onclick="sync()">Sync</a>
+									</div>
+								</div>
+				          		<br/>
+								<br/>
+								<div class="ui-grid-b">
+									<div class="ui-block-a">
+										<span id="curr_loggedIn_user">Logout from the Application</span>
+									</div>
+									<div class="ui-block-b"></div>
+									<div class="ui-block-c">
+										<a id="btnLogout" data-transition="slide" href="#" data-role="button" data-theme="b" data-inline="true">Logout</a>
+									</div>
+								</div>
+								<div class="ui-grid-b">
+									<div class="ui-block-a">
+										<input type="button" onclick="set_lang('en');" value="Lang: En"/> 
+									</div>
+									<div class="ui-block-b">
+									</div>
+									<div class="ui-block-c">
+										<input type="button" onclick="set_lang('hi');" value="Lang: Hi"/>
+									</div>
+								</div>
+					      </div>
+					  </div>
+					</div>
+					</div>
+		      	</div>
+					
+
+					<!--<div>
+						<input id="txt_serial_no"  type="text" placeholder="Enter A Serial No">
+						<input type="button" value="Start Interview" id="btn_return_serial_no">
+					</div>-->				
+			</div>
+
+			<div id="thank_you_screen" class="thank_you">
+				<br/><br/>
+				<div style="margin: 0px auto; width:100%; text-align: center"><h1>Thank you for your time.</h1></div>
+				<br/><br/><br/><br/><br/>
+				<br/><br/><br/><br/><br/>
+				<br/><br/><br/><br/><br/>
+				<br/><br/><br/><br/><br/>
+				<div class="ui-grid-b">
+					<div class="ui-block-a"></div>
+					<div class="ui-block-b">
+						<a style="width:100%;" href="#" onClick="window.location.reload(true);" data-role="button" data-theme="b" data-inline="true">
+							Restart
+						</a>
+						<br/>
+						<a style="width:100%;" href="#" onClick="navigator.app.exitApp();" data-role="button" data-theme="b" data-inline="true">
+							Exit
+						</a>
+						</div>
+					<div class="ui-block-c"></div>
+				</div>
+			</div>
+
+			<div id="question_view" class="qscript_question">
+				<div class="emscripten" id="question_text_area"></div>
+				<div class="emscripten" id="question_stub_area">
+					<!--
+					<form id="question_form">
+						<fieldset data-role="controlgroup">
+						 <div id="stubs_form_div">
+						 </div>
+						<input  id="nextQ" type="button" value="Next" data-dojo-type="dojox/mobile/Button">
+						</fieldset>
+					</form>
+					-->
+				</div>
+			</div>
+			<div id="new_question_view">
+			</div>
+			<br/>
+			<br/>
+			<!-- <div id="newNextQDiv" style="display:none;"> -->
+			<div id="newNextQDiv">
+				<div class="ui-grid-d">
+					<div class="ui-block-a"><input id="prevQ" data-theme="b" type="button" value="Previous"></div>
+					<div class="ui-block-b"></div>
+					<div class="ui-block-c"></div>
+					<div class="ui-block-d"></div>
+					<div class="ui-block-e"><input id="newNextQ" data-theme="b" type="button" value="Next"></div>		
+				</div>				
+			</div>
+			<!-- <div style="display:none;">	-->
+			<div >	
+				<div id="div_console_log" class="qscript-logger">
+				</div>
+			</div>
+			<div style="display:none;">
+				<input style="display:none;" id="test_file_read_failure" type="button" value="Test File Read Failure">
+				<input style="display:none;" id="test_file_read_failure_middle_dir_missing" type="button" value="Test File Read Failure - Middle Dir Missing">
+				<input style="display:none;" id="testReadFile" type="button" value="TestReadFile" >
+			</div>
+			<div>
+				<span style="display:none;" id="hard_coded_trans" lang="en">Test of translation to Hindi</span>
+			</div>
+
+			<div style="display:none;">
+				<hr/>
+				<textarea class="emscripten qscript_hidden" id="output" rows="8"></textarea>
+				<hr>
+			</div>
+
+			<div style="display:none;" id="div_geolocation_info" class="qscript_hidden">
+				device geolocation info
+			</div>
+
+		</div>
+	</div>
+
+			<div id="div_has_PhoneGap">
+				PhoneGap library Status.
+			</div>
+			<div id="div_device_properties">
+				device properties
+			</div>
+			<div id="div_device_compass">
+				device compass
+			</div>
+		<div><span id="span_event_target_trigger_file_open_write">0</span> button #1 clicks.</div>
+
+	<script type="text/javascript">
+
+
+/* =============== Logging Setup {{{1 ==================== */
+	function my_log (mesg)
+	{
+		//var div_console_log = document.getElementById("div_console_log");
+		//div_console_log.innerHTML += "<p>" + mesg + "</p>";
+	}
+	// my_log ("test log message");
+/* =============== End: Logging Setup }}}1 ==================== */
+
+	/*
+	*/
+
+	</script>
+
+	<!-- <script type="text/javascript" src="./js/qnre-lang-pack.js"> </script> -->
+	<!-- <script type="text/javascript" src="./js/shop_obs.js"> </script> -->
+	<!-- <script type="text/javascript" src="./js/other_specify_test_case.js"> </script> -->
+	
+	<!-- <script type="text/javascript" src="./js/our_cordova_apis.js"> </script> -->
+	<script type="text/javascript" src="./js/our_ui-browser-only.js"> </script>
+	<!-- <script type="text/javascript" src="./js/localStorage.js"></script> -->
+	<!-- <script type="text/javascript" src="./js/our_multi_lingual.js"> </script> -->
+	<!-- <script type="text/javascript" src="./js/init.js"> </script> -->
+
+	<script type="text/javascript" >
+	//my_log ("fired all event handlers");
+	</script>
+
+    <hr/>
+
+
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>
+    </div>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <hr/>
+	    <div class="emscripten">
+      <input type="checkbox" id="resize">Resize canvas
+      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+      &nbsp;&nbsp;&nbsp;
+      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked,
+                                                                                document.getElementById('resize').checked)">
+	    </div>
+    </div>
+
+    <!--
+    <hr/>
+    <textarea class="emscripten" id="output" rows="8"></textarea>
+    <hr>
+	-->
+
+    <script type='text/javascript'>
+      // connect to canvas
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('output');
+          element.value = ''; // clear browser cache
+          return function(text) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            element.value += text + "\n";
+            element.scrollTop = 99999; // focus on bottom
+          };
+        })(),
+        printErr: function(text) {
+          text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) { // XXX disabled for safety typeof dump == 'function') {
+            dump(text + '\n'); // fast, straight to the real console
+          } else {
+            console.log(text);
+          }
+        },
+        canvas: document.getElementById('canvas'),
+        setStatus: function(text) {
+          if (Module.setStatus.interval) clearInterval(Module.setStatus.interval);
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var statusElement = document.getElementById('status');
+          var progressElement = document.getElementById('progress');
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+	//, noExitRuntime: true
+      };
+      Module.setStatus('Downloading...');
+    </script>
+
+    <script type='text/javascript'>{{{ SCRIPT_CODE }}}</script>
+
+    <!--
+    <script type='text/javascript'>
+
+      { { { SCRIPT_CODE } } }
+
+    </script>
+    -->
+  </body>
+</html>

@@ -29,5 +29,5 @@ stub_pair::stub_pair(string l_txt, int32_t l_code, const stub_pair_options & cur
 	using std::cout;
 	using std::endl;
 	//cout << "url_image: " << url_image << endl;
-	cout << __PRETTY_FUNCTION__ << "stub_text: " << stub_text << ", is_mutex: " << is_mutex << endl;
+	//cout << __PRETTY_FUNCTION__ << "stub_text: " << stub_text << ", is_mutex: " << is_mutex << endl;
 }

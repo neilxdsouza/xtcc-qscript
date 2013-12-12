@@ -18,12 +18,14 @@ namespace program_options_ns {
 	extern bool microhttpd_flag ;
 	extern bool wt_flag ;
 	extern bool compile_to_cpp_only_flag;
+	extern bool latex_flag ;
 	extern int32_t fname_flag;
 	extern bool flag_nice_map;
-	extern bool stdout_flag;
-	extern bool wx_flag;
-	extern bool gtk_flag;
-	extern bool emscripten_flag;
+	extern int stdout_flag;
+	extern int wx_flag;
+	extern int gtk_flag;
+	extern int emscripten_flag;
+	extern int browser_only_flag ;
 	extern int data_export_flag;
 	extern string QSCRIPT_HOME;
 }
@@ -1754,9 +1756,18 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		exit(1);
 	}
 
-	string output_shell_filename = string("/tmp/") + string("shell-phonegap-dom-callback-") + project_name + ".html";
-	string sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html > ")
-				+ output_shell_filename;
+	string output_shell_filename; 
+	string sed_command;
+
+	if (program_options_ns::browser_only_flag == false) {
+		output_shell_filename = string("/tmp/") + string("shell-phonegap-dom-callback-") + project_name + ".html";
+		sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html > ")
+					+ output_shell_filename;
+	} else {
+		output_shell_filename = string("/tmp/") + string("shell-browser-dom-callback-") + project_name + ".html";
+		sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-browser-dom-callback.html > ")
+					+ output_shell_filename;
+	}
 
 	cout << "sed command: " << endl
 		<< sed_command 
@@ -1784,8 +1795,9 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		+ " -s TOTAL_STACK=10485760 "
 		+ " -s RELOOPER_BUFFER_SIZE=41943040 "
 		//+ " -s ALLOW_MEMORY_GROWTH=1  " 
-		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial','_navigate_previous']\" "
-		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
+		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial','_navigate_previous']\" ";
+	string obj_files_list = 
+		  QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/data_entry.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/log_mesg.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/named_attributes.o "
@@ -1803,10 +1815,11 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/utils_common.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/xtcc_set.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_stdout_runtime.o "
-		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/json.o "
+		//+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/json.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/stub_pair.o "
 		+ intermediate_obj_file_name + string(" ")
 		;
+	emscripten_cc_cmd += obj_files_list;
 	cout << "cpp_compile_command: " << emscripten_cc_cmd << endl;
 	ret_val = system(emscripten_cc_cmd.c_str());
 	if (ret_val != 0) {

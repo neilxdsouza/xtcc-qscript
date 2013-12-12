@@ -95,13 +95,13 @@ AbstractQuestion::AbstractQuestion(
 	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
 	, pageName_(qscript_parser::globalActivePageName_)
 {
-	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
-	cout << "pageName_: " << pageName_ << endl;
+	//cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	//cout << "pageName_: " << pageName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__);
 	}
-	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	//cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 #if 0

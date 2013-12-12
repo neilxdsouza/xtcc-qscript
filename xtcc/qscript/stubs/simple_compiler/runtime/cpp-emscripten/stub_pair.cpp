@@ -42,7 +42,7 @@ string stub_pair::toString()
 	}
 
 	int n = sprintf (ptr, "{"); ptr += n;
-	my_log_from_cpp (ptr);
+	//my_log_from_cpp (ptr);
 	n = sprintf (ptr, "\"stub_text\":\"%s\",", stub_text.c_str()); ptr+=n;
 	n = sprintf (ptr, "\"stub_code\":%d,", code); ptr+=n;
 	n = sprintf (ptr, "\"mask\": %d,", mask); ptr+=n;
@@ -51,7 +51,7 @@ string stub_pair::toString()
 	n = sprintf (ptr, "\"url_image\":\"%s\"", url_image.c_str()); ptr+=n;
 	//	//<< ","
 	n += sprintf (ptr, "}");
-	my_log_from_cpp (buffer);
+	//my_log_from_cpp (buffer);
 	string r_val (buffer);
 	return r_val;
 }

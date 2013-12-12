@@ -152,7 +152,7 @@ mergeInto(LibraryManager.library, {
 		};
 
 		var gotFileWriter = function (writer) {
-			my_log ("gotFileWriter in save_qnre_data");
+			//my_log ("gotFileWriter in save_qnre_data");
 			writer.write(the_survey_data);
 			//my_log("Write successful");
 		};
@@ -189,23 +189,23 @@ mergeInto(LibraryManager.library, {
 		var question_data = Pointer_stringify (question_json_ptr);
 		//my_log ("question_data: " + question_data);
 		var stubs_data = Pointer_stringify (stubs_json_ptr);
-		my_log ("stubs_data: " + stubs_data);
+		//my_log ("stubs_data: " + stubs_data);
 		var err_data = Pointer_stringify (err_json_ptr);
 		//my_log ("err_data: " + err_data);
 		var question_data2 = Pointer_stringify (question_json_ptr2);
-		my_log ("question_data2: " + question_data2);
+		//my_log ("question_data2: " + question_data2);
 
 		var stubs_obj_arr , questions_obj_arr, err_obj_arr;
 		//my_log ("question_data: " + question_data);
 		try {
 			questions_obj_arr = JSON.parse(question_data);
-			//my_log ("parsed question_data");
+			//my_log ("parsed question_data: " + question_data);
 		} catch (error) {
 			my_log ("Could not JSON.parse (question_data):"  + question_data + ", error message:" + error.message);
 		}
 		try {
 			stubs_obj_arr = JSON.parse(stubs_data);
-			my_log ("parsed stubs_data: " + stubs_data);
+			//my_log ("parsed stubs_data: " + stubs_data);
 		} catch (error) {
 			my_log ("Could not JSON.parse (stubs_data):" + stubs_data  + "error message:" + error.message);
 		}

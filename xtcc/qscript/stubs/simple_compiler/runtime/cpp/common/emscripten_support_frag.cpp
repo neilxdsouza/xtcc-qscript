@@ -1,5 +1,5 @@
 #include "question_logic.h"
-#include "json.h"
+//#include "json.h"
 /* ============= new_logic_support_frag event driven - emscripten =========*/
 struct TheQuestionnaire * make_questionnaire ()
 {
@@ -79,8 +79,10 @@ void callback_ui_input (UserInput p_user_input,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level,
 		vector <string> & err_mesg_vec)
 {
+	//my_log_from_cpp ("callback_ui_input in emscripten_support_frag.cpp: ");
 	//cout << __PRETTY_FUNCTION__ << endl;
-	printf ("%s\n", __PRETTY_FUNCTION__);
+	//printf ("%s\n", __PRETTY_FUNCTION__);
+	//my_log_from_cpp ("Enter callback_ui_input");
 	// this will be called by the UI - it is the UI's responsibility to
 	// get valid data for us
 	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
@@ -94,6 +96,7 @@ void callback_ui_input (UserInput p_user_input,
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserViewedImage) {
+		//my_log_from_cpp ("callback_ui_input: UserViewedImage");
 		vector <string> err_mesg_vec;
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
@@ -107,15 +110,12 @@ void callback_ui_input (UserInput p_user_input,
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		vector <string> err_mesg_vec;
-		cout << "mode: user_response::UserEnteredData" << endl;
 		bool all_questions_success =
 			eval_single_question_logic_with_input (p_user_input,
 					q_vec, theQuestionnaire,
 					nest_level + 1, err_mesg_vec);
 		if (all_questions_success) {
 			question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
-			cout << __PRETTY_FUNCTION__ << " - case UserEnteredData - success, invoking question_eval_loop2"
-					<< endl;
 		} else {
 			// in the event driven loop - just return
 			// we need to pass the error messages back
@@ -251,7 +251,10 @@ void question_eval_loop2 (
 
 
 
-		} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
+		} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo ||
+				p_user_input.theUserResponse_ == user_response::UserViewedImage ||
+				p_user_input.theUserResponse_ == user_response::UserListenedToAudio
+				) {
 				// do nothing
 				// once we exit this major block == last_question_visited
 				// the bottom of this function will handle it
@@ -345,17 +348,17 @@ void called_from_the_dom (char * data, char * other_specify_data)
 	//my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
-	string str_other_specify_data(other_specify_data);
-	if (str_other_specify_data.length() > 0) {
-		json_value * the_json_object = json_parse (str_other_specify_data.c_str(), str_other_specify_data.length());
-		if ( AbstractQuestionnaire::qnre_ptr->last_question_visited.size() == 1) {
-			NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (AbstractQuestionnaire::qnre_ptr->last_question_visited[0]);
-			if (nq) {
-				nq->nr_ptr->stubs[6].stub_text = "New Other Specify Brand 1";
-				nq->nr_ptr->stubs[7].stub_text = "New Other Specify Brand 2";
-			}
-		}
-	}
+	//string str_other_specify_data(other_specify_data);
+	//if (str_other_specify_data.length() > 0) {
+	//	json_value * the_json_object = json_parse (str_other_specify_data.c_str(), str_other_specify_data.length());
+	//	if ( AbstractQuestionnaire::qnre_ptr->last_question_visited.size() == 1) {
+	//		NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (AbstractQuestionnaire::qnre_ptr->last_question_visited[0]);
+	//		if (nq) {
+	//			nq->nr_ptr->stubs[6].stub_text = "New Other Specify Brand 1";
+	//			nq->nr_ptr->stubs[7].stub_text = "New Other Specify Brand 2";
+	//		}
+	//	}
+	//}
 #if 0
 	//printf ("data: %s\n", data);
 	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
@@ -443,8 +446,10 @@ void called_from_the_dom (char * data, char * other_specify_data)
 #endif /*  0  */
 		if (q->q_type == video) {
 			user_input.theUserResponse_ = user_response::UserViewedVideo;
+			//my_log_from_cpp ("UserViewedVideo"); 
 		} else if (q->q_type == image) {
 			user_input.theUserResponse_ = user_response::UserViewedImage;
+			//my_log_from_cpp ("UserViewedImage"); 
 		} else if (q->q_type == audio) {
 			user_input.theUserResponse_ = user_response::UserListenedToAudio;
 		} else if (q->q_type == video_capture || q->q_type == audio_capture || q->q_type == image_capture) {

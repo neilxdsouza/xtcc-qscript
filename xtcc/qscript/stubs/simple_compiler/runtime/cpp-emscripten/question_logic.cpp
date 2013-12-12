@@ -25,6 +25,7 @@
 #include "question_stdout_runtime.h"
 #include "named_range.h"
 #include "question_logic.h"
+#include "dom_manip_funcs.h"
 
 //void question_eval_loop2 (
 //	UserInput p_user_input,
@@ -43,6 +44,7 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 {
 	//cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
 	printf ("ENTER: %s\n", __PRETTY_FUNCTION__);
+	//my_log_from_cpp ("eval_single_question_logic_with_input");
 	bool all_questions_success = true;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
@@ -111,8 +113,13 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 				}
 #endif /* 0 */
 		}
-	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
+	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo ||
+			p_user_input.theUserResponse_ == user_response::UserViewedImage ||
+			p_user_input.theUserResponse_ == user_response::UserListenedToAudio
+			) {
+		//my_log_from_cpp ("eval_single_question_logic_with_input: theUserResponse_ == UserViewedImage/ UserViewedVideo/UserListenedToAudio");
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
+			//my_log_from_cpp ("setting isAnswered_ == true for viewed Media");
 			q_vec[i] -> isAnswered_ = true;
 		}
 		//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);

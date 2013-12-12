@@ -1,9 +1,28 @@
-// geolocation timer global variable
-var geolocationTimer = 60;
 
 //my_log ("Started loading our_ui.js");
 
-/* newNextQ Button {{{2 */
+	// Next Question Button {{{2
+	//var nextQ = document.getElementById("nextQ");
+	//EventUtil.addHandler (nextQ, "click", function(event) {
+	//	alert ("nextQ");
+	//	//event = EventUtil.getEvent (event);
+	//	//EventUtil.preventDefault (event);
+	//	var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+	//	//var data_for_cpp;
+	//	//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
+	//	//called_from_the_dom(data_for_cpp);
+	//	//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+	//	//alert("this is the DOM brother");
+	//	//console.log("submit handler called");
+	//	var returnValue = serialize (question_form);
+	//	//var data_for_cpp;
+	//	//Module.setValue (data_for_cpp, returnValue, "i8*");
+	//	called_from_the_dom(returnValue);
+	//});
+	// Next Question Button }}}2
+	my_log ("finished nextQ");
+
+// newNextQ Button {{{2 
 var newNextQ= document.getElementById("newNextQ");
 EventUtil.addHandler (newNextQ, "click", function(event) {
 	//my_log ("Enter newNextQ");
@@ -13,22 +32,10 @@ EventUtil.addHandler (newNextQ, "click", function(event) {
 	//my_log ("new_serialize done: " + returnValue);
 	called_from_the_dom(returnValue.join("|"));
 });
-//my_log ("created newNextQ handler function");
-/* newNextQ Button }}}2 */
+my_log ("created submit handler function");
+// newNextQ Button }}}2 
 
-/* prevQ Button {{{2 */
-var prevQ= document.getElementById("prevQ");
-EventUtil.addHandler (prevQ, "click", function(event) {
-	my_log ("Enter prevQ");
-	var navigate_previous = Module.cwrap ('navigate_previous', 'void', ['string']);
-	//console.log("prevQ called");
-	my_log ("navigate_previous: " + navigate_previous);
-	navigate_previous ("dummy data");
-});
-//my_log ("created prevQ handler function");
-/* prevQ Button }}}2 */
-
-/* handleStartSurveyButton  {{{2 */
+// handleStartSurveyButton  {{{2 
 var return_serial_no_button = document.getElementById("btn_return_serial_no");
 function handleStartSurveyButton (event)
 {
@@ -53,48 +60,33 @@ function handleStartSurveyButton (event)
 	//alert ("global_survey_related_info: uuid" + gl)
 	//my_log ("global_survey_related_info.uuid: " + global_survey_related_info.device.uuid);
 	//my_log ("global_survey_related_info.latitude: " + global_survey_related_info.position.coords.latitude);
-	//alert(!(global_survey_related_info.position));
-	if($("#selectGPS").val()=="on" && !(global_survey_related_info.position)) {
-		alert("Cannot proceed without GPS");
-	}
-	//global_survey_related_info.position && global_survey_related_info.position.coords &&
-	else if ( test_numeric_serial && global_survey_related_info.device && global_survey_related_info.device.uuid && global_survey_related_info.fileSystemObject) {
+	if (
+		test_numeric_serial &&
+		global_survey_related_info.device && global_survey_related_info.device.uuid &&
+		global_survey_related_info.position && global_survey_related_info.position.coords &&
+		global_survey_related_info.fileSystemObject)  {
 		question_view.style.display = "block";
 		var div_serial_no = document.getElementById("div_serial_no");
 		div_serial_no.style.display = "none";
-		document.getElementById("newNextQDiv").style.display = "block";			// enable next button
 		return_serial_no_button.disabled = true;
-		//my_log ("sanity checks passed");
-
-		global_survey_related_info.our_file_name += serial_no;					// append serial no to generated filename
-		var our_dir_path 	= global_survey_related_info.our_dir_path + "/incomplete";
-		MakePathDir (our_dir_path);
-		
-		var our_path 		= global_survey_related_info.our_dir_path + "/incomplete/" + global_survey_related_info.our_file_name + ".dat";
-		var our_gps_path 	= global_survey_related_info.our_dir_path + "/incomplete/" + global_survey_related_info.our_file_name + ".gps";
+		my_log ("sanity checks passed");
+		var our_path = "qscript/" +
+				global_survey_related_info.device.uuid +
+				"/project_name/interviewer_id/project_name_interviewer_id_" +
+				serial_no +
+				".dat";
 		//alert ("our_path:" + our_path);
 		// first try to open the file and see if it exists
-		//my_log("opening file:" + our_path);
+		my_log("opening file:" + our_path);
 		global_survey_related_info.serial_no = serial_no;
 		global_survey_related_info.open_file_path = our_path;
 		global_survey_related_info.fileSystemObject.root.getFile(
-			our_path, {create: true}, gotFileEntry, getFileErrorHandler);
+			our_path, {create: false, exclusive: true}, gotFileEntry, getFileErrorHandler);
 		//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, getFileErrorHandler);
 		// if successful, we need to merge in the survey data into the qnre
 		// so that eval correctly returns the next question to be asked
 		// otherwise open the path piecewise - constructing intermediate directories on the way
 		//fileGetDir (our_path, printSuccess, false, getFileErrorHandler);
-		global_survey_related_info.fileSystemObject.root.getFile(
-			our_gps_path, {create: true, exclusive: false}, gotGPSFileEntry, getFileErrorHandler);
-		// write gps file
-		//navigator.geolocation.getCurrentPosition(fnGPSLocaterFound, fnGPSLocaterFailed,{timeout:180000});
-		geolocationTimer = setInterval(function(){
-			
-			navigator.geolocation.getCurrentPosition(fnGPSLocaterFound, fnGPSLocaterFailed,{timeout:180000});
-			global_survey_related_info.fileSystemObject.root.getFile(our_gps_path, {create: true, exclusive: false}, gotGPSFileEntry, getFileErrorHandler);
-
-		},geolocationTimer*1000);		// write gps after every 60 seconds
-		createCommonDirectories();		// create common directories
 		//all_systems_go = true;
 	} else {
 		my_log ("cordova : sanity checks failed");
@@ -102,35 +94,29 @@ function handleStartSurveyButton (event)
 		// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
 		// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
 	}
-	//my_log (" after sanity checks");	
-	//var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
-	//callback_return_serial (serial_no);
-	//my_log ("Exit handleStartSurveyButton");
-}
-EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
-//my_log ("created handleStartSurveyButton function");
-/* handleStartSurveyButton  }}}2 */
-
-function handleStartSurveyButtonBrowserOnly (event) {
-	var question_view = document.getElementById("question_view");
-	var txt_serial_no = document.getElementById("txt_serial_no");
-	var serial_no = txt_serial_no.value;
-	//alert ("serial_no: " + serial_no);
-	var re_chk_serial = /\d+/;
-	var test_numeric_serial =  re_chk_serial.test(serial_no);
+	//my_log (" after sanity checks");
 	var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
-	if (test_numeric_serial === false) {
-		alert ("Please enter a valid serial no");
-	} else {
+	if (//all_systems_go &&  
+			callback_return_serial) {
+		my_log("about to invoke callback_return_serial");
+		//console.log("returning serial no to c++ code");
+		// add check on serial no here.
+		// REMOVE THESE FROM HERE LATER : NxD 18-Aug-2013
 		question_view.style.display = "block";
 		var div_serial_no = document.getElementById("div_serial_no");
 		div_serial_no.style.display = "none";
 		//return_serial_no_button.disabled = true;
-		document.getElementById("newNextQDiv").style.display = "block";
 		callback_return_serial (txt_serial_no.value, "");
+	} else {
+		my_log ("Could not find callback_return_serial in Module.cwrap");
 	}
+	//var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
+	//callback_return_serial (serial_no);
+	my_log ("Exit handleStartSurveyButton");
 }
-//EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButtonBrowserOnly);
+	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
+	my_log ("created handleStartSurveyButton function");
+// handleStartSurveyButton  }}}2 
 
 function analyse_page_structure (questions_obj_arr, stubs_obj_arr) {
 	var result;
@@ -149,13 +135,6 @@ function analyse_page_structure (questions_obj_arr, stubs_obj_arr) {
 function get_translation (key) {
 	var language_translation_obj = qnre_lang_obj[global_survey_related_info.current_language];
 	return language_translation_obj[key];
-}
-
-function create_single_question_title_simple (single_question_obj) {
-	my_log ("Enter: create_single_question_title_simple");
-	var the_simple_q_text = single_question_obj.question_text_arr.join();
-	my_log ("the_simple_q_text: " + the_simple_q_text);
-	return single_question_obj.question_text_arr.join();
 }
 
 function create_single_question_title (single_question_text_obj) {
@@ -256,23 +235,12 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 	else if (questions_obj_arr[0].question_type == 'rq') {
 		var new_question_view = "";
 		if (questions_obj_arr.length == 1 && questions_obj_arr[0].question_text_arr.length == 1) {
-			var curr_question_obj = questions_obj_arr[0];
 			new_question_view += "<div>" + questions_obj_arr[0].question_text_arr[0] + "</div>";
 			new_question_view += "<div><form id ='id_form_" + questions_obj_arr[0].qno + "' name ='form_" + questions_obj_arr[0].qno + "' >";
 			//new_question_view += "<input cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></input>";			
 			new_question_view += "<textarea cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></textarea>";
 			new_question_view += "</form></div>";
-			if (questions_obj_arr[0].no_mpn > 1) {
-				my_log (" case single no_mpn > 1 i.e. verbatim ");
-				global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
-				var verbatim_fn = "";
-				verbatim_fn = global_survey_related_info.our_dir_path + "/incomplete/" +
-					curr_question_obj.qno + "." + 
-					global_survey_related_info.our_file_name + ".dat";
-				verbatim_file_names.push(verbatim_fn);
-			}
 		} else {
-				global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
 			var is_question_text_same = true;
 			 
 			for (var i=1; i<questions_obj_arr.length; i++) {
@@ -291,16 +259,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				if(!is_question_text_same) {
 					new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[0] + "</td></tr>";
 				}
-				//new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[1] + "</td>";
-				new_question_view += "<tr>";  
-				if (curr_question_obj.question_text_arr.length > 1) {
-					//new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[1] + "</td>";
-					new_question_view += "<td>";  
-					for (var j = 1; j <  curr_question_obj.question_text_arr.length; ++j) {
-						new_question_view += curr_question_obj.question_text_arr[j]; 
-					}
-					new_question_view += "</td>";
-				}
+				new_question_view += "<tr><td>" + curr_question_obj.question_text_arr[1] + "</td>";
 				new_question_view += "<td><form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' >";				
 				// load previous button click response
 				var prevValue = "";
@@ -321,11 +280,11 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				new_question_view += "</form></td></tr>";
 			}
 			new_question_view += "</table>";
-		}
-		for (var i = 0; i < verbatim_file_names.length; ++i) {
-			my_log ("creating verbatim_file handles");
-			global_survey_related_info.fileSystemObject.root.getFile(
-				verbatim_file_names[i], {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
+			for (i = 0; i < verbatim_file_names.length; ++i) {
+				my_log ("creating verbatim_file handles");
+				global_survey_related_info.fileSystemObject.root.getFile(
+					verbatim_file_names[i], {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
+			}
 		}
 
 
@@ -336,14 +295,11 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		document.getElementById("new_question_view").innerHTML = new_question_view;
 
 
-		if (questions_obj_arr[0].no_mpn > 1) {
-
-			var verbatim_response_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
-
-
-		global_survey_related_info.fileSystemObject.root.getFile(
-			verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
-		}
+		//if (questions_obj_arr[0].no_mpn > 1) {
+		//	var verbatim_response_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
+		//	global_survey_related_info.fileSystemObject.root.getFile(
+		//		verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
+		//}
 	}
 	else if (questions_obj_arr[0].question_type == 'video_capture') {
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
@@ -357,34 +313,20 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		new_question_view.innerHTML = new_html;
 	}
 	else if (questions_obj_arr[0].question_type == 'image_capture') {
-		/*
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
 		my_log ("media_capture_file_path: " + media_capture_file_path);
-		global_survey_related_info.fileSystemObject.root.getFile(
-					media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
+		//global_survey_related_info.fileSystemObject.root.getFile(
+		//			media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
 		var new_html = "<p>Please click a photo</p>";
 		new_html +=	"<button onclick=\"capturePhoto();\">Capture Photo</button> <br>" ; 
 					//"<img style='display:none;width:60px;height:60px;' id='smallImage' src='' /><br>";
 		var new_question_view = document.getElementById("new_question_view");
 		new_question_view.innerHTML = new_html;
-		*/
-		var new_html = "", media_capture_file_path ="", i=0;
-		for (i = 0; i < questions_obj_arr.length; ++i) {
-			media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[i].qno + "." + global_survey_related_info.our_file_name + ".dat";
-			my_log ("media_capture_file_path: " + media_capture_file_path);
-			global_survey_related_info.fileSystemObject.root.getFile(
-					media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
-			new_html += "<p>Please click a photo</p>";
-			new_html += "<p>" + create_single_question_title_simple (questions_obj_arr[i]) + "</p>";
-			new_html += "<button onclick=\"capturePhoto2("+ i +");\">Capture Photo</button> <br>"; 
-		}
-		var new_question_view = document.getElementById("new_question_view");
-		new_question_view.innerHTML = new_html;
 	}
 	else if (questions_obj_arr[0].question_type == 'audio_capture') {
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
-		global_survey_related_info.fileSystemObject.root.getFile(
-					media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
+		//global_survey_related_info.fileSystemObject.root.getFile(
+		//			media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
 		var new_html = "<p>Please record the Audio response</p>";
 		new_html += "<button onclick=\"captureAudio();\">Capture Audio</button> <br>" +
 					"<img style='display:none;width:60px;height:60px;' id='smallImage' src='' /><br>";
@@ -452,50 +394,61 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 	window.scrollTo(0, 0);		// scroll to top
 }
 
-function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
-	/*my_log ("Enter: create_multiple_questions_view" );
-	var new_question_view = document.getElementById("new_question_view");
-	new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
-	$( '#stubs_form_div' ).trigger( 'create' );
-	my_log ("Exit: create_multiple_questions_view"  );*/
+	/*
+	function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
+		my_log ("Enter:  create_multiple_questions_view" );
+		var new_question_view = document.getElementById("new_question_view");
+		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
 
-	if (questions_obj_arr.length > 0) {
-		var gridTable = document.createElement("div");
-		gridTable.setAttribute("class","grid");
+		var questions_view_frag = document.createDocumentFragment();
+		var a_question_div, question_title_div, question_stubs_div, curr_question_obj, question_stubs_form;
+		for (var i = 0; i < questions_obj_arr.length;  ++i) {
+			curr_question_obj = questions_obj_arr[i];
 
-		var gridTableRows = questions_obj_arr.length;
-		var gridTableColumns = stubs_obj_arr[0].stubs.length;
-
-		for (var i = 0; i <= gridTableRows; i++) {
-			var gridTableTr = document.createElement("div");
-			var gridTableForm = document.createElement("form");
-
-			for (var j = 0; j <= gridTableColumns; j++) {
-				var gridTableTd = document.createElement("div");
-
-				if (i) {
-					if (j) {
-						var id = questions_obj_arr[i-1].qno + "-" + stubs_obj_arr[0].stubs[j-1].stub_code;
-						gridTableTd.innerHTML = '<input id="' + id + '" value="' + stubs_obj_arr[0].stubs[j-1].stub_code + '" name="radio-choice-' + i + '" type="radio">';
-					}
-					else {
-						gridTableTd.innerHTML = questions_obj_arr[i-1].question_text_arr;
-					}
-				}
-				else if (j) {
-					gridTableTd.innerHTML = stubs_obj_arr[0].stubs[j-1].stub_text;
-				}
-
-				gridTableTr.appendChild(gridTableTd);
+			question_title_div = document.createElement("div");
+			question_title_div.innerHTML = "<p>" + curr_question_obj.qno + "</p>";
+			my_log ("curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
+			for (var j = 0; j < curr_question_obj.question_text_arr.length; ++j) {
+				var question_text = curr_question_obj.question_text_arr[j];
+				question_title_div.innerHTML += "<p>" + question_text + "</p>";
 			}
-			gridTableForm.appendChild(gridTableTr);
-			gridTable.appendChild(gridTableForm);
+			my_log ("after curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
+			question_stubs_div = document.createElement("div");
+			//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
+			var stubs_doc_frag = get_stubs_display_view (curr_question_obj, stubs_obj_arr);
+			question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
+			//question_stubs_div.innerHTML += "<p>" + stubs_doc_frag + "</p>";
+			question_stubs_div.appendChild (stubs_doc_frag);
+			question_stubs_form = document.createElement("form");
+			question_stubs_form.name = "form_" + curr_question_obj.qno;
+			question_stubs_form.id = "id_form_" + curr_question_obj.qno;
+			question_stubs_form.appendChild (question_stubs_div);
+			// my_log ("stubs_doc_frag: " + stubs_doc_frag);
+			// my_log ("question_stubs_div: " + question_stubs_div);
+			// my_log ("question_stubs_div.outerHTML: " + question_stubs_div.outerHTML);
+			// my_log ("question_stubs_div.outerText: " + question_stubs_div.outerTEXT);
+			
+			a_question_div = document.createElement("div");
+			my_log ("after create a_question_div" );
+			//a_question_div.innerHTML = question_title_div.outerHTML + question_stubs_div.outerHTML;
+			a_question_div.appendChild (question_title_div);
+			a_question_div.appendChild (question_stubs_form);
+			questions_view_frag.appendChild(a_question_div);
 		}
-
-		document.getElementById("new_question_view").innerHTML = "";
-		document.getElementById("new_question_view").appendChild(gridTable);
+		new_question_view.appendChild (questions_view_frag);
+		//$( '#stubs_form_div' ).trigger( 'create' );
+		$( '#new_question_view' ).trigger( 'create' );
+		my_log ("Exit: create_multiple_questions_view");
 	}
-}
+	*/
+
+	function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
+		my_log ("Enter: create_multiple_questions_view" );
+		var new_question_view = document.getElementById("new_question_view");
+		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
+		$( '#stubs_form_div' ).trigger( 'create' );
+		my_log ("Exit: create_multiple_questions_view"  );
+	}
 
 
 function get_stubs_display_view (question_obj, stubs_obj_arr) {
@@ -513,7 +466,7 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 			}
 		}
 		if (res2 === null) {
-			//my_log ("Internal error in survey: did not find stubs for :" + question_obj.qno);
+			my_log ("Internal error in survey: did not find stubs for :" + question_obj.qno);
 		}
 		//my_log ("assigned res2 , length:" + res2.stubs.length);
 		//alert (res2.name);
@@ -534,16 +487,6 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				//input.name  = "stub_response";
 				input.name  = "radio-choice";
 				input.value = res2.stubs[i].stub_code;
-
-				// load previous button click response
-				for (var k = 0; k < question_obj.current_response.length; k++)
-				{
-					if (question_obj.current_response[k] == res2.stubs[i].stub_code) {
-						input.checked = true;
-						break;
-					}
-				}
-
 				//my_log ("after setting input.value i = " + i);
 				//var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
 				var id_text = res2.name + res2.stubs[i].stub_code ;
@@ -564,7 +507,6 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				doc_frag2.appendChild(my_li);
 
 				/*if (res2.stubs[i].url_image.length > 0) {
-					//alert(res2.stubs[i].url_image);
 					var img = new Image();
 					img.src =  res2.stubs[i].url_image;
 					my_li.appendChild (img);
@@ -572,6 +514,13 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				//img.src =  "http://www.example.com/test?name=Nicholas";
 			}
 		}
+
+		//clear_prev_node_sub_child (stubs_form_div);
+
+		//stubs_form_div.appendChild(doc_frag2);
+
+
+
 	} else {
 		var input_text = document.createElement("input");
 		input_text.type  = "text";
@@ -588,7 +537,7 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 
 function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
 	//my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
-	my_log ("document.forms.length: " + document.forms.length);
+	//my_log ("document.forms.length: " + document.forms.length);
 
 	var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 	if (result == "single_question") {
@@ -598,22 +547,16 @@ function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr)
 	} else if (result == "grid_question") {
 		create_grid_questions_view (questions_obj_arr, stubs_obj_arr);
 	} else {
-		//my_log ("unhandled case - analyse_page_structure");
+		my_log ("unhandled case - analyse_page_structure");
 	}
 	//my_log ("Exited: ui_create_question_form stubs_obj_arr:" + stubs_obj_arr);
 }
 
 
 function serialize (form, my_question_obj) {
-	//my_log("Enter: serialize");
+	//my_log("Enter: serialize: my_question_obj" + my_question_obj);
 	var parts = new Array();
 	var field = null;
-	if (global_survey_related_info.other_specify_data_arr === undefined) {
-		global_survey_related_info.other_specify_data_arr = [];
-	}
-	global_survey_related_info.other_specify_data_arr = [];
-
-
 	for (var i=0; i < form.elements.length; ++i ) {
 		field = form.elements[i];
 		switch (field.type) {
@@ -632,7 +575,40 @@ function serialize (form, my_question_obj) {
 		case "number":
 		case "text":
 		case "textarea":
-			//my_log ("case text");
+			//my_log ("case text: nxd");
+			/*
+			if (global_survey_related_info.question_type != "nq" &&
+				global_survey_related_info.no_mpn == 1) {
+				parts.push(field.value);
+			} else {
+				my_log ("trying to save verbatim file: verbatim is:" + field.value);
+				parts.push("96"); // dummy value
+				// Initiate file saving here
+				// Comment out - when running in browser
+				// enable for cordova
+				//global_survey_related_info.current_verbatim_data = field.value;
+				//if (save_verbatim_data) {
+				//	my_log ("save_verbatim_data:" + save_verbatim_data);
+				//}
+				//if (fail_to_write_file) {
+				//	my_log ("fail_to_write_file:" + fail_to_write_file);
+				//}
+				//my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+				//if (global_survey_related_info.verbatim_data_file_handle) {
+				//	my_log ("verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+				//	my_log ("testing for createWriter:");
+				//	if (global_survey_related_info.verbatim_data_file_handle.createWriter) {
+				//		my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: exists");
+				//	} else {
+				//		my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: does not exist");
+				//	}
+				//	my_log ("after createWriter:");
+				//} else {
+				//	my_log ("verbatim_data_file_handle: is null");
+				//}
+				//global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
+			}
+			*/
 			if (my_question_obj.question_type === "rq") {
 				if ( my_question_obj.no_mpn == 1) {
 					parts.push(field.value);
@@ -658,32 +634,21 @@ function serialize (form, my_question_obj) {
 					//global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
 					global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 					*/
-					global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
+					//global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
 				}
 			}
 		break;
 		}
 	}
-
 	var return_value = parts.join(" ");
-	//my_log("Exiting: serialize return_value:" + return_value);
+	my_log("Exiting: serialize return_value:" + return_value);
 	//return parts.join(" ");
 	return return_value;
 }
 
 
 function new_serialize () {
-	//my_log ("Enter: new_serialize: global_survey_related_info.questions_obj_arr.length " +
-	//		global_survey_related_info.questions_obj_arr.length);
-
-	my_log ("Enter: new_serialize: document.forms.length " +
-			document.forms.length);
-
-	if (global_survey_related_info.verbatim_data_arr === undefined) {
-		global_survey_related_info.verbatim_data_arr = [];
-	}
-	global_survey_related_info.verbatim_data_arr = [];
-
+	//my_log("Enter: new_serialize");
 	var form_data_arr = [];
 	var i = 0;
 	for (i = 0; i < document.forms.length; ++i) {
@@ -691,288 +656,13 @@ function new_serialize () {
 		//console.log ("form_serialized_data:" );
 		my_log ("form_serialized_data:" + form_serialized_data);
 		form_data_arr.push (form_serialized_data);
-		//my_log ("form_data_arr: " + form_data_arr);
-		//my_log ("finished loop iter i== " + i);
+		my_log ("finished loop iter i== " + i);
 	}
-
-
-	for (i = 0; i < global_survey_related_info.verbatim_data_arr.length; ++i) {
-		my_log ("global_survey_related_info.verbatim_data_arr.length: " + global_survey_related_info.verbatim_data_arr.length);
-		//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
-		global_survey_related_info.current_verbatim_index = i;
-		global_survey_related_info.verbatim_data_file_fileEntry_arr [i].createWriter (save_verbatim_data, 
-						fail_to_write_file);
-	}
-
 	my_log("Exit: new_serialize");
 	return form_data_arr;
 }
+	/*
+*/
 
-function btnSync() {
-	if(window.navigator.onLine) {		// check for internet connection
-		fnMoveFiles();
-	}
-	else {
-		alert("Internet connection is not available.");
-	}
-}
-
-// diplays survey title, description and logged in user on survey page
-function displayMetaData() {
-	// $('#div_console_log').hide();	// hide console message 
-	var projDetails = JSON.parse(window.localStorage.getItem('projDetails'));
-	var div_serial_no = document.getElementById("div_serial_no");
-
-	for (var i = 0; i < projDetails.length; i++) {
-		if (projDetails[i].id == global_survey_related_info.job_name) {
-			document.getElementById("survey_header").innerHTML = projDetails[i].title;
-			div_serial_no.getElementsByTagName("h3")[0].innerHTML = projDetails[i].title;
-			div_serial_no.getElementsByTagName("h5")[0].innerHTML = projDetails[i].description;
-			break;
-		}
-	}
-	// show logged in username
-	$('#curr_loggedIn_user').html('Logged in as:<br/>' + window.localStorage.getItem('emailid'));
-}
-
-document.addEventListener ("deviceready", displayMetaData, false);
-
-//my_log ("Finished loading our_ui.js");
-
-// file sync code start
-
-function fnMoveFiles() {
-    //get hold of the first file
-    var dirPath = global_survey_related_info.our_dir_fullPath + "/complete";
-    window.resolveLocalFileSystemURI(dirPath, onSuccessResolutionOfDir, onErrorResolutionOfDir);
-    //move it
-    //come back to this folder and try moving the next file
-}
-
-function onSuccessResolutionOfDir(de) {
-    var directoryReader = de.createReader();
-    // Get a list of all the entries in the directory
-    directoryReader.readEntries(onDirectoryReadSuccess, onDirectoryReadFail);
-}
-
-function onDirectoryReadFail(err) {
-    alert("failed to read interviewer_id");
-}
-
-function onErrorResolutionOfDir(err) {
-    //alert("resolution failed :" + err.code);
-    alert("No files found.");
-}
-
-function onDirectoryReadSuccess(dirEntries) {
-    var i, fl, len;
-    len = dirEntries.length;
-    if (len > 0) {
-    uploadNotification.init(len);
-        for (i = 0; i < len; i++) {
-            if (dirEntries[i].isFile == true) {
-                var ownCloudURI = encodeURI("http://173.230.133.34/upload.php");
-                var options = new FileUploadOptions();
-                options.fileKey = "file";
-                options.fileName = dirEntries[i].name;
-                options.mimeType = "text/plain";
-
-	            var params = {};
-	            params.dirpath = "/var/www/data/Demo/" + global_survey_related_info.job_name + "/" + global_survey_related_info.device.uuid + "/inter1/synced";
-	            options.params = params;
-
-
-                var ft = new FileTransfer();
-                ft.upload(dirEntries[i].fullPath, ownCloudURI, onTransferSuccess, onTransferFail, options);
-            }
-        }
-        //alert("All files are uploaded1");
-    } else {
-        alert("No Files Found!!");
-    }
-}
-
-
-function onTransferSuccess(r) {
-    //alert("transfer successful");
-    //alert("Code = " + r.responseCode);
-    //alert("Response = " + r.response);
-    //alert("Sent = " + r.bytesSent);
-    //var dirPath = global_survey_related_info.fileSystemObject.root.fullPath + "/qscript/" + global_survey_related_info.device.uuid + "/project_name/interviewer_id/complete";
-    var dirPath = global_survey_related_info.our_dir_fullPath + "/complete";
-    var filePath = dirPath + "/" + JSON.parse(r.response).message.filename;
-    //alert(filePath);
-    window.resolveLocalFileSystemURI(filePath, onSuccessResolutionOfFileUpload, onTransferFail);
-
-}
-
-function onSuccessResolutionOfFileUpload(fe) {
-	//var dirPath = global_survey_related_info.fileSystemObject.root.fullPath + "/qscript/" + global_survey_related_info.device.uuid + "/project_name/interviewer_id/synced";
-	var dirPath = global_survey_related_info.our_dir_fullPath + "/synced";
-    var DirEntry = new DirectoryEntry("synced", dirPath);
-    fe.moveTo(DirEntry, fe.name, onFileMoveSuccess, onTransferFail);
-}
-
-function onFileMoveSuccess(entry) {
-    //alert("All Done");
-    //alert(entry.fullPath);
-    uploadNotification.uploaded();
-}
-
-function onTransferFail(err) {
-	uploadNotification.notUploaded();
-    //alert("failed to move file");
-    //alert("An error has occurred: Code = " + err.code);
-    //alert("upload error source " + err.source);
-    //alert("upload error target " + err.target);
-}
-
-// file synn code end
-
-// gps code start
-$("#selectGPS").change(function(){
-
-    if($("#selectGPS").val()=="on")
-    {
-        //$("#btn_return_serial_no").attr("disabled", "disabled");
-        $("#popupUndismissible").popup("open");
-        navigator.geolocation.getCurrentPosition(fnGPSLocaterFound, fnGPSLocaterFailed,{timeout:180000});
-    }
-    else
-    {
-        //$("#btn_return_serial_no").removeAttr("disabled");
-        $("#popupUndismissible").popup("close");
-    }
-});
-
-function fnGPSLocaterFound(position)
-{
-    global_survey_related_info.position = position;
-
-    //$("#btn_return_serial_no").removeAttr("disabled");
-    $("#popupUndismissible").popup("close");
-
-}
-
-function fnGPSLocaterFailed(error)
-{
-	if(error.code!=2)
-	{
-	    alert('code: ' + error.code + '\n' +'message: ' + error.message + '\n');
-	    //$("#btn_return_serial_no").removeAttr("disabled");
-	    $("#popupUndismissible").popup("close");
-	    $("#selectGPS").val("off").slider("refresh");
-	}
-}
-//gps code end
-
-// this function will create required common directories
-function createCommonDirectories() {
-	var entryPath = global_survey_related_info.our_dir_fullPath;
-	
-	window.resolveLocalFileSystemURI(
-		entryPath, 
-		function(fileSystem) {
-			fileSystem.getDirectory("complete", {create: true, exclusive: false}, null, null);
-			fileSystem.getDirectory("synced", {create: true, exclusive: false}, null, null);
-		}, 
-		null
-	);
-}
-
-// this will move completed surveys to complete folder
-var moveToComplete = {
-
-	// resolve full directory path
-	onGetDirectorySuccess: {
-		init: function() {
-			var entryPath = global_survey_related_info.our_dir_fullPath + "/incomplete";
-			window.resolveLocalFileSystemURI(entryPath, this.onSuccess, this.onError);
-		},
-
-		onSuccess: function(dir) {
-			moveToComplete.onGetFileEntries.init(dir);
-		},
-
-		onError: function(error) {
-			alert("onGetDirectorySuccess " + error.code);
-		}
-	},
-
-	// get the list of all files and directories
-	onGetFileEntries: {
-		init: function(fileSystem) {
-			var dr = fileSystem.createReader();
-        	dr.readEntries(this.onSuccess, this.onError);
-		},
-
-		onSuccess: function(fileEntries) {
-			moveToComplete.onFileReaderSuccess.init(fileEntries);
-		},
-
-		onError: function(error) {
-			alert("onGetFileEntries " + error.code);
-		}
-	},
-
-	// get list of files
-	onFileReaderSuccess: {
-		init: function(fileEntries) {
-			for (var i = 0; i < fileEntries.length; i++) {
-	        	if (fileEntries[i].isFile) {
-	        		if(fileEntries[i].name.indexOf("_" + global_survey_related_info.serial_no + ".") >= 0) {
-						var dirPath = global_survey_related_info.our_dir_fullPath + "/complete";
-						var DirEntry = new DirectoryEntry("complete", dirPath);
-						fileEntries[i].moveTo(DirEntry, fileEntries[i].name, this.onSuccess, this.onError);
-	        		}
-		        }
-	        }
-		},
-
-		onSuccess: function(entry) {
-		},
-
-		onError:function(error) {
-		}
-	}
-};
-
-// this will show survey upload popup notification 
-var uploadNotification = {
-
-	success: 0,
-	fail: 0,
-	total: 0,
-
-	init: function(files) {
-		uploadNotification.total = files;
-	},
-
-	uploaded: function() {
-		uploadNotification.success++;
-		uploadNotification.update();
-	},
-
-	notUploaded: function() {
-		uploadNotification.fail++;
-		uploadNotification.update();
-	},
-
-	update: function() {
-		var msg = "Something went wrong and we don't know what it is...";
-
-		if(uploadNotification.success + uploadNotification.fail == uploadNotification.total) {
-			if(!uploadNotification.fail) {
-				msg = "All " + uploadNotification.success + " of " + uploadNotification.total + " files are uploaded successfully";
-			}
-			else {
-				msg = uploadNotification.fail + " files are not uploaded";
-			}
-			$("#popupSync").html(msg);
-			$("#popupSync").popup("open");
-			$("#popupSync").trigger('refresh');
-		}
-	}
-};
 
 my_log ("Finished loading our_ui.js");
