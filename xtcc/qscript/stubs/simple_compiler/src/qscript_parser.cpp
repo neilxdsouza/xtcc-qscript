@@ -193,6 +193,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	fprintf (script, "std::fstream messages;\n");
 	fprintf (script, "std::fstream json_messages;\n");
+	fprintf (script, "std::fstream json_assets;\n");
 	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
@@ -219,6 +220,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\t json_messages.open (\"%s.json\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
 	fprintf(script, "\tif(!json_messages) { cerr << \"unable to open file json_messages for output of json messages... exiting\\n\"; exit(1); }\n");
 	fprintf(script, "\t json_messages << \"var qnre_lang_obj = {\\n\\t\\\"en\\\":{\\n\";\n", project_name.c_str());
+	fprintf(script, "\t json_assets.open (\"%s_assets.json\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
 	fprintf(script, "}\n");
 
 

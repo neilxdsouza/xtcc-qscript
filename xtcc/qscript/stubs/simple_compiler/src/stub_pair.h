@@ -19,12 +19,12 @@ struct	stub_pair
 	int32_t code;
 	bool mask;
 	bool is_mutex;
-	bool is_other_specify;
+	bool is_other;
 	string url_image;
 	
 	stub_pair()
 		: stub_text(""), code(-1), mask(false), is_mutex(false),
-		  url_image(), is_other_specify (false)
+		  url_image(), is_other(false)
 	{ }
 	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true),
@@ -51,6 +51,8 @@ struct	stub_pair
 		return *this;
 	}
 	*/
+
+	stub_pair(string l_txt, int32_t l_code, bool p_mutex, bool p_other_specify, string p_image_url);
 
 	string stub_text_as_var_name()
 	{

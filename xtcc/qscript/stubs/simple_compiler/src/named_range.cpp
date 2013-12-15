@@ -30,7 +30,11 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		code.quest_defns_init_code 
 			<< qscript_parser::temp_name_generator.GetCurrentName() 
 			<< ".push_back( stub_pair(\"" << stubs[i].stub_text
-			<< "\", " << stubs[i].code << "));"
+			<< "\", " << stubs[i].code
+			<< ", " << (stubs[i].is_mutex ? "true" : "false" ) 
+			<< ", " << (stubs[i].is_other? "true" : "false" ) 
+			<< ", \"" << stubs[i].url_image << "\"" 
+			<< "));"
 			<< endl;
 	}
 	code.quest_defns << "named_range " << name << ";" << endl;
@@ -55,6 +59,8 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		<< "\t json_messages << \"\\\"\" << \"" <<   name  << "\" << \"_\" << " <<  qscript_parser::temp_name_generator.GetCurrentName() << "[i].code" << " << \"\\\":\\\"\" <<  "
 		<< qscript_parser::temp_name_generator.GetCurrentName()
 		<< "[i].stub_text << \"\\\",\" << endl;\n"
+		<< "if (" << qscript_parser::temp_name_generator.GetCurrentName() << "[i].url_image.length() > 0) { json_assets << "
+		<< qscript_parser::temp_name_generator.GetCurrentName() << "[i].url_image << \",\" << endl; }" << endl
 		<< "\t}\n"
 		<< "}\n";
 

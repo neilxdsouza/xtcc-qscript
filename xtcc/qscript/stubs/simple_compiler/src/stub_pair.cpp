@@ -23,10 +23,16 @@
 stub_pair::stub_pair(string l_txt, int32_t l_code, const stub_pair_options & current_stub_pair_options)
 		: stub_text(l_txt), code(l_code), mask(true),
 		  is_mutex (current_stub_pair_options.is_mutex),
-		  is_other_specify (current_stub_pair_options.is_other_specify),
+		  is_other(current_stub_pair_options.is_other_specify),
 		  url_image (current_stub_pair_options.url)
 { 
 	//using std::cout;
 	//using std::endl;
 	//cout << "url_image: " << url_image << endl;
 }
+
+	stub_pair::stub_pair(string l_txt, int32_t l_code, bool p_mutex, bool p_other_specify, string p_image_url)
+		: stub_text(l_txt), code(l_code), mask(true),
+		  is_mutex(p_mutex), is_other(p_other_specify), url_image (p_image_url)
+	{ }
+
