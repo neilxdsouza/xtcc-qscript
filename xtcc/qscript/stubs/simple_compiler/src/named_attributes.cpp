@@ -42,7 +42,7 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 
 	code.quest_defns_init_code
 		<< "named_attribute_list_vec.push_back ( &" << name << ");" << endl;
-#if 0
+#if 1
 	code.quest_defns_init_code
 		<< "\tif (write_messages_flag) {\n"
 		<< "\tfor (int i=0; i<"
@@ -51,6 +51,9 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 		<<	" << "
 		<< name
 		<< ".attribute[i] << \"</message>\\n\" << endl;\n"
+		<< "\t json_messages << \"\\\"\" << \"" <<   name  << "\" << \"_\" <<  i  << \"\\\":\\\"\" <<  "
+		<< name
+		<< ".attribute[i] << \"\\\"\" << \",\" << endl;\n"
 		<< "\t}\n"
 		<< "}\n";
 #endif /*  0 */
