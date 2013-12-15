@@ -3293,6 +3293,152 @@ void NamedStubQuestion::ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_w
 
 }
 
+void VideoQuestion:: GenerateCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	// In the ncurses version of the code VideoQuestion
+	// is meaningless - except for exporting the assets
+	// - hence dont generate any code for this type of question
+	// just move on to the next statement and generate code for it
+	/*
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}
+	*/
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+#if 0
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "VideoQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new VideoQuestion("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec";
+
+	if (q_type == video) {
+		quest_decl << ", video" ;
+	} else if (q_type == audio) {
+		quest_decl << ", audio" ;
+	} else if (q_type == image) {
+		quest_decl << ", image" ;
+	} else {
+		quest_decl << " , trigger syntax error - unhanled type";
+	}
+	quest_decl
+		<< ", QuestionAttributes(false, false)"
+		;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
+		<< ", string(\"" << file_path << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* VideoQuestion::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "VideoQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+#endif /*  0 */
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
+
+
+void VideoQuestion::WriteDataToDisk(ofstream& data_file)
+{ }
+
+string VideoQuestion::PrintSelectedAnswers()
+{
+	return string();
+}
+
+string VideoQuestion::PrintSelectedAnswers(int code_index)
+{
+
+	return string();
+}
+
+void VideoQuestion::Generate_ComputeFlatFileMap (StatementCompiledCode &code) 
+{
+	// skip VideoQuestion in data file
+	if (next_) {
+		next_->Generate_ComputeFlatFileMap(code);
+	}
+}
+
+VideoQuestion::VideoQuestion(
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		, const string& path_to_media)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes),
+	file_path (path_to_media)
+{
+
+}
+
+void VideoQuestion:: eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window
+		  )
+{
+	// dummy implementation
+}
+
 #if 0
 bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 {
@@ -3351,4 +3497,147 @@ std::string RangeQuestion::PrintSelectedAnswers(int code_index)
 {
 	//return string();
 	return std::string();
+}
+
+// ===========================================================================
+//
+
+void VideoCaptureQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			 , /*qs_ncurses::*/WINDOW* stub_list_window
+			 , /*qs_ncurses::*/WINDOW* data_entry_window
+		  	 , WINDOW * error_msg_window
+			 )
+{ }
+
+void VideoCaptureQuestion::WriteDataToDisk(ofstream& data_file)
+{ }
+
+string VideoCaptureQuestion::PrintSelectedAnswers()
+{
+	return string();
+}
+
+string VideoCaptureQuestion::PrintSelectedAnswers(int code_index)
+{
+
+	return string();
+}
+
+
+VideoCaptureQuestion::VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ }
+
+void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	// In the ncurses version of the code VideoQuestion
+	// is meaningless - except for exporting the assets
+	// - hence dont generate any code for this type of question
+	// just move on to the next statement and generate code for it
+	/*
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}
+	*/
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+#if 0
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "VideoCaptureQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new VideoCaptureQuestion("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec";
+
+	if (q_type == video_capture) {
+		quest_decl << ", video_capture" ;
+	} else if (q_type == audio_capture) {
+		quest_decl << ", audio_capture" ;
+	} else if (q_type == image_capture) {
+		quest_decl << ", image_capture" ;
+	} else {
+		quest_decl << " , trigger syntax error - unhanled type";
+	}
+	quest_decl
+		<< ", QuestionAttributes(false, false)" ;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* VideoCaptureQuestion::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "VideoCaptureQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+#endif /*  0 */
+
+	code.program_code << "/* END ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
+
+
+void VideoCaptureQuestion::Generate_ComputeFlatFileMap (StatementCompiledCode &code) 
+{
+	// skip VideoQuestion in data file
+	if (next_) {
+		next_->Generate_ComputeFlatFileMap(code);
+	}
 }

@@ -402,11 +402,93 @@ class NamedStubQuestion: public AbstractQuestion
 		NamedStubQuestion (const NamedStubQuestion&);
 };
 
-class DummyArrayQuestion: public AbstractQuestion{
+class VideoQuestion: public AbstractQuestion
+{
+public:
+	string file_path;
+
+	VideoQuestion(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			, const string& path_to_media);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GetQuestionNames(vector<string> & question_list
+			, AbstractStatement* endStatement)
+	{
+		if (this == endStatement)
+			return;
+		if (next_) {
+			next_->GetQuestionNames(question_list, endStatement);
+		}
+	}
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window
+		  );
+	virtual bool IsValid(int32_t value)
+	{
+		return true;
+	}
+	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+	void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+};
+
+class VideoCaptureQuestion: public AbstractQuestion
+{
+public:
+
+	VideoCaptureQuestion(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GetQuestionNames(vector<string> & question_list
+			, AbstractStatement* endStatement)
+	{
+		if (this == endStatement)
+			return;
+		if (next_) {
+			next_->GetQuestionNames(question_list, endStatement);
+		}
+	}
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window
+		  );
+	virtual bool IsValid(int32_t value)
+	{
+		return true;
+	}
+	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+	void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+};
+
+
+
+class DummyArrayQuestion: public AbstractQuestion
+{
 	public:
 	vector<int32_t> array_bounds;
 
-	DummyArrayQuestion(string l_qno, 
+	DummyArrayQuestion(string l_qno,
 			vector<int32_t> l_array_bounds);
 
 	void WriteDataToDisk(ofstream& data_file, const string & time_stamp, const string & jno, int ser_no);

@@ -24,11 +24,12 @@ struct	stub_pair
 	
 	stub_pair()
 		: stub_text(""), code(-1), mask(false), is_mutex(false),
-		  url_image(), is_other(false)
+		  is_other(false), url_image()
 	{ }
 	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true),
-		  is_mutex(false), url_image()
+		  is_mutex(false),
+		  is_other(false), url_image()
 	{ }
 	/* 
 	stub_pair(string l_txt, int32_t l_code, bool p_mutex)

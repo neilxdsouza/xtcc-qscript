@@ -143,6 +143,12 @@ namespace qscript_parser
 		const string &name, const string & q_txt
 		, const DataType& dt, const string & named_stub_list );
 
+	AbstractStatement * ProcessVideoQuestion (const string &name
+		, const string & q_txt //, const DataType& dt
+		, const string & path_to_media);
+
+	AbstractStatement * ProcessCaptureQuestion (const string &name
+		, const string & q_txt);
 
 	void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
 		vector <ActiveVariableInfo*> & output_info);

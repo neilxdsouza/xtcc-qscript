@@ -85,6 +85,10 @@
 %token VIDEO
 %token AUDIO
 %token IMAGE
+
+%token VIDEO_CAPTURE
+%token AUDIO_CAPTURE
+%token IMAGE_CAPTURE
 %token <dt> VOID_T
 %token <dt> INT8_T
 %token <dt> INT16_T
@@ -652,6 +656,17 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		// huge memory leak
 		text_expr_vec.clear();
 	}
+	|NAME text_expr_list qtype TEXT';' {
+		string path_to_media ($4);
+		$$ = qscript_parser::ProcessVideoQuestion($1, "dummy question text", path_to_media);
+		text_expr_vec.clear();
+		question_attributes.Reset();
+	}
+	|NAME text_expr_list qtype ';' {
+		$$ = qscript_parser::ProcessCaptureQuestion($1, "dummy question text");
+		text_expr_vec.clear();
+		question_attributes.Reset();
+	}
 	;
 
 text_expr_list: text_expr
@@ -1087,6 +1102,15 @@ qtype: SINGLE_CODED {
 	}
 	| AUDIO {
 	       qscript_parser::q_type = audio;
+	}
+	| VIDEO_CAPTURE {
+	       qscript_parser::q_type = video_capture;
+	}
+	| IMAGE_CAPTURE {
+	       qscript_parser::q_type = image_capture;
+	}
+	| AUDIO_CAPTURE {
+	       qscript_parser::q_type = audio_capture;
 	}
 	;
 
@@ -1835,6 +1859,96 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	}
 
 	return q;
+}
+
+AbstractStatement * ProcessCaptureQuestion (const string &name
+	, const string & q_txt)
+{
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	VideoCaptureQuestion* q=0;
+	if (q_type == video_capture) {
+		cout << "Got an video_capture question" << endl;
+		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes);
+	} else if (q_type == audio_capture) {
+		//q = new AudioCaptureQuestion (QUESTION_TYPE, line_no
+		//		, nest_lev, flagIsAForBody_
+		//		, name, ::text_expr_vec, q_type
+		//		, cmpd_stmt_ptr
+		//		, av_info, question_attributes);
+		cout << "Got an audio_capture question" << endl;
+		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes);
+	} else if (q_type == image_capture) {
+		cout << "Got an image_capture question" << endl;
+		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes);
+	} else {
+		std::stringstream err_mesg;
+		err_mesg << " Question has to be of video, audio or image type";
+		print_err (compiler_sem_err , err_mesg.str().c_str(),
+				qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	if (flag_next_question_start_of_block) {
+		q->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+	}
+	return q;
+}
+
+
+
+AbstractStatement * ProcessVideoQuestion (const string &name
+	, const string & q_txt //, const DataType& dt
+	, const string & path_to_media)
+{
+	//($1, "dummy question text", $4, $5);
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	VideoQuestion* q=0;
+
+	if (q_type == video || q_type == audio || q_type == image) {
+	} else {
+		std::stringstream err_mesg;
+		err_mesg << " Question has to be of video, audio or image type";
+		print_err (compiler_sem_err , err_mesg.str().c_str(),
+				qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+
+	if (qscript_parser::flagIsAForBody_) {
+		cerr << " Video within for loops not yet implemented - exiting"
+			<< endl;
+		exit (1);
+	} else {
+		q = new VideoQuestion (QUESTION_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes
+				, path_to_media
+				);
+		question_list.push_back(q);
+	}
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	if (flag_next_question_start_of_block) {
+		q->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+	}
+	return q;
+
 }
 
 
