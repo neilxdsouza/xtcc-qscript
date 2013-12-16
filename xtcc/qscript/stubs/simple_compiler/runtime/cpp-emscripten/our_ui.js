@@ -152,9 +152,9 @@ function get_translation (key) {
 }
 
 function create_single_question_title_simple (single_question_obj) {
-	my_log ("Enter: create_single_question_title_simple");
+	//my_log ("Enter: create_single_question_title_simple");
 	var the_simple_q_text = single_question_obj.question_text_arr.join();
-	my_log ("the_simple_q_text: " + the_simple_q_text);
+	//my_log ("the_simple_q_text: " + the_simple_q_text);
 	return single_question_obj.question_text_arr.join();
 }
 
@@ -187,7 +187,10 @@ function create_single_question_title (single_question_text_obj) {
 function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
 	var verbatim_file_names;
 	verbatim_file_names = [];
-
+	if (global_survey_related_info.verbatim_text_box_id_arr === undefined) {
+		global_survey_related_info.verbatim_text_box_id_arr = [];
+	}
+	global_survey_related_info.verbatim_text_box_id_arr = [];
 
 	/*
 	// hindi translation test
@@ -196,7 +199,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 	}
 	// end of hindi translation test
 	*/
-	my_log ("create_multiple_questions_view: ");
+	//my_log ("create_multiple_questions_view: ");
 
 	if (questions_obj_arr[0].question_type == 'video_q') {
 		
@@ -263,13 +266,14 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			new_question_view += "<textarea cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></textarea>";
 			new_question_view += "</form></div>";
 			if (questions_obj_arr[0].no_mpn > 1) {
-				my_log (" case single no_mpn > 1 i.e. verbatim ");
+				//my_log (" case single no_mpn > 1 i.e. verbatim ");
 				global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
 				var verbatim_fn = "";
 				verbatim_fn = global_survey_related_info.our_dir_path + "/incomplete/" +
 					curr_question_obj.qno + "." + 
 					global_survey_related_info.our_file_name + ".dat";
 				verbatim_file_names.push(verbatim_fn);
+				global_survey_related_info.verbatim_text_box_id_arr.push("input_" + curr_question_obj.qno);
 			}
 		} else {
 				global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
@@ -308,24 +312,21 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 					prevValue = curr_question_obj.current_response[0];
 				}				
 				if (questions_obj_arr[i].no_mpn > 1) {
-					new_question_view += "<input cols='40' rows='3' value='" + prevValue + "' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
+					//new_question_view += "<input cols='40' rows='3' value='" + prevValue + "' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
+					new_question_view += "<input cols='40' rows='3' value='' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
 					var verbatim_fn = "";
 					verbatim_fn = global_survey_related_info.our_dir_path + "/incomplete/" +
 						//questions_obj_arr[0].qno + "." + 
 						curr_question_obj.qno + "." + 
 						global_survey_related_info.our_file_name + ".dat";
 					verbatim_file_names.push(verbatim_fn);
+					global_survey_related_info.verbatim_text_box_id_arr.push("input_" + curr_question_obj.qno);
 				} else {
 					new_question_view += "<input cols='40' rows='3' type='number' value='" + prevValue + "' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
 				}
 				new_question_view += "</form></td></tr>";
 			}
 			new_question_view += "</table>";
-		}
-		for (var i = 0; i < verbatim_file_names.length; ++i) {
-			my_log ("creating verbatim_file handles");
-			global_survey_related_info.fileSystemObject.root.getFile(
-				verbatim_file_names[i], {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
 		}
 
 
@@ -335,15 +336,65 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 
 		document.getElementById("new_question_view").innerHTML = new_question_view;
 
+		//my_log ("verbatim_file_names.length: " + verbatim_file_names.length);
+		var function_result_arr = [];
+		for (var i = 0; i < verbatim_file_names.length; ++i) {
+			function_result_arr[i] = function (index) {
+				return function (fileEntry) {
+					//my_log ("gotVerbatimFileEntry index: " + index);
+
+					function gotVerbatimFile(file) {
+						var reader = new FileReader();
+						reader.onloadend = function(evt) {
+							//my_log ("Read verbatim data: " + evt.target.result);
+							//my_log ("global_survey_related_info.current_verbatim_index: " + global_survey_related_info.current_verbatim_index);
+							//my_log ("gotVerbatimFile index: " + index);
+							var verb_text_box = document.getElementById( global_survey_related_info.verbatim_text_box_id_arr[
+									//global_survey_related_info.current_verbatim_index
+									index ]);
+							if (verb_text_box) {
+								verb_text_box.value = evt.target.result;
+							}
+						//	console.log(evt.target.result);
+						};
+						reader.readAsText(file);
+					}
+					
+
+					//my_log("Enter: gotVerbatimFileEntry");
+					if (global_survey_related_info.verbatim_data_file_fileEntry_arr === undefined) {
+						global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
+					} else {
+						my_log ("global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+					}
+					//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
+					global_survey_related_info.verbatim_data_file_fileEntry_arr.push(fileEntry);
+					fileEntry.file(gotVerbatimFile, getFileErrorHandler);
+					//my_log ("Exit global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+				};
+			} (i);
+
+
+			//my_log ("creating verbatim_file handle: i " + i);
+			global_survey_related_info.current_verbatim_index = i;
+			global_survey_related_info.fileSystemObject.root.getFile(
+				verbatim_file_names[i], {create: true},
+				//gotVerbatimFileEntry,
+				function_result_arr[i],
+				getFileErrorHandler);
+		}
+
+		/*
 
 		if (questions_obj_arr[0].no_mpn > 1) {
 
 			var verbatim_response_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
 
 
-		global_survey_related_info.fileSystemObject.root.getFile(
-			verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
+			global_survey_related_info.fileSystemObject.root.getFile(
+				verbatim_response_path, {create: true}, gotVerbatimFileEntry, getFileErrorHandler);
 		}
+		*/
 	}
 	else if (questions_obj_arr[0].question_type == 'video_capture') {
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
@@ -637,7 +688,7 @@ function serialize (form, my_question_obj) {
 				if ( my_question_obj.no_mpn == 1) {
 					parts.push(field.value);
 				} else {
-					my_log ("trying to save verbatim file: verbatim is:" + field.value);
+					//my_log ("trying to save verbatim file: verbatim is:" + field.value);
 
 					//parts.push(field.value); // dummy value
 					parts.push("96"); // dummy value
@@ -645,7 +696,7 @@ function serialize (form, my_question_obj) {
 					/* Comment out - when running in browser
 					 * enable for cordova*/
 					var the_verbatim_data = field.value;
-					my_log ("the_verbatim_data: " + the_verbatim_data);
+					//my_log ("the_verbatim_data: " + the_verbatim_data);
 					/* : old way : 5-dec-2013
 					global_survey_related_info.current_verbatim_data = field.value;
 					if (save_verbatim_data) {
@@ -676,8 +727,7 @@ function new_serialize () {
 	//my_log ("Enter: new_serialize: global_survey_related_info.questions_obj_arr.length " +
 	//		global_survey_related_info.questions_obj_arr.length);
 
-	my_log ("Enter: new_serialize: document.forms.length " +
-			document.forms.length);
+	//my_log ("Enter: new_serialize: document.forms.length " + document.forms.length);
 
 	if (global_survey_related_info.verbatim_data_arr === undefined) {
 		global_survey_related_info.verbatim_data_arr = [];
@@ -689,7 +739,7 @@ function new_serialize () {
 	for (i = 0; i < document.forms.length; ++i) {
 		var form_serialized_data = serialize (document.forms[i], global_survey_related_info.questions_obj_arr[i]);
 		//console.log ("form_serialized_data:" );
-		my_log ("form_serialized_data:" + form_serialized_data);
+		//my_log ("form_serialized_data:" + form_serialized_data);
 		form_data_arr.push (form_serialized_data);
 		//my_log ("form_data_arr: " + form_data_arr);
 		//my_log ("finished loop iter i== " + i);
@@ -704,7 +754,7 @@ function new_serialize () {
 						fail_to_write_file);
 	}
 
-	my_log("Exit: new_serialize");
+	//my_log("Exit: new_serialize");
 	return form_data_arr;
 }
 

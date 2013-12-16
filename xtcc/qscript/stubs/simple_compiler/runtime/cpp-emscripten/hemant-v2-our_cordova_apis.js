@@ -167,6 +167,21 @@ function gotFileEntry(fileEntry) {
 	global_survey_related_info.current_data_file_fileEntry = fileEntry;
 	fileEntry.file(gotFile, getFileErrorHandler);
 }
+/*
+function gotVerbatimFile(file) {
+	var reader = new FileReader();
+	reader.onloadend = function(evt) {
+		my_log ("Read verbatim data: " + evt.target.result);
+		my_log ("global_survey_related_info.current_verbatim_index: " + global_survey_related_info.current_verbatim_index);
+		var verb_text_box = document.getElementById( global_survey_related_info.verbatim_text_box_id_arr[
+				global_survey_related_info.current_verbatim_index]);
+		if (verb_text_box) {
+			verb_text_box.value = evt.target.result;
+		}
+	//	console.log(evt.target.result);
+	};
+	reader.readAsText(file);
+}
 
 function gotVerbatimFileEntry(fileEntry) {
 	my_log("Enter: gotVerbatimFileEntry");
@@ -175,7 +190,9 @@ function gotVerbatimFileEntry(fileEntry) {
 	}
 	//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
 	global_survey_related_info.verbatim_data_file_fileEntry_arr.push(fileEntry);
+	fileEntry.file(gotVerbatimFile, getFileErrorHandler);
 }
+*/
 
 	function gotOtherSpecifyFileEntry(fileEntry) {
 		my_log("Enter: gotOtherSpecifyFileEntry");

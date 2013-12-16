@@ -459,9 +459,14 @@ void called_from_the_dom (char * data, char * other_specify_data)
 			if (question_data_vec[i].length() > 0) {
 				user_input.theUserResponse_ = user_response::UserEnteredData;
 				user_input.questionResponseDataVec_.push_back(question_data_vec[i]);
+			} else if (question_data_vec[i].length() == 0 && q->question_attributes.allowBlank_ == true) {
+				//my_log_from_cpp ("response is empty but blanks are allowed");
+				user_input.theUserResponse_ = user_response::UserEnteredData;
+				user_input.questionResponseDataVec_.push_back(question_data_vec[i]);
 			} else {
 				all_questions_answered = false;
 				not_answered_question_list << " " << q->questionName_;
+				//my_log_from_cpp ("not_answered all questions");
 			}
 		}
 	}

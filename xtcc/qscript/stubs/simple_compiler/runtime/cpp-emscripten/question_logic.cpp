@@ -43,18 +43,19 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 		vector <string> & err_mesg_vec)
 {
 	//cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
-	printf ("ENTER: %s\n", __PRETTY_FUNCTION__);
+	//printf ("ENTER: %s\n", __PRETTY_FUNCTION__);
 	//my_log_from_cpp ("eval_single_question_logic_with_input");
 	bool all_questions_success = true;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			AbstractRuntimeQuestion * q = q_vec[i];
-			cout << "Looping: validating data for question:" << q->questionName_ << endl;
+			//cout << "Looping: validating data for question:" << q->questionName_ << endl;
 #if 1
 				//cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
 				printf ("reached here, %s, %d\n", __PRETTY_FUNCTION__ ,__LINE__ );
 				if (p_user_input.questionResponseDataVec_[i].length() == 0
 						&& q->question_attributes.isAllowBlank() == true ) {
+					//my_log_from_cpp ("case response length == 0 and isAllowBlank == true");
 					// allow - serve next question
 					// note that we do not set the isAnswered_ == true for the blank question
 					// so when re-visiting this particular qnre it will automatically
@@ -62,6 +63,8 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 					//question_eval_loop2 (p_user_input, /* last_question_visited */ q,
 					//		/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 					// dont touch all_questions_success
+					// may need to re-think this in event -loop based runtime
+					q->isAnswered_ = true;
 				} else if (p_user_input.questionResponseDataVec_[i].length() == 0
 						&& q->question_attributes.isAllowBlank() == false ) {
 					// do not allow - serve the same question
