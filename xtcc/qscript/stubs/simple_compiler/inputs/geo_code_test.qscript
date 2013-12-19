@@ -1,0 +1,6 @@
+geo_code_test {
+
+loc	"Please locate your property on the map"
+	geocode_gmapv3;
+
+}
