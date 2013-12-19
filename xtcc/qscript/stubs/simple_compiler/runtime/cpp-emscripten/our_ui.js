@@ -201,7 +201,65 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 	*/
 	//my_log ("create_multiple_questions_view: ");
 
-	if (questions_obj_arr[0].question_type == 'video_q') {
+	if (questions_obj_arr[0].question_type === 'geocode_gmapv3') {
+		my_log ("case geocode_gmapv3");
+		//var new_question_view = "The humble beginnings of a geocode question";
+		var new_question_view = document.getElementById("new_question_view");
+		// Load the script first
+		//var geocode_gmap_v3_script = document.createElement("script");
+		//geocode_gmap_v3_script.type = "text/javascript";
+		//geocode_gmap_v3_script.src = "https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false";
+		//document.body.appendChild(geocode_gmap_v3_script);
+		//my_log ("case script has been added to body");
+		// Now create the div node and put it into the DOM tree
+		var map_div = document.createElement("div");
+		map_div.id = "map-canvas";
+		//map_div.style="width:500px;height:400px;"
+		map_div.style.width="500px";
+		map_div.style.height="400px";
+		var text_div = document.createElement("div");
+		text_div.id = "test_text_div";
+		text_div.innerHTML = "<p>The humble beginnings of a geocode question</p>";
+		new_question_view.appendChild (map_div);
+		new_question_view.appendChild (text_div);
+		// Address
+		var addr_div = document.createElement("div");
+		addr_div.id = "addr_info";
+		var addr1 = document.createElement("input");
+		addr1.id = "addr1";
+		addr1.type = "text";
+		addr1.placeholder = "addr1";
+		var addr2 = document.createElement("input");
+		addr2.id = "addr2";
+		addr2.type = "text";
+		addr2.placeholder = "addr2";
+		var city = document.createElement("input");
+		city.id = "city";
+		city.type = "text";
+		city.placeholder = "city";
+		var pin = document.createElement("input");
+		pin.id = "pin";
+		pin.type = "text";
+		pin.placeholder = "pin";
+		var geocode_button = document.createElement("input");
+		geocode_button.type = "button";
+		geocode_button.value = "GeoCode";
+		EventUtil.addHandler (geocode_button, "click", geocodeAddress);
+		addr_div.appendChild(addr1);
+		addr_div.appendChild(addr2);
+		addr_div.appendChild(city);
+		addr_div.appendChild(pin);
+		addr_div.appendChild(geocode_button);
+		new_question_view.appendChild(addr_div);
+		// Now initialize the map - otherwise the call to getElementById in initialize_gmap would fail
+		// as map-canvas div would not be present
+		initialize_gmap();
+		//var map_question_view_frag = document.createDocumentFragment();
+		//new_question_view.appendChild (map_question_view_frag);
+
+		//document.getElementById("new_question_view").innerHTML = new_question_view;
+		
+	} else if (questions_obj_arr[0].question_type == 'video_q') {
 		
 		var new_question_view = "";
 
@@ -1024,5 +1082,121 @@ var uploadNotification = {
 		}
 	}
 };
+
+var geocoder;
+var map;
+var marker = null;
+var infowindow ;
+
+
+function initialize_gmap() {
+	my_log ("Enter: initialize_gmap");
+	if (window.google) {
+		geocoder = new google.maps.Geocoder();
+
+		my_log ("Reached here");
+		var latlng = new google.maps.LatLng(-34.397, 150.644);
+		var mapOptions = {
+			//zoom: 8,
+			//center: latlng
+			center: new google.maps.LatLng(23.03, 72.58),
+			zoom: 15,
+			mapTypeControl: true,
+			mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU},
+			navigationControl: true,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		//map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+		var map_canvas = document.getElementById('map-canvas');
+		if (map_canvas) {
+			map = new google.maps.Map(map_canvas, mapOptions);
+		} else {
+			my_log ("unable to get element map_canvas: hence cannot create map");
+		}
+		google.maps.event.addListener(map, 'click', function() {
+			infowindow.close();
+		});
+		google.maps.event.addListener(map, 'click', function(event) {
+		//call function to create marker
+			if (marker) {
+				marker.setMap(null);
+				marker = null;
+			}
+			marker = createMarker(event.latLng, "name", "<b>Location</b><br>"+event.latLng);
+		});
+
+	} else {
+		my_log ("does not have window.google");
+	}
+
+	infowindow = new google.maps.InfoWindow(
+		{ 
+		size: new google.maps.Size(150,50)
+		});
+	my_log("Exit: initialize_gmap");
+}
+
+	// A function to create the marker and set up the event window function 
+function createMarker(latlng, name, html) {
+	var contentString = html;
+	var marker = new google.maps.Marker({
+		position: latlng,
+		map: map,
+		zIndex: Math.round(latlng.lat()*-100000)<<5
+		});
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent(contentString); 
+		infowindow.open(map,marker);
+	});
+	google.maps.event.trigger(marker, 'click');    
+	return marker;
+}
+
+
+
+
+function geocodeAddress() {
+	my_log ("Enter geocodeAddress");
+	var addr1 =  document.getElementById('addr1');
+	var addr2 =  document.getElementById('addr2');
+	var city =  document.getElementById('city');
+	var pin =  document.getElementById('pin');
+	if (addr1) {
+		my_log ("addr1: " + addr1.value);
+	}
+	if (addr2) {
+		my_log ("addr2: " + addr2.value);
+	}
+	if (city) {
+		my_log ("city: " + city.value);
+	}
+	if (pin) {
+		my_log ("pin: " + pin.value);
+	}
+
+	//var address = document.getElementById('addr1').value +  "," +
+	//	document.getElementById('addr2').value + "," +
+	//	document.getElementById('city').value  + "," +
+	//	document.getElementById('pincode').value;
+	var address = addr1.value + "," + addr2.value + ", " + city.value + ", " + pin.value;
+	my_log ("address: " + address);
+
+
+	geocoder.geocode( { 'address': address}, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			map.setCenter(results[0].geometry.location);
+			var marker = new google.maps.Marker({
+				map: map,
+				position: results[0].geometry.location
+			});
+		} else {
+			alert('Geocode was not successful for the following reason: ' + status);
+		}
+	});
+	my_log ("Exit geocodeAddress");
+}
+
+//google.maps.event.addDomListener(window, 'load', initialize);
+
 
 my_log ("Finished loading our_ui.js");

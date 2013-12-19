@@ -47,6 +47,7 @@ namespace qscript_parser
 	int32_t flagIsAForBody_ = 0;
 	int32_t page_nest_lev  = 0;
 	bool flag_next_stmt_start_of_block = false;
+	bool has_a_geocode_question = false;
 
 	std::string globalActivePageName_;
 	int32_t globalActivePageSize_;
@@ -1758,15 +1759,25 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 
 	string output_shell_filename; 
 	string sed_command;
+	string sed_stage2;
+	if (qscript_parser::has_a_geocode_question) {
+		sed_stage2 = " | sed \"s/START_REMARK//\" | sed \"s/END_REMARK//\" " ;
+	} else {
+		sed_stage2 = " | sed \"s/START_REMARK/<!--/\" | sed \"s/END_REMARK/-->/\" " ;
+	}
 
 	if (program_options_ns::browser_only_flag == false) {
 		output_shell_filename = string("/tmp/") + string("shell-phonegap-dom-callback-") + project_name + ".html";
-		sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html > ")
-					+ output_shell_filename;
+		sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ");
+		sed_command += sed_stage2;
+		string sed_finale =  string(" > ") + output_shell_filename;
+		sed_command += sed_finale;
 	} else {
 		output_shell_filename = string("/tmp/") + string("shell-browser-dom-callback-") + project_name + ".html";
-		sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-browser-dom-callback.html > ")
-					+ output_shell_filename;
+		sed_command = "sed \"s/JOB_NAME/" + project_name + "/\" " + QSCRIPT_INCLUDE_DIR + string("/shell-browser-dom-callback.html > ");
+		sed_command += sed_stage2;
+		string sed_finale =  string(" > ") + output_shell_filename;
+		sed_command += sed_finale;
 	}
 
 	cout << "sed command: " << endl

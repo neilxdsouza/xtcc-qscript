@@ -725,4 +725,29 @@ class DummyArrayQuestion: public AbstractRuntimeQuestion
 //		int &xPos, int &yPos, int maxWinX);
 
 
+class GeocodeGMapV3Question: public AbstractRuntimeQuestion
+{
+	public:
+	GeocodeGMapV3Question(
+			DataType this_stmt_type, int32_t line_number, string l_name
+			, vector<TextExpression*> text_expr_vec
+			, QuestionType l_q_type
+			//, CompoundStatement * l_enclosing_scope
+			//, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			, bool l_isStartOfBlock
+			, string l_page_name
+			);
+
+	virtual bool IsValid(int32_t value)
+	{
+		return true;
+	}
+	void WriteDataToDisk(ofstream& data_file);
+	int WriteDataToBuffer(char * & buffer_start, int & n_left);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+
+};
+
 #endif /* qscript_question_h */

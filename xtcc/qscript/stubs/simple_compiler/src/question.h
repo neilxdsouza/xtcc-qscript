@@ -517,6 +517,33 @@ public:
 	string PrintSelectedAnswers(int code_index);
 };
 
+class GeocodeGMapV3Question: public AbstractQuestion {
+public:
+	string text_address;
+	double lat, lon;
+	GeocodeGMapV3Question(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GetQuestionNames(vector<string> & question_list
+			, AbstractStatement* endStatement);
+	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+	bool IsValid(int32_t value);
+
+};
+
 class DummyArrayQuestion: public AbstractQuestion
 {
 	public:

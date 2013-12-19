@@ -80,6 +80,7 @@
 %token VIDEO
 %token AUDIO
 %token IMAGE
+%token GEOCODE_GMAPV3
 
 %token VIDEO_CAPTURE
 %token AUDIO_CAPTURE
@@ -671,6 +672,11 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		$$ = qscript_parser::ProcessCaptureQuestion($1, "dummy question text");
 		text_expr_vec.clear();
 		question_attributes.Reset();
+	}
+	| NAME text_expr_list GEOCODE_GMAPV3';' {
+		qscript_parser::q_type = geocode_gmapv3;
+		$$ = qscript_parser::ProcessGeocodeQuestion($1, qscript_parser::q_type);
+		qscript_parser::has_a_geocode_question  = true;
 	}
 	;
 
@@ -1888,6 +1894,35 @@ AbstractStatement * ProcessVideoQuestion (const string &name
 	}
 	return q;
 
+}
+
+AbstractStatement * ProcessGeocodeQuestion (const string & name, QuestionType q_type) 
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+
+	GeocodeGMapV3Question * geo_code_question = 0;
+	if (qscript_parser::flagIsAForBody_) {
+		cerr << " GEOCODE_GMAPV3 within for loops not yet implemented - exiting"
+			<< endl;
+		exit (1);
+	} else {
+		geo_code_question = new GeocodeGMapV3Question (QUESTION_TYPE, line_no
+						, nest_lev, flagIsAForBody_
+						, name, ::text_expr_vec, q_type
+						, cmpd_stmt_ptr
+						, av_info, question_attributes);
+		question_list.push_back(geo_code_question);
+	}
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	if (flag_next_question_start_of_block) {
+		geo_code_question->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+	}
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	return geo_code_question;
 }
 
 	void do_stub_pair_checks (const string & stub_text, int code, const stub_pair_options & current_stub_pair_options)

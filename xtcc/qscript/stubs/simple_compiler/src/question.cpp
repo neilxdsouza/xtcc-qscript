@@ -3722,3 +3722,162 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 	code.program_code << "/* END ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
 		<< endl;
 }
+
+// =======================================
+// GeocodeGMapV3Question
+
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ }
+
+
+void GeocodeGMapV3Question::eval(/*qs_ncurses::*/WINDOW * question_window
+			 , /*qs_ncurses::*/WINDOW* stub_list_window
+			 , /*qs_ncurses::*/WINDOW* data_entry_window)
+{ }
+
+
+void GeocodeGMapV3Question::WriteDataToDisk(ofstream& data_file)
+{ }
+
+string GeocodeGMapV3Question::PrintSelectedAnswers()
+{
+	return string();
+}
+
+string GeocodeGMapV3Question::PrintSelectedAnswers(int code_index)
+{
+	return string();
+}
+
+
+void GeocodeGMapV3Question::GetQuestionNames(vector<string> & question_list
+			       , AbstractStatement* endStatement)
+{
+	//if (qscript_debug::DEBUG_NamedStubQuestion) {
+	//	std::cout << "GeocodeGMapV3Question::GetQuestionNames" << std::endl;
+	//}
+	if (this==endStatement)
+		return;
+	//if (for_bounds_stack.size() == 0) {
+	//	question_list.push_back(questionName_);
+	//} else {
+	//	//std::stringstream s;
+	//	//s << questionName_  << "_list.questionList["
+	//	//<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+	//	//<< "]";
+	//	//question_list.push_back(s.str());
+	//	question_list.push_back(questionName_);
+	//}
+	question_list.push_back(questionName_);
+	if (next_) {
+		next_->GetQuestionNames(question_list, endStatement);
+	}
+}
+
+
+void GeocodeGMapV3Question::GenerateCode(StatementCompiledCode & code )
+{
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	} else {
+		AbstractQuestion::PrintSetupBackJump(code);
+		PrintArrayDeclarations(code);
+
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
+	}
+	if(next_){
+		next_->GenerateCode(code);
+	}
+}
+
+void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "GeocodeGMapV3Question * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new GeocodeGMapV3Question("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec";
+
+	//if (q_type == video_capture) {
+	//	quest_decl << ", video_capture" ;
+	//} else if (q_type == audio_capture) {
+	//	quest_decl << ", audio_capture" ;
+	//} else if (q_type == image_capture) {
+	//	quest_decl << ", image_capture" ;
+	//} else {
+	//	quest_decl << " , trigger syntax error - unhanled type";
+	//}
+	quest_decl << ", geocode_gmapv3";
+	quest_decl
+		<< ", QuestionAttributes(false, false)" ;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* GeocodeGMapV3Question::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "GeocodeGMapV3Question * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
+	code.program_code << "/* END ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
+
+
+bool GeocodeGMapV3Question::IsValid(int32_t value)
+{
+	return true;
+}

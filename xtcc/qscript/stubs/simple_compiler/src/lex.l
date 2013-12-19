@@ -337,6 +337,13 @@ audio_capture		{
 		return AUDIO_CAPTURE;
 	}
 
+geocode_gmapv3		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return GEOCODE_GMAPV3;
+	}
+
 const 		{
 		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return CONST;

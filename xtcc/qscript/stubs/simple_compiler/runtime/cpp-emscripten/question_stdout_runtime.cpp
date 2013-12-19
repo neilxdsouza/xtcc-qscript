@@ -571,6 +571,10 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 			} else {
 				question_json_string << " \"" << vq->file_path << "\"";
 			}
+		} else if (q->q_type == geocode_gmapv3) {
+			question_type = "geocode_gmapv3";
+			question_json_string << " \"geocode_gmapv3\"";
+			// come here and add the locationd data later
 		} else if (const VideoQuestion * vq = dynamic_cast <const VideoQuestion*> (q)) {
 			question_type = "video_q";
 			question_json_string << " \"video_q\""
