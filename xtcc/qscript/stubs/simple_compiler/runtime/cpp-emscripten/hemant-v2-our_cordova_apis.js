@@ -212,6 +212,24 @@ function gotVerbatimFileEntry(fileEntry) {
 		global_survey_related_info.media_fileEntry_arr.push(fileEntry);
 	}
 
+	function gotGeocodeFileEntry(fileEntry) {
+		my_log("Enter: gotGeocodeFileEntry");
+		if (global_survey_related_info.geocode_fileEntry_arr === undefined) {
+			global_survey_related_info.geocode_fileEntry_arr = [];
+		}
+		//global_survey_related_info.current_media_capture_file_fileEntry = fileEntry;
+		global_survey_related_info.geocode_fileEntry_arr.push(fileEntry);
+	}
+
+	function gotAddressFileEntry(fileEntry) {
+		my_log("Enter: gotAddressFileEntry");
+		if (global_survey_related_info.address_fileEntry_arr === undefined) {
+			global_survey_related_info.address_fileEntry_arr = [];
+		}
+		//global_survey_related_info.current_media_capture_file_fileEntry = fileEntry;
+		global_survey_related_info.address_fileEntry_arr.push(fileEntry);
+	}
+
 
 function gotGPSFileEntry(fileEntry) {
 	//alert("File Entry");
@@ -302,6 +320,28 @@ function save_verbatim_data(writer) {
 	my_log ("Exit : save_verbatim_data");
 }
 /* save_verbatim_data }}}2 */
+
+/* save_geocode_data{{{2 */
+function save_geocode_data(writer) {
+	my_log ("Enter : save_geocode_data: " );
+	//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
+	//writer.write(global_survey_related_info.current_geocode_data);
+	//writer.write(global_survey_related_info.current_geocode_data);
+	writer.write(global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question]);
+	my_log ("Exit : save_geocode_data");
+}
+/* save_geocode_data }}}2 */
+
+/* save_address_data{{{2 */
+function save_address_data(writer) {
+	my_log ("Enter : save_address_data: " );
+	//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
+	//writer.write(global_survey_related_info.current_address_data);
+	//writer.write(global_survey_related_info.current_address_data);
+	writer.write(global_survey_related_info.geocode_addr_data_json);
+	my_log ("Exit : save_address_data");
+}
+/* save_address_data }}}2 */
 
 /* save_verbatim_data_file_handle {{{2 */
 function save_verbatim_data_file_handle (fileEntry) {

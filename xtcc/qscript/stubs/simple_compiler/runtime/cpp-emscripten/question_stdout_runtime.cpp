@@ -530,8 +530,13 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		// ========================	
 		question_json_string
 			<< "]" << endl
-			<< ", \"no_mpn\":" << q->no_mpn
-			<< ", \"question_type\":";
+			<< ", \"no_mpn\":" << q->no_mpn;
+		if (q->question_attributes.allowBlank_) {
+			question_json_string << ", \"allow_blank\" : true ";
+		} else {
+			question_json_string << ", \"allow_blank\" : false ";
+		}
+		question_json_string << ", \"question_type\":";
 
 		stringstream s;
 		string question_type;

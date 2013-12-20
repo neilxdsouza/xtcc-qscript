@@ -6,7 +6,7 @@ var geolocationTimer = 60;
 /* newNextQ Button {{{2 */
 var newNextQ= document.getElementById("newNextQ");
 EventUtil.addHandler (newNextQ, "click", function(event) {
-	//my_log ("Enter newNextQ");
+	my_log ("Enter newNextQ");
 	var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
 	//console.log("newNextQ called");
 	var returnValue = new_serialize ();
@@ -192,6 +192,19 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 	}
 	global_survey_related_info.verbatim_text_box_id_arr = [];
 
+	if (global_survey_related_info.address_fileEntry_arr === undefined) {
+		// 1st time creation - this is useless, just 
+		// marks a point in the code where we add this to the 
+		// global
+		global_survey_related_info.address_fileEntry_arr = [];
+	}
+	if (global_survey_related_info.geocode_fileEntry_arr === undefined) {
+		global_survey_related_info.geocode_fileEntry_arr = [];
+	}
+	// reset array to null each time
+	global_survey_related_info.address_fileEntry_arr = [];
+	global_survey_related_info.geocode_fileEntry_arr = [];
+
 	/*
 	// hindi translation test
 	if (global_survey_related_info.qnre_hi_obj) {
@@ -202,6 +215,13 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 	//my_log ("create_multiple_questions_view: ");
 
 	if (questions_obj_arr[0].question_type === 'geocode_gmapv3') {
+		var geocode_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "_geocode" + "." + global_survey_related_info.our_file_name + ".dat";
+		var address_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "_address" + "." + global_survey_related_info.our_file_name + ".dat";
+
+		global_survey_related_info.fileSystemObject.root.getFile(
+					geocode_capture_file_path, {create: true}, gotGeocodeFileEntry, getFileErrorHandler);
+		global_survey_related_info.fileSystemObject.root.getFile(
+					address_capture_file_path, {create: true}, gotAddressFileEntry, getFileErrorHandler);
 		my_log ("case geocode_gmapv3");
 		//var new_question_view = "The humble beginnings of a geocode question";
 		var new_question_view = document.getElementById("new_question_view");
@@ -222,6 +242,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		text_div.innerHTML = "<p>The humble beginnings of a geocode question</p>";
 		new_question_view.appendChild (map_div);
 		new_question_view.appendChild (text_div);
+
 		// Address
 		var addr_div = document.createElement("div");
 		addr_div.id = "addr_info";
@@ -244,13 +265,28 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		var geocode_button = document.createElement("input");
 		geocode_button.type = "button";
 		geocode_button.value = "GeoCode";
+		global_survey_related_info.current_geocode_question = questions_obj_arr[0].qno;
+		my_log ("set current_geocode_question");
+		if (global_survey_related_info.geocode_question_data === undefined) {
+			global_survey_related_info.geocode_question_data = { };
+			my_log ("created global_survey_related_info.geocode_question_data object");
+		}
+		// later on - load the data from a file and pre-load it here instead of doing this
+		global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = undefined;
+		my_log ("set current_geocode_question data to undefined");
 		EventUtil.addHandler (geocode_button, "click", geocodeAddress);
 		addr_div.appendChild(addr1);
 		addr_div.appendChild(addr2);
 		addr_div.appendChild(city);
 		addr_div.appendChild(pin);
 		addr_div.appendChild(geocode_button);
-		new_question_view.appendChild(addr_div);
+
+		var q_form = document.createElement("form");
+		q_form.id = "id_form_" + questions_obj_arr[0].qno;
+		q_form.name = "form_" + questions_obj_arr[0].qno;
+		q_form.appendChild(addr_div);
+
+		new_question_view.appendChild(q_form);
 		// Now initialize the map - otherwise the call to getElementById in initialize_gmap would fail
 		// as map-canvas div would not be present
 		initialize_gmap();
@@ -395,6 +431,8 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		document.getElementById("new_question_view").innerHTML = new_question_view;
 
 		//my_log ("verbatim_file_names.length: " + verbatim_file_names.length);
+		// This is really complicated - refer to Professional Javascript : Nicholas C Zakas -
+		// Chapter 7
 		var function_result_arr = [];
 		for (var i = 0; i < verbatim_file_names.length; ++i) {
 			function_result_arr[i] = function (index) {
@@ -715,62 +753,70 @@ function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr)
 
 function serialize (form, my_question_obj) {
 	//my_log("Enter: serialize");
-	var parts = new Array();
+	var parts = [];
 	var field = null;
 	if (global_survey_related_info.other_specify_data_arr === undefined) {
 		global_survey_related_info.other_specify_data_arr = [];
 	}
 	global_survey_related_info.other_specify_data_arr = [];
 
-
-	for (var i=0; i < form.elements.length; ++i ) {
-		field = form.elements[i];
-		switch (field.type) {
-		case "radio":
-			//my_log ("case radio");
-			if (field.checked) {
-				parts.push(field.value);
-			}
-		break;
-		case "checkbox":
-			//my_log ("case checkbox");
-			if (field.checked) {
-				parts.push(field.value);
-			}
-		break;
-		case "number":
-		case "text":
-		case "textarea":
-			//my_log ("case text");
-			if (my_question_obj.question_type === "rq") {
-				if ( my_question_obj.no_mpn == 1) {
+	if (my_question_obj.question_type === "geocode_gmapv3") {
+		my_log ("collecting data from geocode question");
+		if (global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] === undefined) {
+			my_log ("geocoding question is blank, please geocode the location");
+		} else {
+			my_log ("geocoding question has data : " + global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question]);
+		}
+	} else {
+		for (var i=0; i < form.elements.length; ++i ) {
+			field = form.elements[i];
+			switch (field.type) {
+			case "radio":
+				//my_log ("case radio");
+				if (field.checked) {
 					parts.push(field.value);
-				} else {
-					//my_log ("trying to save verbatim file: verbatim is:" + field.value);
-
-					//parts.push(field.value); // dummy value
-					parts.push("96"); // dummy value
-					// Initiate file saving here
-					/* Comment out - when running in browser
-					 * enable for cordova*/
-					var the_verbatim_data = field.value;
-					//my_log ("the_verbatim_data: " + the_verbatim_data);
-					/* : old way : 5-dec-2013
-					global_survey_related_info.current_verbatim_data = field.value;
-					if (save_verbatim_data) {
-						//my_log ("save_verbatim_data:" + save_verbatim_data);
-					}
-					if (fail_to_write_file) {
-						//my_log ("fail_to_write_file:" + fail_to_write_file);
-					}
-					//my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
-					//global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
-					global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
-					*/
-					global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
 				}
+			break;
+			case "checkbox":
+				//my_log ("case checkbox");
+				if (field.checked) {
+					parts.push(field.value);
+				}
+			break;
+			case "number":
+			case "text":
+			case "textarea":
+				//my_log ("case text");
+				if (my_question_obj.question_type === "rq") {
+					if ( my_question_obj.no_mpn == 1) {
+						parts.push(field.value);
+					} else {
+						//my_log ("trying to save verbatim file: verbatim is:" + field.value);
+
+						//parts.push(field.value); // dummy value
+						parts.push("96"); // dummy value
+						// Initiate file saving here
+						/* Comment out - when running in browser
+						 * enable for cordova*/
+						var the_verbatim_data = field.value;
+						//my_log ("the_verbatim_data: " + the_verbatim_data);
+						/* : old way : 5-dec-2013
+						global_survey_related_info.current_verbatim_data = field.value;
+						if (save_verbatim_data) {
+							//my_log ("save_verbatim_data:" + save_verbatim_data);
+						}
+						if (fail_to_write_file) {
+							//my_log ("fail_to_write_file:" + fail_to_write_file);
+						}
+						//my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+						//global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
+						global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
+						*/
+						global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
+					}
+				}
+			break;
 			}
-		break;
 		}
 	}
 
@@ -808,8 +854,21 @@ function new_serialize () {
 		my_log ("global_survey_related_info.verbatim_data_arr.length: " + global_survey_related_info.verbatim_data_arr.length);
 		//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 		global_survey_related_info.current_verbatim_index = i;
-		global_survey_related_info.verbatim_data_file_fileEntry_arr [i].createWriter (save_verbatim_data, 
+		global_survey_related_info.verbatim_data_file_fileEntry_arr [i].createWriter (save_verbatim_data,
 						fail_to_write_file);
+	}
+
+	// write geocode data if any
+	if (global_survey_related_info.geocode_fileEntry_arr !== undefined ) {
+		if (global_survey_related_info.geocode_fileEntry_arr.length === 1) {
+			global_survey_related_info.geocode_fileEntry_arr[0].createWriter (save_geocode_data,
+					fail_to_write_file);
+			global_survey_related_info.address_fileEntry_arr[0].createWriter (save_address_data,
+					fail_to_write_file);
+		} else if (global_survey_related_info.geocode_fileEntry_arr.length === 0) {
+		} else {
+			my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
+		}
 	}
 
 	//my_log("Exit: new_serialize");
@@ -1091,6 +1150,10 @@ var infowindow ;
 
 function initialize_gmap() {
 	my_log ("Enter: initialize_gmap");
+	if (global_survey_related_info.geocode_question_data === undefined) {
+		global_survey_related_info.geocode_question_data = {};
+	}
+
 	if (window.google) {
 		geocoder = new google.maps.Geocoder();
 
@@ -1179,6 +1242,13 @@ function geocodeAddress() {
 	//	document.getElementById('city').value  + "," +
 	//	document.getElementById('pincode').value;
 	var address = addr1.value + "," + addr2.value + ", " + city.value + ", " + pin.value;
+	global_survey_related_info.geocode_addr_data_json = 
+		"{" + 
+		" \"addr1\" : \"" + addr1.value + "\" " +
+		",\"addr2\" : \"" + addr2.value + "\" " +
+		",\"city\" : \"" + city.value + "\" " +
+		",\"pin\" : \"" + pin.value + "\" " + 
+		"}";
 	my_log ("address: " + address);
 
 
@@ -1189,6 +1259,9 @@ function geocodeAddress() {
 				map: map,
 				position: results[0].geometry.location
 			});
+			my_log ("position/location: " + results[0].geometry.location);
+			var geocode_data = results[0].geometry.location;
+			global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = geocode_data;
 		} else {
 			alert('Geocode was not successful for the following reason: ' + status);
 		}
