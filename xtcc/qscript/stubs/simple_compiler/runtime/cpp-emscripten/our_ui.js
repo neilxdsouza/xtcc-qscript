@@ -1145,7 +1145,7 @@ var uploadNotification = {
 var geocoder;
 var map;
 var marker = null;
-var infowindow ;
+var infowindow = null ;
 
 
 function initialize_gmap() {
@@ -1177,7 +1177,9 @@ function initialize_gmap() {
 			my_log ("unable to get element map_canvas: hence cannot create map");
 		}
 		google.maps.event.addListener(map, 'click', function() {
-			infowindow.close();
+			if (infowindow) {
+				infowindow.close();
+			}
 		});
 		google.maps.event.addListener(map, 'click', function(event) {
 		//call function to create marker
@@ -1201,17 +1203,30 @@ function initialize_gmap() {
 
 	// A function to create the marker and set up the event window function 
 function createMarker(latlng, name, html) {
+	my_log ("Enter createMarker");
 	var contentString = html;
-	var marker = new google.maps.Marker({
+	if (marker) {
+		marker.setMap(null);
+		marker = null;
+	}
+	marker = new google.maps.Marker({
 		position: latlng,
 		map: map,
 		zIndex: Math.round(latlng.lat()*-100000)<<5
 		});
 	google.maps.event.addListener(marker, 'click', function() {
+		my_log ("click function of map triggered");
+		// =========
+		//var geocode_data = results[0].geometry.location;
+		//var geocode_data = latlng;
+		global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = latlng;
+		map.setCenter( latlng);
+		// =========
 		infowindow.setContent(contentString); 
 		infowindow.open(map,marker);
 	});
-	google.maps.event.trigger(marker, 'click');    
+	google.maps.event.trigger(marker, 'click');
+	my_log ("Exiting createMarker");
 	return marker;
 }
 
@@ -1253,17 +1268,28 @@ function geocodeAddress() {
 
 
 	geocoder.geocode( { 'address': address}, function(results, status) {
+		my_log ("doing the geo-coding right now");
 		if (status == google.maps.GeocoderStatus.OK) {
-			map.setCenter(results[0].geometry.location);
-			var marker = new google.maps.Marker({
-				map: map,
-				position: results[0].geometry.location
-			});
 			my_log ("position/location: " + results[0].geometry.location);
-			var geocode_data = results[0].geometry.location;
-			global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = geocode_data;
+			//oldpos: var geocode_data = results[0].geometry.location;
+			//oldpos: global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = geocode_data;
+			//oldpos: map.setCenter(results[0].geometry.location);
+			//marker = new google.maps.Marker({
+			//	map: map,
+			//	position: results[0].geometry.location
+			//});
+			//marker = createMarker(event.latLng, "name", "<b>Location</b><br>"+event.latLng);
+			marker = createMarker(results[0].geometry.location, "name", "<b>Location</b><br>"+results[0].geometry.location);
+			//google.maps.event.addListener(marker, 'click', function() {
+			//	my_log ("click function of map triggered");
+			//	infowindow.setContent(contentString); 
+			//	infowindow.open(map,marker);
+			//});
+			//google.maps.event.trigger(marker, 'click');
+			my_log("geocoder callback function has finished");
+
 		} else {
-			alert('Geocode was not successful for the following reason: ' + status);
+			my_log('Geocode was not successful for the following reason: ' + status);
 		}
 	});
 	my_log ("Exit geocodeAddress");

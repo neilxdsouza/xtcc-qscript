@@ -668,12 +668,12 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		text_expr_vec.clear();
 		question_attributes.Reset();
 	}
-	|NAME text_expr_list qtype ';' {
+	|NAME text_expr_list qtype attribute_list ';' {
 		$$ = qscript_parser::ProcessCaptureQuestion($1, "dummy question text");
 		text_expr_vec.clear();
 		question_attributes.Reset();
 	}
-	| NAME text_expr_list GEOCODE_GMAPV3';' {
+	| NAME text_expr_list GEOCODE_GMAPV3 attribute_list ';' {
 		qscript_parser::q_type = geocode_gmapv3;
 		$$ = qscript_parser::ProcessGeocodeQuestion($1, qscript_parser::q_type);
 		qscript_parser::has_a_geocode_question  = true;
