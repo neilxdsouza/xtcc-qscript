@@ -2,6 +2,28 @@
 var geolocationTimer = 60;
 
 //my_log ("Started loading our_ui.js");
+//
+
+function check_all_questions_answered_or_allow_blank() {
+	var i = 0, len = global_survey_related_info.questions_obj_arr.length;
+	var blank_questions = [];
+	for ( i =  0; i < len; ++i ) {
+		var q =  global_survey_related_info.questions_obj_arr[0];
+		if (q.question_type === 'geocode_gmapv3') {
+			if (q.allow_blank === true) {
+				my_log ("q.allow_blank === true");
+			} else /*if (q.allow_blank === false) */ {
+				my_log ("q.allow_blank === false");
+				if (global_survey_related_info.geocode_question_data[q.qno] === undefined) {
+					blank_questions.push(q.qno);
+				} else {
+				}
+			}
+		}
+	}
+	return blank_questions;
+}
+
 
 /* newNextQ Button {{{2 */
 var newNextQ= document.getElementById("newNextQ");
@@ -9,9 +31,14 @@ EventUtil.addHandler (newNextQ, "click", function(event) {
 	my_log ("Enter newNextQ");
 	var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
 	//console.log("newNextQ called");
-	var returnValue = new_serialize ();
-	//my_log ("new_serialize done: " + returnValue);
-	called_from_the_dom(returnValue.join("|"));
+	var ui_front_end_check_blank_q = check_all_questions_answered_or_allow_blank();
+	if (ui_front_end_check_blank_q.length === 0) {
+		var returnValue = new_serialize ();
+		//my_log ("new_serialize done: " + returnValue);
+		called_from_the_dom(returnValue.join("|"));
+	} else {
+		my_log ("report errors that some questions are blank n = : " + ui_front_end_check_blank_q.length);
+	}
 });
 //my_log ("created newNextQ handler function");
 /* newNextQ Button }}}2 */
