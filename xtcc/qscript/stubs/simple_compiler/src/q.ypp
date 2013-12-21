@@ -677,6 +677,7 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		qscript_parser::q_type = geocode_gmapv3;
 		$$ = qscript_parser::ProcessGeocodeQuestion($1, qscript_parser::q_type);
 		qscript_parser::has_a_geocode_question  = true;
+		question_attributes.Reset();
 	}
 	;
 

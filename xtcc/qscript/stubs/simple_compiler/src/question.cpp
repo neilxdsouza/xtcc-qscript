@@ -3742,7 +3742,12 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 			 , l_q_type, 1, INT32_TYPE /* dummy */
 			 , l_enclosing_scope
 			 , l_av_info, l_question_attributes)
-{ }
+{ 
+	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "l_question_attributes.allowBlank_: " << l_question_attributes.allowBlank_ << endl;
+
+
+}
 
 
 void GeocodeGMapV3Question::eval(/*qs_ncurses::*/WINDOW * question_window
@@ -3841,7 +3846,11 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 	//}
 	quest_decl << ", geocode_gmapv3";
 	quest_decl
-		<< ", QuestionAttributes(false, false)" ;
+		<< ", QuestionAttributes("
+		<< question_attributes.hidden_
+		<< ", "
+		<< question_attributes.allowBlank_
+		<<  ") " ;
 
 	if (isStartOfBlock_) {
 		quest_decl << ", true";
