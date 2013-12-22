@@ -12,7 +12,8 @@ enum UserResponseType {
 	UserViewedVideo,
 	UserViewedImage,
 	UserListenedToAudio,
-	UserCapturedTime
+	UserCapturedTime,
+	UserGeocodedLocation
 };
 
 }

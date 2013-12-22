@@ -252,6 +252,9 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		my_log ("case geocode_gmapv3");
 		//var new_question_view = "The humble beginnings of a geocode question";
 		var new_question_view = document.getElementById("new_question_view");
+		//new_question_view.childNodes.length = 0;
+		new_question_view.innerHTML = "";
+		my_log ("cleared all childNodes from new_question_view");
 		// Load the script first
 		//var geocode_gmap_v3_script = document.createElement("script");
 		//geocode_gmap_v3_script.type = "text/javascript";
@@ -938,6 +941,7 @@ document.addEventListener ("deviceready", displayMetaData, false);
 function fnMoveFiles() {
     //get hold of the first file
     var dirPath = global_survey_related_info.our_dir_fullPath + "/complete";
+    my_log ("fnMoveFiles: " + dirPath);
     window.resolveLocalFileSystemURI(dirPath, onSuccessResolutionOfDir, onErrorResolutionOfDir);
     //move it
     //come back to this folder and try moving the next file
@@ -955,14 +959,16 @@ function onDirectoryReadFail(err) {
 
 function onErrorResolutionOfDir(err) {
     //alert("resolution failed :" + err.code);
-    alert("No files found.");
+    alert("onErrorResolutionOfDir: No files found.");
 }
 
 function onDirectoryReadSuccess(dirEntries) {
     var i, fl, len;
     len = dirEntries.length;
+    my_log ("onDirectoryReadSuccess, len: " + len);
+
     if (len > 0) {
-    uploadNotification.init(len);
+	uploadNotification.init(len);
         for (i = 0; i < len; i++) {
             if (dirEntries[i].isFile == true) {
                 var ownCloudURI = encodeURI("http://173.230.133.34/upload.php");
@@ -970,12 +976,13 @@ function onDirectoryReadSuccess(dirEntries) {
                 options.fileKey = "file";
                 options.fileName = dirEntries[i].name;
                 options.mimeType = "text/plain";
-
-	            var params = {};
-	            params.dirpath = "/var/www/data/Demo/" + global_survey_related_info.job_name + "/" + global_survey_related_info.device.uuid + "/inter1/synced";
-	            options.params = params;
-
-
+		var user_id = window.localStorage.getItem('userid');
+	        var params = {};
+	        params.dirpath = "/var/www/data/Demo/" + global_survey_related_info.job_name + "/" + global_survey_related_info.device.uuid + "/" +
+			    //global_survey_related_info.user_id +
+			    user_id +
+			    "/synced";
+	        options.params = params;
                 var ft = new FileTransfer();
                 ft.upload(dirEntries[i].fullPath, ownCloudURI, onTransferSuccess, onTransferFail, options);
             }

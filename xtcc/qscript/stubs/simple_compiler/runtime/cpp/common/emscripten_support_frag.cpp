@@ -79,7 +79,7 @@ void callback_ui_input (UserInput p_user_input,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level,
 		vector <string> & err_mesg_vec)
 {
-	//my_log_from_cpp ("callback_ui_input in emscripten_support_frag.cpp: ");
+	my_log_from_cpp ("callback_ui_input in emscripten_support_frag.cpp: ");
 	//cout << __PRETTY_FUNCTION__ << endl;
 	//printf ("%s\n", __PRETTY_FUNCTION__);
 	//my_log_from_cpp ("Enter callback_ui_input");
@@ -105,6 +105,10 @@ void callback_ui_input (UserInput p_user_input,
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
+		vector <string> err_mesg_vec;
+		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
+		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserGeocodedLocation) {
 		vector <string> err_mesg_vec;
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1, err_mesg_vec);
 		question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
@@ -260,6 +264,8 @@ void question_eval_loop2 (
 				// the bottom of this function will handle it
 		} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
 				// do nothing
+		} else if (p_user_input.theUserResponse_ == user_response::UserGeocodedLocation) {
+				// do nothing
 				// once we exit this major block == last_question_visited
 				// the bottom of this function will handle it
 		} else {
@@ -344,7 +350,7 @@ void called_from_the_dom (char * data, char * other_specify_data)
 	//printf ("data from the browser dom callback: %s\n", data);
 	//char err_mesg_buffer[4000];
 	//printf ("Enter: called_from_the_dom: data %s\n", data);
-	//my_log_from_cpp ("Entered called_from_the_dom");
+	my_log_from_cpp ("Entered called_from_the_dom");
 	//my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
@@ -454,6 +460,9 @@ void called_from_the_dom (char * data, char * other_specify_data)
 			user_input.theUserResponse_ = user_response::UserListenedToAudio;
 		} else if (q->q_type == video_capture || q->q_type == audio_capture || q->q_type == image_capture) {
 			user_input.theUserResponse_ = user_response::UserCapturedTime;
+		} else if (q->q_type == geocode_gmapv3) {
+			user_input.theUserResponse_ = user_response::UserGeocodedLocation;
+			my_log_from_cpp ("geocode_gmapv3");
 		} else {
 
 			if (question_data_vec[i].length() > 0) {

@@ -44,7 +44,7 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 {
 	//cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
 	//printf ("ENTER: %s\n", __PRETTY_FUNCTION__);
-	//my_log_from_cpp ("eval_single_question_logic_with_input");
+	my_log_from_cpp ("eval_single_question_logic_with_input");
 	bool all_questions_success = true;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
@@ -126,6 +126,13 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 			q_vec[i] -> isAnswered_ = true;
 		}
 		//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserGeocodedLocation) {
+		my_log_from_cpp ("case user_response::UserGeocodedLocation");
+		// front end checks ensure that if this question has
+		// to be answered - it is
+		for (int i = 0 ; i < q_vec.size(); ++ i) {
+			q_vec[i] -> isAnswered_ = true;
+		}
 	} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			q_vec[i] -> isAnswered_ = true;

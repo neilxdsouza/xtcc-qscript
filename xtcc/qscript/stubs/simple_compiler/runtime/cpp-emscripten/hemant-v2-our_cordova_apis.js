@@ -119,9 +119,23 @@ function get_geolocation_info()
 //global_current_survey_data_file = null;
 
 //document.addEventListener("deviceready", getFileSystemObject, false);
+//
+//
+function onResolveError(evt) {
+	my_log ( "onResolveError: filesystem entry uri failed to resolve");
+}
 
 function onFileSystemSuccess (fileSystem) {
 	global_survey_related_info.fileSystemObject = fileSystem;
+	my_log ("global_survey_related_info.fileSystemObject.root.name: " +  global_survey_related_info.fileSystemObject.root.name);
+	my_log ("global_survey_related_info.fileSystemObject.name: " +  global_survey_related_info.fileSystemObject.name);
+
+	window.resolveLocalFileSystemURI("file:///sdcard/our_ui.js", onResolveSuccess, onResolveError);
+}
+
+
+function onResolveSuccess(fileEntry) {
+	my_log("onResolveSuccess: " + fileEntry.name);
 }
 
 function fileFSError(e) {
@@ -618,6 +632,7 @@ function capturePhoto2(index)
 			//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 			my_log ("filename captured: " + mediaFiles[i].fullPath);
 			media_file_paths += mediaFiles[i].fullPath + '\n';
+			window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 		}
 		//global_survey_related_info.media_path_data = media_file_paths;
 		//global_survey_related_info.media_path_data_arr.push(media_file_paths);
@@ -652,9 +667,9 @@ function FileCaptureSuccess(mediaFiles)
 	my_log ("enter FileCaptureSuccess");
 	var media_file_paths = "", i=0, len = 0;
 	for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-		//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 		my_log ("filename captured: " + mediaFiles[i].fullPath);
 		media_file_paths += mediaFiles[i].fullPath + '\n';
+		window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 	}
 	global_survey_related_info.media_path_data = media_file_paths;
 	global_survey_related_info.current_media_capture_file_fileEntry.createWriter (save_media_path_data, fail_to_write_file);
@@ -664,14 +679,17 @@ function FileCaptureSuccess(mediaFiles)
 
 function moveFile(fileEntry)
 {      
-	window.resolveLocalFileSystemURI("file:///storage/sdcard0/Qscript", 
+	my_log ("entered moveFile");
 	//window.resolveLocalFileSystemURI("file:///storage/sdcard0/qscript", 
+	window.resolveLocalFileSystemURI(
+		"file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/",
 		function(dirEntry){
-			fileEntry.moveTo(dirEntry, fileEntry.name, function(){alert("done");}, onFail);
+			my_log ("moving file: " + fileEntry.name + " to " + dirEntry.fullPath);
+			fileEntry.moveTo(dirEntry, fileEntry.name, function(){my_log("moveFile success done");}, onFail);
 		}, onFail);
 }
 
 function onFail(error)
 {
-	alert("Error occured"+ error.code);
+	my_log("onFail: Error occured"+ error.code);
 }    
