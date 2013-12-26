@@ -458,6 +458,21 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	code.program_code << "\t qtm_datafile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
 	code.program_code << "\t}\n";
 
+	code.program_code << "\tif (write_csv_data_file_flag) {\n";
+	if (for_bounds_stack.size() == 0) {
+		code.program_code << "\t CsvFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new CsvFlatFileQuestionDiskMap(" << questionName_ << ", current_csv_map_pos);\n";
+	}  else {
+		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << "\t CsvFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new CsvFlatFileQuestionDiskMap(" << questionName_
+			<< "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< ", current_csv_map_pos);\n";
+	}
+	code.program_code << "\t current_csv_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
+	code.program_code << "\t csv_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	code.program_code << "\t}\n";
+
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
 	}

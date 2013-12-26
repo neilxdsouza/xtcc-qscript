@@ -146,6 +146,7 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 void print_write_qtm_data_to_disk(FILE *script);
 void print_write_ascii_data_to_disk(FILE *script);
+void print_write_csv_data_to_disk(FILE *script);
 void print_write_spss_file_for_ascii_data_to_disk(/*FILE *script*/StatementCompiledCode & compute_flat_map_code);
 void print_do_freq_counts(FILE *script);
 void print_write_xtcc_data_to_disk(FILE *script);
@@ -259,6 +260,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	PrintGetUserResponse(script);
 	print_write_qtm_data_to_disk(script);
 	print_write_ascii_data_to_disk(script);
+	print_write_csv_data_to_disk(script);
 	print_prompt_user_for_serial_no(script);
 	//print_write_spss_file_for_ascii_data_to_disk(script);
 	print_write_xtcc_data_to_disk(script);
@@ -335,6 +337,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
 	fprintf(script, "#include \"ArrayQuestion.h\"\n");
 	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
+	fprintf(script, "#include \"CsvFlatFileQuestionDiskMap.h\"\n");
 	fprintf(script, "#include \"XtccDataFile.h\"\n");
 	fprintf(script, "#include \"base_text.h\"\n");
 
@@ -373,6 +376,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
 	fprintf(script, "fstream flat_file;\n");
+	fprintf(script, "fstream csv_flat_file;\n");
 	fprintf(script, "fstream xtcc_datafile;\n");
 	fprintf(script, "fstream qtm_disk_file;\n");
 	fprintf(script, "extern set<string> qtm_include_files;\n");
@@ -402,9 +406,11 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_mode_flag;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
-	fprintf(script, "bool write_data_new_way;\n");
+	fprintf(script, "int32_t write_data_new_way;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
 	fprintf(script, "bool write_xtcc_data_file_flag;\n");
+	fprintf(script, "int32_t write_csv_data_file_flag;\n");
+	fprintf(script, "int32_t verbatim_mode_flag;\n");
 	fprintf(script, "string company_name;\n");
 	fprintf(script, "string uuid;\n");
 
@@ -437,12 +443,15 @@ void print_header(FILE* script, bool ncurses_flag)
 	// print_array_question_class(script);
 	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
 	fprintf(script, "char * flat_file_output_buffer = 0;\n");
+	fprintf(script, "char * csv_flat_file_output_buffer = 0;\n");
 	fprintf(script, "char * xtcc_datafile_output_buffer = 0;\n");
 	fprintf(script, "int32_t len_flat_file_output_buffer  = 0;\n");
+	fprintf(script, "int32_t len_csv_flat_file_output_buffer  = 0;\n");
 	fprintf(script, "int32_t len_xtcc_datafile_output_buffer  = 0;\n");
 	//print_flat_ascii_data_class(script);
 	//print_qtm_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
+	fprintf(script, "vector <CsvFlatFileQuestionDiskMap*> csv_flatfile_question_disk_map;\n");
 	fprintf(script, "vector <XtccDataFileDiskMap*> xtcc_question_disk_map;\n");
 	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
 	fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
@@ -799,7 +808,7 @@ int32_t check_parameters(AbstractExpression* e, VariableList* v)
 const char * file_exists_check_code()
 {
 	const char * file_check_code =
-	"\t\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
+	"\t\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag||write_csv_data_file_flag) {\n"
 	"\t\t\t write_this_data_file = true;\n"
 	"\t\t\treset_questionnaire();\n"
 	"\t\t\tif (write_data_new_way) {\n"
@@ -1553,7 +1562,8 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	int c;\n");
 	fprintf(script, "\tenum long_option_values  {\n");
 	fprintf(script, "\t	COMPANY_NAME=255,\n");
-	fprintf(script, "\t	UUID\n");
+	fprintf(script, "\t	UUID,\n");
+	fprintf(script, "\t	CSV_FLAG\n");
 	fprintf(script, "\t};\n");
 
 
@@ -1566,14 +1576,34 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "\t		{ \"spss-data\", no_argument, 0, 'w'} ,\n");
 	fprintf(script, "\t		{ \"qtm-data\", no_argument, 0, 'q'} ,\n");
 	fprintf(script, "\t		{ \"xtcc-data\", no_argument, 0, 'x'} ,\n");
+	fprintf(script, "\t		{ \"csv-data\", no_argument, &write_csv_data_file_flag, 1} ,\n");
+	fprintf(script, "\t		{ \"verbatim-mode\", no_argument, &verbatim_mode_flag, 1} ,\n");
+	fprintf(script, "\t		{ \"write_data_new_way\", no_argument, &write_data_new_way, 1} ,\n");
 	fprintf(script, "\t		{ \"new-data\", required_argument, 0, 'n'} ,\n");
 	fprintf(script, "\t		{ \"company_name\", required_argument, 0, COMPANY_NAME} ,\n");
 	fprintf(script, "\t		{ \"uuid\", required_argument, 0, UUID},\n");
 	fprintf(script, "\t		{ 0, 0, 0, 0}\n");
 	fprintf(script, "\t	};\n\n\n\n");
 	fprintf(script, "	while ( (c = getopt_long(argc, argv, \"msxwqn:\", long_options, &optind)) != -1) {\n");
+	//fprintf(script, "	c = getopt_long (argc, argv, "molcsnw:f:", long_options, &option_index);
+	fprintf(script, "	if (c == -1) {\n");
+	fprintf(script, "		break;\n");
+	fprintf(script, "	} else if (c == 0) {\n");
+	fprintf(script, "		continue;\n");
+	fprintf(script, "	}\n");
+
+
+
+
+
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
+
+	fprintf(script, "		case CSV_FLAG: {\n");
+	fprintf(script, "			  write_mode_flag = true;\n");
+	fprintf(script, "			  write_csv_data_file_flag = true;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		break;\n");
 
 	fprintf(script, "		case 'w': {\n");
 	fprintf(script, "			  write_mode_flag = true;\n");
@@ -1661,10 +1691,20 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "			  cerr << \"invalid options: ch: \" << ch << \", c: \" << c << endl;\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
+	fprintf(script, "if (write_csv_data_file_flag) {\n");
+	fprintf(script, "	write_mode_flag = true;\n");
+	fprintf(script, "}\n");
+	fprintf(script, "cout << \"write_mode_flag: \" << write_mode_flag << endl;\n");
+
+
+
+
+
 	fprintf(script, "	cout << \"output_data_file_name: \" << output_data_file_name << endl;\n");
 	fprintf(script, "	cout << \"write_data_file_flag: \" << write_data_file_flag << endl;\n");
 	fprintf(script, "	cout << \"output_qtm_data_file_name: \" << output_qtm_data_file_name << endl;\n");
 	fprintf(script, "	cout << \"write_qtm_data_file_flag: \" << write_qtm_data_file_flag << endl;\n");
+	fprintf(script, "	cout << \"write_csv_data_file_flag: \" << write_csv_data_file_flag << endl;\n");
 	fprintf(script, "	cout << \"company_name: \" << company_name << endl;\n");
 	fprintf(script, "	cout << \"uuid: \" << uuid << endl;\n");
 	fprintf(script, "	cout << \"Exit: \" << __PRETTY_FUNCTION__ << endl;\n");
@@ -1691,7 +1731,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\tprocess_options(argc, argv);\n");
 	fprintf(script, "\t if (write_messages_flag) { TheQuestionnaire qnre; exit(1); }\n");
 	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
-	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n");
+	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag||write_csv_data_file_flag) {\n");
 	fprintf(script, "\t	qtm_data_file_ns::init();\n");
 	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
 	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
@@ -1742,10 +1782,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 {
 	compute_flat_map_code.program_code << "void compute_flat_file_map_and_init()\n{\n";
 	compute_flat_map_code.program_code
-		<< "if (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)\n"
+		<< "if (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag || write_csv_data_file_flag)\n"
 		<< "{\n"
 		<< "\tint current_map_pos = 0;\n"
-		<< "\tint current_xtcc_map_pos = 0;\n";
+		<< "\tint current_xtcc_map_pos = 0;\n"
+		<< "\tint current_csv_map_pos = 0;\n";
 	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n"
 		<< "\t\tqtm_datafile_conf_parser_ns::load_config_file(jno);\n"
 		<< "\t\tqtm_data_file.Initialize();\n"
@@ -1785,6 +1826,10 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\t\tcurrent_xtcc_map_pos += 4; // serial no is 4 bytes fixed\n";
 	compute_flat_map_code.program_code << "\t}\n";
 
+	compute_flat_map_code.program_code << "\tif (write_csv_data_file_flag) {\n";
+	compute_flat_map_code.program_code << "\t\tcurrent_csv_map_pos += 4; // serial no is 4 bytes fixed\n";
+	compute_flat_map_code.program_code << "\t}\n";
+
 
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
@@ -1803,18 +1848,25 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\txtcc_question_disk_map[i]->print_map(xtcc_map_file);\n"
 		<< "\t}\n";
 
-	compute_flat_map_code.program_code << "\tlen_flat_file_output_buffer = current_map_pos+1;\n";
-	compute_flat_map_code.program_code << "\tlen_xtcc_datafile_output_buffer = current_xtcc_map_pos+1;\n";
-	compute_flat_map_code.program_code << "\tflat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
-	compute_flat_map_code.program_code << "\txtcc_datafile_output_buffer = new char[len_xtcc_datafile_output_buffer];\n";
-	compute_flat_map_code.program_code << "\tmemset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
-	compute_flat_map_code.program_code << "\tmemset(xtcc_datafile_output_buffer, '\\0', len_xtcc_datafile_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "\t len_flat_file_output_buffer = current_map_pos+1;\n";
+	compute_flat_map_code.program_code << "\t len_csv_flat_file_output_buffer   = current_csv_map_pos+1;\n";
+	compute_flat_map_code.program_code << "\t len_xtcc_datafile_output_buffer = current_xtcc_map_pos+1;\n";
+	compute_flat_map_code.program_code << "\t flat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
+	compute_flat_map_code.program_code << "\t xtcc_datafile_output_buffer = new char[len_xtcc_datafile_output_buffer];\n";
+	compute_flat_map_code.program_code << "\t csv_flat_file_output_buffer = new char[len_csv_flat_file_output_buffer];\n";
+	compute_flat_map_code.program_code << "\t memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "\t memset(csv_flat_file_output_buffer, ' ', len_csv_flat_file_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "\t memset(xtcc_datafile_output_buffer, '\\0', len_xtcc_datafile_output_buffer-1);\n";
 	compute_flat_map_code.program_code << "\tflat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
 	compute_flat_map_code.program_code << "\txtcc_datafile_output_buffer[len_xtcc_datafile_output_buffer-1] = 0;\n";
+	compute_flat_map_code.program_code << "\t csv_flat_file_output_buffer[len_csv_flat_file_output_buffer-1] = 0;\n";
 	compute_flat_map_code.program_code << "\tstring flat_file_name(jno + string(\".dat\"));\n";
 	compute_flat_map_code.program_code << "\tflat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\tstring xtcc_datafile_name(jno + string(\".xdat\"));\n";
+
 	compute_flat_map_code.program_code << "\txtcc_datafile.open(xtcc_datafile_name.c_str(), ios_base::out | ios_base::trunc | ios_base::binary);\n";
+	compute_flat_map_code.program_code << "\t\tstring csv_disk_file_name(jno + string(\".csv\"));\n";
+	compute_flat_map_code.program_code << "\t\tcsv_flat_file.open(csv_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 
 	//if (config_file_parser::PLATFORM != "WINDOWS") {
 #ifdef __linux
@@ -2006,6 +2058,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\tqtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n";
 	compute_flat_map_code.program_code << "\t\tstring qtm_disk_file_name(jno + string(\".qdat\"));\n";
 	compute_flat_map_code.program_code << "\t\tqtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
+
 	compute_flat_map_code.program_code << "\t}\n";
 
 	compute_flat_map_code.program_code
@@ -3478,7 +3531,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "void eval()\n{\n");
 	// fprintf(script, "\tint ser_no = 0;\n");
 	if(ncurses_flag) {
-		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
+		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag||write_xtcc_data_file_flag||write_csv_data_file_flag)) {\n");
 		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
 		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
 		fprintf(script, "\t}\n");
@@ -3521,7 +3574,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	//fprintf (script, "\tDataFileIterator data_file_iterator (filename_pattern.str().c_str(), \".\");\n");
 	fprintf (script, "\tSequentialFileIterator data_file_iterator (data_file_dump, filename_pattern.str());\n");
 	fprintf (script, "\tbool write_this_data_file = true;\n");
-	fprintf (script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
+	fprintf (script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag||write_csv_data_file_flag)) {\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp
 
 	fprintf(script, "%s\n", file_exists_check_code());
@@ -3542,6 +3595,12 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
 	fprintf(script, "\t\t if (write_this_data_file) { cout << \"write_qtm_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\twrite_qtm_data_to_disk();}\n");
+
+	fprintf(script, "\t} else if (write_csv_data_file_flag) {\n");
+	fprintf(script, "\t\t if (write_this_data_file) { cout << \"write_csv_data_file_flag is set\\n\";\n");
+	fprintf(script, "\t\twrite_csv_data_to_disk();}\n");
+
+
 	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
 	fprintf(script, "\t\t if (write_this_data_file) {cout << \"write_xtcc_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\t write_xtcc_data_to_disk();}\n");
@@ -3597,7 +3656,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	if(ncurses_flag)
 		fprintf(script, "\tendwin();\n");
 
-	fprintf(script, "    if (write_qtm_data_file_flag||write_data_file_flag || write_xtcc_data_file_flag) {\n");
+	fprintf(script, "    if (write_qtm_data_file_flag||write_data_file_flag || write_xtcc_data_file_flag||write_csv_data_file_flag) {\n");
 	fprintf(script, "\n");
 	fprintf(script, "           string freq_count_file_name(jno + string(\".freq_count.csv\"));\n");
 	fprintf(script, "           fstream freq_count_file(freq_count_file_name.c_str(), ios_base::out | ios_base::trunc);\n");
@@ -3851,6 +3910,39 @@ void print_write_ascii_data_to_disk(FILE *script)
 	fprintf(script, "	// cout << \"output_buffer: \" << flat_file_output_buffer;\n");
 	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
 	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "	do_freq_counts();\n");
+	fprintf(script, "}\n");
+}
+
+void print_write_csv_data_to_disk(FILE *script)
+{
+	fprintf(script, "void write_csv_data_to_disk()\n{\n");
+	fprintf(script, "	stringstream temp_ser_no_str;\n");
+	fprintf(script, "	temp_ser_no_str << ser_no;\n");
+	fprintf(script, "	if (temp_ser_no_str.str().length() > ser_no_pos) {\n");
+	fprintf(script, "		cerr << \"space reserved to hold serial no: \" \n");
+	fprintf(script, "			<< ser_no_pos << \" is not enough\"\n");
+	fprintf(script, "			<< \" to hold this serial no: \" \n");
+	fprintf(script, "			<< ser_no << endl;\n");
+	fprintf(script, "		exit(1);\n");
+	fprintf(script, "	} else {\n");
+	fprintf(script, "		for (int i=0; i<temp_ser_no_str.str().length(); ++i) {\n");
+	fprintf(script, "			csv_flat_file_output_buffer[i] = temp_ser_no_str.str()[i];\n");
+	fprintf(script, "		//cout << \"writing digit \" << temp_ser_no_str[i] << \" to csv_flat_file_output_buffer\" << endl;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "\n");
+
+	fprintf(script, "	stringstream csv_flat_file_output_buffer_str;\n");
+	fprintf(script, "	csv_flat_file_output_buffer_str << ser_no;\n");
+
+
+	fprintf(script, "	for (int i=0; i<csv_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		csv_flatfile_question_disk_map[i]->write_data (csv_flat_file_output_buffer_str);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	// cout << \"output_buffer: \" << flat_file_output_buffer;\n");
+	fprintf(script, "	csv_flat_file << csv_flat_file_output_buffer_str.str() << endl;\n");
+	fprintf(script, "	//memset(csv_flat_file_output_buffer, ' ', len_csv_flat_file_output_buffer-1);\n");
 	fprintf(script, "	do_freq_counts();\n");
 	fprintf(script, "}\n");
 }
