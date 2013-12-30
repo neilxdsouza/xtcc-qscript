@@ -269,9 +269,42 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		map_div.style.height="400px";
 		var text_div = document.createElement("div");
 		text_div.id = "test_text_div";
-		text_div.innerHTML = "<p>The humble beginnings of a geocode question</p>";
+		//text_div.innerHTML = "<p>The humble beginnings of a geocode question</p>";
+		text_div.innerHTML = "<p>" + questions_obj_arr[0].question_text_arr.join() + "</p>";
+
+		// <p>A paragraph with a tooltip. <a href="#popupInfo" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a></p>
+		// <div data-role="popup" id="popupInfo" class="ui-content" data-theme="a" style="max-width:350px;">
+		//   <p>Here is a <strong>tiny popup</strong> being used like a tooltip. The text will wrap to multiple lines as needed.</p>
+		// </div>
+
 		new_question_view.appendChild (map_div);
 		new_question_view.appendChild (text_div);
+		
+		if (questions_obj_arr[0].help_text.length > 0) {
+			// there are 2 parts
+			// this is the anchor for the popup
+			var anchor_for_help_popup = document.createElement("a");
+			anchor_for_help_popup.setAttribute("href", "#" + questions_obj_arr[0].qno + "_help");
+			anchor_for_help_popup.setAttribute("data-transition", "pop");
+			anchor_for_help_popup.setAttribute("data-rel", "popup");
+			anchor_for_help_popup.setAttribute("title", "Help");
+			anchor_for_help_popup.innerText = "Help";
+			anchor_for_help_popup.className = "my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext";
+			text_div.appendChild(anchor_for_help_popup);
+			// This is the popup itself =========== 
+			var help_div = document.createElement("div");
+			help_div.id = questions_obj_arr[0].qno + "_help";
+			help_div.setAttribute("data-role", "popup");
+			help_div.setAttribute("data-theme", "a");
+			help_div.className  = "ui-content" ;
+			help_div.style.maxWidth = "350px";
+			help_div.style.color = "blue";
+			var help_par = document.createElement("p");
+			help_par.innerText = questions_obj_arr[0].help_text;
+			my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
+			help_div.appendChild(help_par);
+			new_question_view.appendChild (help_div);
+		}
 
 		// Address
 		var addr_div = document.createElement("div");

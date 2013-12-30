@@ -93,7 +93,7 @@ DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bou
 			//, string(l_qno + "_dummy")
 			, vector<TextExpression*>()
 			, spn, 0
-			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
+			   , INT32_TYPE, QuestionAttributes(true, true, string("")), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
 	  
 { }

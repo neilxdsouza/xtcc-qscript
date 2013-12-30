@@ -3850,6 +3850,9 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 		<< question_attributes.hidden_
 		<< ", "
 		<< question_attributes.allowBlank_
+		<< ", string(\""
+		<< question_attributes.helpText_
+		<< "\")"
 		<<  ") " ;
 
 	if (isStartOfBlock_) {

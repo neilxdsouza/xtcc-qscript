@@ -391,6 +391,13 @@ hide 	{
 		return HIDDEN;
 }
 
+help_popup {
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return HELP_POPUP;
+}
+
 allow_blank	{
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);

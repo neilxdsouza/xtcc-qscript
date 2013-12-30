@@ -11,9 +11,11 @@ struct QuestionAttributes
 {
 	bool hidden_;
 	bool allowBlank_;
+	std::string helpText_;
 	void Reset();
 	QuestionAttributes();
-	QuestionAttributes(bool p_Hidden, bool p_allowBlank);
+	QuestionAttributes(bool p_Hidden, bool p_allowBlank, const std::string & p_help_text  );
+	void setHelpText(const std::string & p_help_text );
 	void setHidden();
 	void setAllowBlank();
 	bool isAllowBlank();

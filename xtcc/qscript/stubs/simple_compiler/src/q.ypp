@@ -98,6 +98,7 @@
 %token GOTO
 %token HIDDEN
 %token ALLOW_BLANK
+%token HELP_POPUP
 %token MUTEX
 %token OTHER
 %token CLEAR
@@ -770,6 +771,9 @@ attribute: HIDDEN {
 	}
 	| ALLOW_BLANK {
 		question_attributes.setAllowBlank();
+	}
+	| HELP_POPUP TEXT {
+		question_attributes.setHelpText($2);
 	}
 	;
 
