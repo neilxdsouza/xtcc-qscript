@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include "question.h"
+#include "new_simple_merge.h"
 
 class CsvFlatFileQuestionDiskMap
 {
@@ -17,7 +18,7 @@ class CsvFlatFileQuestionDiskMap
 		CsvFlatFileQuestionDiskMap(AbstractQuestion * p_q, int32_t p_start_pos);
 		int GetTotalLength() { return total_length; }
 		//void write_data (char * output_buffer)
-		void write_data (std::stringstream & output_buffer);
+		void write_data (std::stringstream & output_buffer, SequentialFileIterator & data_file_iterator);
 		void write_csv_header (std::stringstream & output_buffer);
 #if 0
 		{

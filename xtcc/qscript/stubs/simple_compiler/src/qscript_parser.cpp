@@ -41,6 +41,7 @@ namespace qscript_parser
 	int32_t page_nest_lev  = 0;
 
 	bool flag_next_stmt_start_of_block = false;
+	bool has_a_geocode_question = false;
 
 	std::string globalActivePageName_;
 	int32_t globalActivePageSize_;
@@ -393,6 +394,7 @@ void print_header(FILE* script, bool ncurses_flag)
 
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
+	fprintf(script, "vector <AbstractQuestion*> question_disk_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "bool write_messages_flag;\n");
 
@@ -1663,6 +1665,8 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "					write_data_file_flag = true;\n");
 	fprintf(script, "				} else if (option_arg == string(\"xtcc\")) {\n");
 	fprintf(script, "					write_xtcc_data_file_flag = true;\n");
+	fprintf(script, "				} else if (option_arg == string(\"csv\")) {\n");
+	fprintf(script, "					write_csv_data_file_flag = true;\n");
 	fprintf(script, "				} else {\n");
 	fprintf(script, "					cerr << \"invalid parameter: \" << option_arg\n");
 	fprintf(script, "						<< \" for -n can be qtm or spss or xtcc ... exiting\" << endl;\n");
@@ -3554,14 +3558,14 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf (script, "\tif (uuid.length() > 0) {\n");
 	fprintf (script, "\t	filename_pattern << uuid << \"/\";\n");
 	fprintf (script, "\t} else {\n");
-	fprintf (script, "\t	filename_pattern << \".*\"<< \"/\";\n");
+	fprintf (script, "\t	filename_pattern << \"^\\\\./[^/]*/\";\n");
 	fprintf (script, "\t}\n");
 	fprintf (script, "\tfilename_pattern\n");
-	fprintf (script, "\t	<< \".*/\"\n");
+	fprintf (script, "\t	<< \"[^/]*/\"\n");
 	fprintf (script, "\t	<< \"synced/\" \n");
 	fprintf (script, "\t	<< \"[1-9][0-9]*\" << \"_[1-9][0-9]*\" <<  \"_[1-9][0-9]*\\\\.dat$\";\n");
 	fprintf (script, "\t                                                                \n");
-	fprintf (script, "\tcout << \"filename_pattern: \" << filename_pattern.str() << endl;\n");
+	fprintf (script, "\tcerr << \"filename_pattern: \" << filename_pattern.str() << endl;\n");
 	//fprintf (script, "exit(1);\n");
 	fprintf (script, "\n");
 
@@ -3598,7 +3602,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "\t} else if (write_csv_data_file_flag) {\n");
 	fprintf(script, "\t\t if (write_this_data_file) { cout << \"write_csv_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\twrite_csv_data_to_disk();}\n");
+	fprintf(script, "\t\twrite_csv_data_to_disk(data_file_iterator);}\n");
 
 
 	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
@@ -3916,21 +3920,21 @@ void print_write_ascii_data_to_disk(FILE *script)
 
 void print_write_csv_data_to_disk(FILE *script)
 {
-	fprintf(script, "void write_csv_data_to_disk()\n{\n");
-	fprintf(script, "	stringstream temp_ser_no_str;\n");
-	fprintf(script, "	temp_ser_no_str << ser_no;\n");
-	fprintf(script, "	if (temp_ser_no_str.str().length() > ser_no_pos) {\n");
-	fprintf(script, "		cerr << \"space reserved to hold serial no: \" \n");
-	fprintf(script, "			<< ser_no_pos << \" is not enough\"\n");
-	fprintf(script, "			<< \" to hold this serial no: \" \n");
-	fprintf(script, "			<< ser_no << endl;\n");
-	fprintf(script, "		exit(1);\n");
-	fprintf(script, "	} else {\n");
-	fprintf(script, "		for (int i=0; i<temp_ser_no_str.str().length(); ++i) {\n");
-	fprintf(script, "			csv_flat_file_output_buffer[i] = temp_ser_no_str.str()[i];\n");
-	fprintf(script, "		//cout << \"writing digit \" << temp_ser_no_str[i] << \" to csv_flat_file_output_buffer\" << endl;\n");
-	fprintf(script, "		}\n");
-	fprintf(script, "	}\n");
+	fprintf(script, "void write_csv_data_to_disk(SequentialFileIterator & data_file_iterator)\n{\n");
+	fprintf(script, "	//stringstream temp_ser_no_str;\n");
+	fprintf(script, "	//temp_ser_no_str << ser_no;\n");
+	fprintf(script, "	//if (temp_ser_no_str.str().length() > ser_no_pos) {\n");
+	fprintf(script, "	//	cerr << \"space reserved to hold serial no: \" \n");
+	fprintf(script, "	//		<< ser_no_pos << \" is not enough\"\n");
+	fprintf(script, "	//		<< \" to hold this serial no: \" \n");
+	fprintf(script, "	//		<< ser_no << endl;\n");
+	fprintf(script, "	//	exit(1);\n");
+	fprintf(script, "	//} else {\n");
+	fprintf(script, "	//	for (int i=0; i<temp_ser_no_str.str().length(); ++i) {\n");
+	fprintf(script, "	//		csv_flat_file_output_buffer[i] = temp_ser_no_str.str()[i];\n");
+	fprintf(script, "	//	//cout << \"writing digit \" << temp_ser_no_str[i] << \" to csv_flat_file_output_buffer\" << endl;\n");
+	fprintf(script, "	//	}\n");
+	fprintf(script, "	//}\n");
 	fprintf(script, "\n");
 
 	fprintf(script, "	stringstream csv_flat_file_output_buffer_str;\n");
@@ -3938,7 +3942,7 @@ void print_write_csv_data_to_disk(FILE *script)
 
 
 	fprintf(script, "	for (int i=0; i<csv_flatfile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		csv_flatfile_question_disk_map[i]->write_data (csv_flat_file_output_buffer_str);\n");
+	fprintf(script, "		csv_flatfile_question_disk_map[i]->write_data (csv_flat_file_output_buffer_str, data_file_iterator);\n");
 	fprintf(script, "	}\n");
 	fprintf(script, "	// cout << \"output_buffer: \" << flat_file_output_buffer;\n");
 	fprintf(script, "	csv_flat_file << csv_flat_file_output_buffer_str.str() << endl;\n");

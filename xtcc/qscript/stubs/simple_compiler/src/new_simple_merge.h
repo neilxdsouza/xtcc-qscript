@@ -22,9 +22,12 @@ struct SequentialFileIterator {
 	FILE * all_files;
 	std::string file_name_regex_pattern;
 	regex_t file_name_regex;
+	std::string filename_part;
+	std::string dir_part;
 
 	SequentialFileIterator (FILE * fptr, std::string file_name_pattern);
 	std::string get_next_data_file ();
+	void split_name_into_filename_and_dir(const std::string & file_path);
 };
 
 

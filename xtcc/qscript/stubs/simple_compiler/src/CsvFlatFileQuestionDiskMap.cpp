@@ -16,12 +16,13 @@
  * =====================================================================================
  */
 
-#include "CsvFlatFileQuestionDiskMap.h"
-#include "ArrayQuestion.h"
-#include "named_range.h"
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+
+#include "CsvFlatFileQuestionDiskMap.h"
+#include "ArrayQuestion.h"
+#include "named_range.h"
 
 using std::cout;
 using std::cerr;
@@ -63,7 +64,7 @@ void CsvFlatFileQuestionDiskMap::write_csv_header (std::stringstream & output_bu
 
 }
 
-void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer)
+void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, SequentialFileIterator & data_file_iterator)
 {
 	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	//char * ptr = output_buffer + start_pos;
@@ -75,6 +76,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer)
 	// warning - the code below will only work if there is
 	// exactly 1 named attribute in the question which is randomized
 	//
+	//extern SequentialFileIterator data_file_iterator;
 	if (q->textExprVec_.size() > 0 ) {
 		cout << __PRETTY_FUNCTION__ << ", q->textExprVec_.size() > 0" << endl;
 		for (int i=0; i< q->textExprVec_.size(); ++i) {
@@ -196,6 +198,88 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer)
 		} else {
 			output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn);
 		}
+	} else if (VideoCaptureQuestion * mcq = dynamic_cast<VideoCaptureQuestion*> (q)) {
+		stringstream media_data_file_name;
+		media_data_file_name
+			<< data_file_iterator.dir_part 
+			<< q->questionName_
+			<< "." 
+			<< data_file_iterator.filename_part
+			;
+		if (mcq->q_type == video_capture) {
+			output_buffer << ",\"video_capture\" : ";
+		} else if (mcq->q_type == audio_capture) {
+			output_buffer << ",\"audio_capture\" : ";
+		} else if (mcq->q_type == image_capture) {
+			output_buffer << ",\"image_capture\" : ";
+		}
+		cerr << "media_data_file_name: " << media_data_file_name << endl;
+		std::fstream media_data_file(media_data_file_name.str().c_str());
+		if (media_data_file) {
+			char buffer[257];
+			buffer[255]=buffer[256]=0;
+			string entire_text;
+			while (media_data_file) {
+				media_data_file.getline (buffer, 255);
+				entire_text += string(buffer);
+			}
+			output_buffer << entire_text ;
+		}
+	} else if (GeocodeGMapV3Question * gq = dynamic_cast<GeocodeGMapV3Question*> (q)) {
+		cerr << " case GeocodeGMapV3Question: " << endl;
+		output_buffer << ",\"GeocodeGMapV3Question\" : ";
+		if (verbatim_mode_flag) {
+			// read geo data from current folder.
+
+			stringstream geocode_data_file_name;
+			geocode_data_file_name
+				<< data_file_iterator.dir_part 
+				<< q->questionName_
+				<< "_geocode"
+				<< "." 
+				<< data_file_iterator.filename_part
+				;
+			cerr << "GeocodeGMapV3Question: trying to read data from file: "
+				<< geocode_data_file_name.str()
+				<< endl;
+			std::fstream geocode_data_file(geocode_data_file_name.str().c_str());
+			if (geocode_data_file) {
+				char buffer[257];
+				buffer[255]=buffer[256]=0;
+				string entire_text;
+				while (geocode_data_file) {
+					geocode_data_file.getline (buffer, 255);
+					entire_text += string(buffer);
+				}
+				output_buffer << entire_text ;
+			}
+
+			stringstream address_data_file_name;
+			address_data_file_name
+				<< data_file_iterator.dir_part 
+				<< q->questionName_
+				<< "_address"
+				<< "." 
+				<< data_file_iterator.filename_part
+				;
+			cerr << "GeocodeGMapV3Question: trying to read data from file: "
+				<< address_data_file_name.str()
+				<< endl;
+			std::fstream address_data_file(address_data_file_name.str().c_str());
+			if (address_data_file) {
+				char buffer[257];
+				buffer[255]=buffer[256]=0;
+				string entire_text;
+				while (address_data_file) {
+					address_data_file.getline (buffer, 255);
+					entire_text += string(buffer);
+				}
+				output_buffer << ", \"geocoded_address\" : "<< entire_text ;
+			}
+
+		} else {
+
+		}
 	} else {
 		output_buffer << "none of nq/rq, unhandled question type" << endl;
 	}
@@ -227,144 +311,149 @@ CsvFlatFileQuestionDiskMap::CsvFlatFileQuestionDiskMap(AbstractQuestion * p_q, i
 		q(p_q), start_pos(p_start_pos)
 		/*, width(p_width),
 				total_length(p_total_length)*/
+{
+	if (GeocodeGMapV3Question * gq = dynamic_cast<GeocodeGMapV3Question*> (q)) {
+		total_length = 1;
+	} else {
+		int max_code = q->GetMaxCode();
+		if (max_code < 10)
 		{
-			int max_code = q->GetMaxCode();
-			if (max_code < 10)
-			{
-				width = 1;
-			}
-			else if (max_code < 100)
-			{
-				width = 2;
-			}
-			else if (max_code < 1000)
-			{
-				width = 3;
-			}
-			else if (max_code < 10000)
-			{
-				width = 4;
-			}
-			else if (max_code < 100000)
-			{
-				width = 5;
-			}
-			else if (max_code < 1000000)
-			{
-				width = 6;
-			}
-			else if (max_code < 10000000)
-			{
-				width = 7;
-			}
-			else if (max_code < 100000000)
-			{
-				width = 8;
-			}
-			else if (max_code < 1000000000)
-			{
-				width = 9;
-			}
-			else
-			{
-				cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
-				exit(1);
-			}
-			width += 1; // to account for the comma
-			total_length = width  * q->no_mpn;
+			width = 1;
 		}
-
-
-		void CsvFlatFileQuestionDiskMap::write_spss_pull_data(std::fstream & spss_syn_file)
+		else if (max_code < 100)
 		{
-			std::stringstream var_name;
-			var_name << q->questionName_;
-			if (q->loop_index_values.size())
-			{
-				for (int i=0; i< q->loop_index_values.size(); ++i)
-				{
-					var_name << "_" << q->loop_index_values[i];
-				}
-			}
-			if (q->no_mpn>1) {
-				spss_syn_file << var_name.str() << "_1 to " 
-					<< var_name.str() << "_" << q->no_mpn ;
-			} else {
-				spss_syn_file << var_name.str();
-			}
-
-			spss_syn_file << "\t\t\t\t";
-			spss_syn_file << start_pos+1 << "-";
-			spss_syn_file << start_pos + total_length  << "\n";
-			//spss_syn_file << ",			";
-			//spss_syn_file << width << ",	";
-			//spss_syn_file << q->no_mpn << ",	";
+			width = 2;
 		}
+		else if (max_code < 1000)
+		{
+			width = 3;
+		}
+		else if (max_code < 10000)
+		{
+			width = 4;
+		}
+		else if (max_code < 100000)
+		{
+			width = 5;
+		}
+		else if (max_code < 1000000)
+		{
+			width = 6;
+		}
+		else if (max_code < 10000000)
+		{
+			width = 7;
+		}
+		else if (max_code < 100000000)
+		{
+			width = 8;
+		}
+		else if (max_code < 1000000000)
+		{
+			width = 9;
+		}
+		else
+		{
+			cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+			exit(1);
+		}
+		width += 1; // to account for the comma
+		total_length = width  * q->no_mpn;
+	}
+}
+
+
+void CsvFlatFileQuestionDiskMap::write_spss_pull_data(std::fstream & spss_syn_file)
+{
+	std::stringstream var_name;
+	var_name << q->questionName_;
+	if (q->loop_index_values.size())
+	{
+		for (int i=0; i< q->loop_index_values.size(); ++i)
+		{
+			var_name << "_" << q->loop_index_values[i];
+		}
+	}
+	if (q->no_mpn>1) {
+		spss_syn_file << var_name.str() << "_1 to " 
+			<< var_name.str() << "_" << q->no_mpn ;
+	} else {
+		spss_syn_file << var_name.str();
+	}
+
+	spss_syn_file << "\t\t\t\t";
+	spss_syn_file << start_pos+1 << "-";
+	spss_syn_file << start_pos + total_length  << "\n";
+	//spss_syn_file << ",			";
+	//spss_syn_file << width << ",	";
+	//spss_syn_file << q->no_mpn << ",	";
+}
 
 		void CsvFlatFileQuestionDiskMap::write_spss_variable_labels(std::fstream & spss_syn_file)
 {
-			stringstream var_name;
-			var_name << q->questionName_;
-			if (q->loop_index_values.size())
-			{
-				for (int i=0; i< q->loop_index_values.size(); ++i)
-				{
-					var_name << "_" << q->loop_index_values[i];
-				}
-			}
-			if (q->no_mpn>1) {
-				for(int i=0; i<q->no_mpn; ++i) {
-					spss_syn_file << "variable label ";
-					spss_syn_file << var_name.str() << "_" << i+1;
-					spss_syn_file << " \"" 
-						<< q->AxPrepareQuestionTitleSPSS() 
-						//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-						//<< ", " << __PRETTY_FUNCTION__ 
-						<< "\"." << endl;
-				}
-			} else {
-				spss_syn_file << "variable label ";
-				spss_syn_file << var_name.str();
-				spss_syn_file << " \"" 
-					<< q->AxPrepareQuestionTitleSPSS() 
-					//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-					//<< ", " << __PRETTY_FUNCTION__ 
-					<< "\"." << endl;
-			}
+	stringstream var_name;
 
+	var_name << q->questionName_;
+	if (q->loop_index_values.size())
+	{
+		for (int i=0; i< q->loop_index_values.size(); ++i)
+		{
+			var_name << "_" << q->loop_index_values[i];
 		}
+	}
+	if (q->no_mpn>1) {
+		for(int i=0; i<q->no_mpn; ++i) {
+			spss_syn_file << "variable label ";
+			spss_syn_file << var_name.str() << "_" << i+1;
+			spss_syn_file << " \"" 
+				<< q->AxPrepareQuestionTitleSPSS() 
+				//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+				//<< ", " << __PRETTY_FUNCTION__ 
+				<< "\"." << endl;
+		}
+	} else {
+		spss_syn_file << "variable label ";
+		spss_syn_file << var_name.str();
+		spss_syn_file << " \"" 
+			<< q->AxPrepareQuestionTitleSPSS() 
+			//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+			//<< ", " << __PRETTY_FUNCTION__ 
+			<< "\"." << endl;
+	}
+
+}
 
 		void CsvFlatFileQuestionDiskMap::write_spss_value_labels(std::fstream & spss_syn_file)
 {
-			stringstream var_name;
-			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
-				
-				var_name << q->questionName_;
-				if (q->loop_index_values.size())
-				{
-					for (int i=0; i< q->loop_index_values.size(); ++i)
-					{
-						var_name << "_" << q->loop_index_values[i];
-					}
-				}
-				if (q->no_mpn>1) {
-					spss_syn_file << "value label ";
-					spss_syn_file << var_name.str() << "_1 to " 
-						<< var_name.str() << "_" << q->no_mpn ;
-				} else {
-					spss_syn_file << "value label ";
-					spss_syn_file << var_name.str();
-				}
-				spss_syn_file << endl;
-				for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
-					spss_syn_file 
-						<< n_q->nr_ptr->stubs[i].code
-						<< " \""
-						<< n_q->nr_ptr->stubs[i].stub_text
-						<< " \""
-						<< endl;
-				}
-				spss_syn_file << "." << endl; 
-
+	stringstream var_name;
+	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+		
+		var_name << q->questionName_;
+		if (q->loop_index_values.size())
+		{
+			for (int i=0; i< q->loop_index_values.size(); ++i)
+			{
+				var_name << "_" << q->loop_index_values[i];
 			}
 		}
+		if (q->no_mpn>1) {
+			spss_syn_file << "value label ";
+			spss_syn_file << var_name.str() << "_1 to " 
+				<< var_name.str() << "_" << q->no_mpn ;
+		} else {
+			spss_syn_file << "value label ";
+			spss_syn_file << var_name.str();
+		}
+		spss_syn_file << endl;
+		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+			spss_syn_file 
+				<< n_q->nr_ptr->stubs[i].code
+				<< " \""
+				<< n_q->nr_ptr->stubs[i].stub_text
+				<< " \""
+				<< endl;
+		}
+		spss_syn_file << "." << endl; 
+
+	}
+}

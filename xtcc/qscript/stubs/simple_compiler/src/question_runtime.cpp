@@ -69,6 +69,39 @@ AbstractQuestion::AbstractQuestion(
 #endif /* 0 */
 
 
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name
+	, vector<TextExpression*> text_expr_vec
+	, QuestionType l_q_type
+	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
+	)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
+	, questionName_(l_name)
+	, textExprVec_ (text_expr_vec)
+	, questionDiskName_(l_name)
+	, q_type(l_q_type)
+	, input_data()
+	, for_bounds_stack(0), loop_index_values(0)
+	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(0), activeVarInfo_(0)
+	, dummyArrayQuestion_(0), currentResponse_()
+	, question_attributes(l_question_attributes)
+	, mutexCodeList_()
+	, maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
+	, array_q_ptr_(0), index_in_array_question(-1)  
+{
+	//cout << "creating AbstractQuestion: " << questionName_ << endl;
+	//if(enclosingCompoundStatement_ == 0){
+	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+	//		, 0, __LINE__, __FILE__  );
+	//}
+}
+
+
+
 #if 0
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
@@ -407,6 +440,44 @@ AbstractQuestion::AbstractQuestion(
 	, questionName_(l_name)
 	, textExprVec_(text_expr_vec), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
+	, for_bounds_stack(0)
+	, loop_index_values(l_loop_index_values)
+	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
+	, activeVarInfo_(0)
+	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
+	, question_attributes(l_question_attributes)
+	  , mutexCodeList_()
+	  , maxCode_(0)
+	  , isStartOfBlock_(l_isStartOfBlock)
+	, array_q_ptr_(0), index_in_array_question(-1)  
+{
+	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
+	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
+	//}
+	stringstream s;
+	s << questionName_;
+	for (int i=0; i<loop_index_values.size(); ++i) {
+		s << "$" << loop_index_values[i];
+	}
+	questionDiskName_ = s.str();
+}
+
+// this is only called from the runtime
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name , vector<TextExpression*> text_expr_vec
+	, QuestionType l_q_type
+	, const vector<int32_t>& l_loop_index_values
+	, DummyArrayQuestion * l_dummy_array
+	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
+	)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
+	, questionName_(l_name)
+	, textExprVec_(text_expr_vec), q_type(l_q_type)
+	, input_data()
 	, for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 	, isAnswered_(false), isModified_(false)
@@ -1566,3 +1637,109 @@ std::string RangeQuestion::PrintSelectedAnswers (int code_index)
 {
 	return std::string("hello");
 }
+// ============== GeocodeGMapV3Question
+
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+	DataType this_stmt_type, int32_t line_number
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
+	)
+	: AbstractQuestion(this_stmt_type, line_number, 0, 0
+			, l_name, text_expr_vec
+			, l_q_type, l_question_attributes
+			, l_isStartOfBlock)
+{ 
+
+}
+
+
+////! this is only called from the runtime environment
+//GeocodeGMapV3Question::GeocodeGMapV3Question(
+//	DataType this_stmt_type, int32_t line_number
+//	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+//	, const vector<int32_t> & l_loop_index_values
+//	, DummyArrayQuestion * l_dummy_array
+//	, QuestionAttributes  l_question_attributes
+//	, bool l_isStartOfBlock
+//	):
+//	AbstractQuestion(this_stmt_type, line_number, 0, 0
+//			, l_name, text_expr_vec
+//			, l_q_type
+//			, l_loop_index_values, l_dummy_array
+//		, l_question_attributes, l_isStartOfBlock
+//		)
+//{ 
+//
+//}
+
+
+
+void GeocodeGMapV3Question::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
+{ }
+
+void GeocodeGMapV3Question::GenerateCode(StatementCompiledCode &code)
+{ }
+
+std::string GeocodeGMapV3Question::PrintSelectedAnswers()
+{
+	return string ("GeocodeGMapV3Question");
+}
+
+std::string GeocodeGMapV3Question::PrintSelectedAnswers(int code_index)
+{
+	return string ("GeocodeGMapV3Question");
+}
+
+void GeocodeGMapV3Question::eval(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{}
+
+void GeocodeGMapV3Question::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{ }
+
+// ============== VideoCaptureQuestion
+//
+
+VideoCaptureQuestion::VideoCaptureQuestion(
+	DataType this_stmt_type, int32_t line_number
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
+	)
+	: AbstractQuestion(this_stmt_type, line_number, 0, 0
+			, l_name, text_expr_vec
+			, l_q_type, l_question_attributes
+			, l_isStartOfBlock)
+{ 
+
+}
+
+
+void VideoCaptureQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
+{ }
+
+void VideoCaptureQuestion::GenerateCode(StatementCompiledCode &code)
+{ }
+
+std::string VideoCaptureQuestion::PrintSelectedAnswers()
+{
+	return string ("VideoCaptureQuestion");
+}
+
+std::string VideoCaptureQuestion::PrintSelectedAnswers(int code_index)
+{
+	return string ("VideoCaptureQuestion");
+}
+
+void VideoCaptureQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{}
+
+void VideoCaptureQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{ }
+

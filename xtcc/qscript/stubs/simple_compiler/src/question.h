@@ -104,6 +104,16 @@ struct AbstractQuestion: public AbstractStatement
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
+	//! this is only called in the compile time environment
+	AbstractQuestion(
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		);
 
 	AbstractQuestion(
 		DataType l_type, int32_t l_no
@@ -136,6 +146,28 @@ struct AbstractQuestion: public AbstractStatement
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
 		);
+
+	AbstractQuestion(
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name , vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, const vector<int32_t>& l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		);
+
+	AbstractQuestion(
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		);
+
 	virtual ~AbstractQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code)=0;
@@ -196,7 +228,7 @@ struct AbstractQuestion: public AbstractStatement
 	void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
 	void PrintUserNavigation(ostringstream & program_code);
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
-	int32_t GetMaxCode();
+	virtual int32_t GetMaxCode();
 	bool VerifyQuestionIntegrity();
 	virtual std::string PrintSelectedAnswers()=0;
 	virtual std::string PrintSelectedAnswers(int code_index)=0;
@@ -446,6 +478,7 @@ class VideoCaptureQuestion: public AbstractQuestion
 {
 public:
 
+	// compile time
 	VideoCaptureQuestion(
 			DataType this_stmt_type, int32_t line_number
 			, int32_t l_nest_level, int32_t l_for_nest_level
@@ -455,6 +488,22 @@ public:
 			, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes
 			);
+	// runtime
+	VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, const vector<int32_t> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		);
+	// runtime for non-array questions
+	VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number
+		, string l_name , vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		);
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	void GetQuestionNames(vector<string> & question_list
@@ -479,6 +528,64 @@ public:
 	string PrintSelectedAnswers();
 	string PrintSelectedAnswers(int code_index);
 	void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	int32_t GetMaxCode();
+};
+
+
+class GeocodeGMapV3Question: public AbstractQuestion
+{
+public:
+	// compile time
+	GeocodeGMapV3Question(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
+	// runtime
+	GeocodeGMapV3Question(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, const vector<int32_t> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		);
+	// runtime for non-array questions
+	GeocodeGMapV3Question(
+		DataType this_stmt_type, int32_t line_number
+		, string l_name , vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GetQuestionNames(vector<string> & question_list
+			, AbstractStatement* endStatement)
+	{
+		if (this == endStatement)
+			return;
+		if (next_) {
+			next_->GetQuestionNames(question_list, endStatement);
+		}
+	}
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window
+		  );
+	virtual bool IsValid(int32_t value)
+	{
+		return true;
+	}
+	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+	void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	int32_t GetMaxCode();
 };
 
 

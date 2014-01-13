@@ -65,6 +65,17 @@ int32_t AbstractQuestion::GetMaxCode()
 }
 
 
+int32_t GeocodeGMapV3Question::GetMaxCode()
+{
+	return maxCode_;
+}
+
+int32_t VideoCaptureQuestion::GetMaxCode()
+{
+	return maxCode_;
+}
+
+
 void AbstractQuestion::GetQuestionsInBlock(
 	vector<AbstractQuestion*> & question_list, AbstractStatement * stop_at)
 {

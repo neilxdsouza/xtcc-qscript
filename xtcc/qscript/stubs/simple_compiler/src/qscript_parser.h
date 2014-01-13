@@ -52,6 +52,7 @@ namespace qscript_parser
 
 	extern bool flag_next_stmt_start_of_block;
 	extern bool flag_next_question_start_of_block;
+	extern bool has_a_geocode_question;
 	extern bool flag_dynamic_base_text;
 	extern AbstractQuestion * dynamic_base_text_question;
 	extern vector<bool> blk_start_flag;
@@ -149,6 +150,8 @@ namespace qscript_parser
 
 	AbstractStatement * ProcessCaptureQuestion (const string &name
 		, const string & q_txt);
+
+	AbstractStatement * ProcessGeocodeQuestion (const string & name, QuestionType q_type);
 
 	void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
 		vector <ActiveVariableInfo*> & output_info);

@@ -95,6 +95,40 @@ AbstractQuestion::AbstractQuestion(
 	}
 }
 
+AbstractQuestion::AbstractQuestion(
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		)
+	:
+	AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
+	, questionName_(l_name), textExprVec_(text_expr_vec)
+	, questionDiskName_()
+	, q_type(l_q_type)
+	, input_data()
+	, loop_index_values(0)
+	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(l_enclosing_scope)
+	, activeVarInfo_(l_av_info)
+	, dummyArrayQuestion_(0), currentResponse_()
+	, question_attributes(l_question_attributes)
+	, maxCode_(0)
+	, isStartOfBlock_(false)
+	, array_q_ptr_(0), index_in_array_question(-1)  
+{
+	//cout << "creating AbstractQuestion: " << questionName_ << endl;
+	if(enclosingCompoundStatement_ == 0){
+		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+			, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		//cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
+	}
+}
+
 #if 0
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
@@ -756,6 +790,8 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 		<< temp_array_bounds_name <<");" << endl;
 	code.quest_defns_init_code << "question_list.push_back( dum_" << questionName_ << ");"
 		<< endl;
+	code.quest_defns_init_code << "question_disk_list.push_back( dum_" << questionName_ << ");"
+		<< endl;
 }
 
 //! this is only called in the compile time environment
@@ -1298,6 +1334,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_
 			<< ");\n";
+		quest_decl << "question_disk_list.push_back(" << questionName_
+			<< ");\n";
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
@@ -1328,6 +1366,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		code.quest_defns_init_code << quest_decl.str();
 		// new
 		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
+			<< ");\n";
+		code.array_quest_init_area << "question_disk_list.push_back(" << questionName_.c_str()
 			<< ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
@@ -1442,6 +1482,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+		quest_decl << "question_disk_list.push_back(" << questionName_.c_str() << ");\n";
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
@@ -1475,6 +1516,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		code.quest_defns << "NamedStubQuestion * " << questionName_ << ";\n";
 		code.quest_defns_init_code << quest_decl.str();
 		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
+			<< ");\n";
+		code.array_quest_init_area << "question_disk_list.push_back(" << questionName_.c_str()
 			<< ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
@@ -3559,20 +3602,30 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 
 void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
 {
-	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
+	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCode code goes here */"
 		<< endl;
-	// In the ncurses version of the code VideoQuestion
+	// In the ncurses version of the code VideoCaptureQuestion
 	// is meaningless - except for exporting the assets
 	// - hence dont generate any code for this type of question
 	// just move on to the next statement and generate code for it
-	/*
 	if (for_bounds_stack.size() == 0) {
-		AbstractQuestion::PrintSetupBackJump(code);
+		// no need for this : as this question does not appear in normal flow
+		// only when writing to disk
+		//AbstractQuestion::PrintSetupBackJump(code);
 		GenerateCodeSingleQuestion(code, false);
+	}  else {
+		//----------------------------------------
+		// no need for this : as this question does not appear in normal flow
+		// only when writing to disk
+		//AbstractQuestion::PrintSetupBackJump(code);
+		// PrintArrayDeclarations(code.quest_defns);
+		PrintArrayDeclarations(code);
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ")/*  :-D */;"
+		//	<< endl;
 	}
-	*/
 
-	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
+	code.program_code << "/* END ======== VideoCaptureQuestion::GenerateCode code goes here */"
 		<< endl;
 	if (next_) {
 		next_->GenerateCode(code);
@@ -3584,6 +3637,61 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 	ostringstream quest_decl;
 	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
 		<< endl;
+	quest_decl << "{\n";
+	quest_decl << PrepareQuestionTitle();
+	if (array_mode) {
+		quest_decl << "VideoCaptureQuestion * " << questionName_;
+	} else {
+		quest_decl <<  questionName_;
+	}
+	quest_decl << " = new VideoCaptureQuestion("
+		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< "string( \"" << questionName_.c_str() << "\")" << ",";
+	quest_decl << " text_expr_vec" ;
+	if (q_type == video_capture) { 
+		quest_decl << ", video_capture ";
+	} else if (q_type == audio_capture) {
+		quest_decl << ", audio_capture ";
+	} else if (q_type == image_capture) {
+		quest_decl << ", image_capture ";
+	} else {
+		print_err(compiler_code_generation_error
+				, " media capture question has to be of video_capture or audio_capture or image_capture type, caught in code generation phase ... exiting"
+				, 0, __LINE__, __FILE__);
+		exit(1);
+	}
+
+	if (for_bounds_stack.size() > 0) {
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+	quest_decl << ");\n";
+	/////
+	if (array_mode) {
+		quest_decl << "}\n";
+	} else {
+		quest_decl << "}\n";
+	}
+
+	if(for_bounds_stack.size() == 0){
+		//code.quest_defns << quest_decl.str();
+		code.quest_defns << "VideoCaptureQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		// new
+		code.array_quest_init_area << "question_disk_list.push_back(" << questionName_.c_str()
+			<< ");\n";
+	} else {
+		code.array_quest_init_area << quest_decl.str();
+	}
+
+
 #if 0
 	quest_decl << "{\n";
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
@@ -3652,6 +3760,179 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 void VideoCaptureQuestion::Generate_ComputeFlatFileMap (StatementCompiledCode &code) 
 {
 	// skip VideoQuestion in data file
+	code.program_code << "// this code will appear on behalf of a VideoCaptureQuestion question" << endl;
+	code.program_code << "\tif (write_csv_data_file_flag) {\n";
+	if (for_bounds_stack.size() == 0) {
+		code.program_code << "\t CsvFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new CsvFlatFileQuestionDiskMap(" << questionName_ << ", current_csv_map_pos);\n";
+	}  else {
+		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << "\t CsvFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new CsvFlatFileQuestionDiskMap(" << questionName_
+			<< "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< ", current_csv_map_pos);\n";
+	}
+	code.program_code << "\t current_csv_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
+	code.program_code << "\t csv_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	code.program_code << "\t}\n";
+	if (next_) {
+		next_->Generate_ComputeFlatFileMap(code);
+	}
+}
+
+//==================== GeocodeGMapV3Question ========================
+//
+
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ 
+	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "l_question_attributes.allowBlank_: " << l_question_attributes.allowBlank_ << endl;
+}
+
+
+void GeocodeGMapV3Question::eval(/*qs_ncurses::*/WINDOW * question_window
+			 , /*qs_ncurses::*/WINDOW* stub_list_window
+			 , /*qs_ncurses::*/WINDOW* data_entry_window
+		  	 , WINDOW * error_msg_window
+			 )
+{ }
+
+void GeocodeGMapV3Question::WriteDataToDisk(ofstream& data_file)
+{ }
+
+string GeocodeGMapV3Question::PrintSelectedAnswers()
+{
+	return string();
+}
+
+string GeocodeGMapV3Question::PrintSelectedAnswers(int code_index)
+{
+
+	return string();
+}
+
+
+
+void GeocodeGMapV3Question:: GenerateCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* START ======== GeocodeGMapV3Question::GenerateCode code goes here */"
+		<< endl;
+	// In the ncurses version of the code GeocodeGMapV3Question
+	// is meaningless - except for exporting the assets
+	// - hence dont generate any code for this type of question
+	// just move on to the next statement and generate code for it
+
+	if(for_bounds_stack.size() == 0){
+		// no need for this : as this question does not appear in normal flow
+		// only when writing to disk
+		// AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}  else {
+		//----------------------------------------
+		// no need for this : as this question does not appear in normal flow
+		// only when writing to disk
+		//AbstractQuestion::PrintSetupBackJump(code);
+		// PrintArrayDeclarations(code.quest_defns);
+		PrintArrayDeclarations(code);
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ")/*  :-D */;"
+		//	<< endl;
+	}
+
+	code.program_code << "/* END ======== GeocodeGMapV3Question::GenerateCode code goes here */"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+	quest_decl << "{\n";
+	quest_decl << PrepareQuestionTitle();
+	if (array_mode) {
+		quest_decl << "GeocodeGMapV3Question * " << questionName_;
+	} else {
+		quest_decl <<  questionName_;
+	}
+	quest_decl << " = new GeocodeGMapV3Question("
+		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< "string( \"" << questionName_.c_str() << "\")" << ",";
+	quest_decl << " text_expr_vec, geocode_gmapv3 ";
+
+	if (for_bounds_stack.size() > 0) {
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+	quest_decl << ");\n";
+	/////
+	if (array_mode) {
+		quest_decl << "}\n";
+	} else {
+		quest_decl << "}\n";
+	}
+
+	if(for_bounds_stack.size() == 0){
+		//code.quest_defns << quest_decl.str();
+		code.quest_defns << "GeocodeGMapV3Question * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		// new
+		code.array_quest_init_area << "question_disk_list.push_back(" << questionName_.c_str()
+			<< ");\n";
+	} else {
+		code.array_quest_init_area << quest_decl.str();
+	}
+
+
+	code.program_code << "/* END ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
+
+
+void GeocodeGMapV3Question::Generate_ComputeFlatFileMap (StatementCompiledCode &code) 
+{
+	// skip VideoQuestion in data file
+	code.program_code << "// this code will appear on behalf of a GeocodeGMapV3Question question" << endl;
+	code.program_code << "\tif (write_csv_data_file_flag) {\n";
+	if (for_bounds_stack.size() == 0) {
+		code.program_code << "\t CsvFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new CsvFlatFileQuestionDiskMap(" << questionName_ << ", current_csv_map_pos);\n";
+	}  else {
+		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << "\t CsvFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new CsvFlatFileQuestionDiskMap(" << questionName_
+			<< "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< ", current_csv_map_pos);\n";
+	}
+	code.program_code << "\t current_csv_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
+	code.program_code << "\t csv_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	code.program_code << "\t}\n";
+
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
 	}
