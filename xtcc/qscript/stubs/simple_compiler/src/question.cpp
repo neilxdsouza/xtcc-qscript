@@ -3687,8 +3687,8 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 	} else {
 		quest_decl << " , trigger syntax error - unhanled type";
 	}
-	quest_decl
-		<< ", QuestionAttributes(false, false)" ;
+	//quest_decl << ", QuestionAttributes(false, false)" ;
+	quest_decl << "," << question_attributes.Print();
 
 	if (isStartOfBlock_) {
 		quest_decl << ", true";

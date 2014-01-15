@@ -219,6 +219,9 @@ function gotVerbatimFileEntry(fileEntry) {
 
 	function gotMediaFileEntry(fileEntry) {
 		my_log("Enter: gotMediaFileEntry");
+		// This should probably go - as the array is being created 
+		// int create_multiple_questions_view
+		//
 		if (global_survey_related_info.media_fileEntry_arr === undefined) {
 			global_survey_related_info.media_fileEntry_arr = [];
 		}

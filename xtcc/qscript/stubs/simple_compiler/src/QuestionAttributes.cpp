@@ -8,7 +8,7 @@ using std::stringstream;
 
 
 void QuestionAttributes::Reset()
-{ hidden_ = false; allowBlank_ = false; }
+{ hidden_ = false; allowBlank_ = false; helpText_ = ""; }
 
 QuestionAttributes::QuestionAttributes()
 	: hidden_(false), allowBlank_(false), helpText_()

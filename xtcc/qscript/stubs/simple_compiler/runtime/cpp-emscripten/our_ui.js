@@ -81,7 +81,8 @@ function handleStartSurveyButton (event)
 	//my_log ("global_survey_related_info.uuid: " + global_survey_related_info.device.uuid);
 	//my_log ("global_survey_related_info.latitude: " + global_survey_related_info.position.coords.latitude);
 	//alert(!(global_survey_related_info.position));
-	if($("#selectGPS").val()=="on" && !(global_survey_related_info.position)) {
+	if($("#selectGPS").val()=="on" && !(global_survey_related_info.position))
+	{
 		alert("Cannot proceed without GPS");
 	}
 	//global_survey_related_info.position && global_survey_related_info.position.coords &&
@@ -279,7 +280,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 
 		new_question_view.appendChild (map_div);
 		new_question_view.appendChild (text_div);
-		
+
 		if (questions_obj_arr[0].help_text.length > 0) {
 			// there are 2 parts
 			// this is the anchor for the popup
@@ -418,6 +419,43 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		if (questions_obj_arr.length == 1 && questions_obj_arr[0].question_text_arr.length == 1) {
 			var curr_question_obj = questions_obj_arr[0];
 			new_question_view += "<div>" + questions_obj_arr[0].question_text_arr[0] + "</div>";
+
+
+			if (questions_obj_arr[0].help_text.length > 0) {
+				// there are 2 parts
+				// this is the anchor for the popup
+				//var anchor_for_help_popup = document.createElement("a");
+				//anchor_for_help_popup.setAttribute("href", "#" + questions_obj_arr[0].qno + "_help");
+				//anchor_for_help_popup.setAttribute("data-transition", "pop");
+				//anchor_for_help_popup.setAttribute("data-rel", "popup");
+				//anchor_for_help_popup.setAttribute("title", "Help");
+				//anchor_for_help_popup.innerText = "Help";
+				//anchor_for_help_popup.className = "my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext";
+				//text_div.appendChild(anchor_for_help_popup);
+				new_question_view += '<a href="#"' + questions_obj_arr[0].qno + "_help " +
+							'data-transition="pop" data-rel="popup" ' +
+							'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
+							'title="help">Help</a>';
+				// This is the popup itself =========== 
+				//var help_div = document.createElement("div");
+				//help_div.id = questions_obj_arr[0].qno + "_help";
+				//help_div.setAttribute("data-role", "popup");
+				//help_div.setAttribute("data-theme", "a");
+				//help_div.className  = "ui-content" ;
+				//help_div.style.maxWidth = "350px";
+				//help_div.style.color = "blue";
+				//var help_par = document.createElement("p");
+				//help_par.innerText = questions_obj_arr[0].help_text;
+				//my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
+				//help_div.appendChild(help_par);
+				//new_question_view.appendChild (help_div);
+				new_question_view += '<div id=' + questions_obj_arr[0].qno + '_help ' +
+						' data-role="popup" data-theme="a" class="ui-content">' +
+						' <p>' + questions_obj_arr[0].help_text + '</p> ' +
+						'</div>';
+			}
+
+
 			new_question_view += "<div><form id ='id_form_" + questions_obj_arr[0].qno + "' name ='form_" + questions_obj_arr[0].qno + "' >";
 			//new_question_view += "<input cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></input>";			
 			new_question_view += "<textarea cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></textarea>";
@@ -567,6 +605,11 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		new_question_view.innerHTML = new_html;
 	}
 	else if (questions_obj_arr[0].question_type == 'image_capture') {
+		// the 1st 3 lines below are redundant arent they?
+		if (global_survey_related_info.media_fileEntry_arr === undefined) {
+			global_survey_related_info.media_fileEntry_arr = [];
+		}
+		global_survey_related_info.media_fileEntry_arr = [];
 		/*
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
 		my_log ("media_capture_file_path: " + media_capture_file_path);
@@ -621,6 +664,45 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				var question_text = curr_question_obj.question_text_arr[j];
 				question_title_div.innerHTML += "<p>" + question_text + "</p>";
 			}
+
+
+			if (curr_question_obj.help_text.length > 0) {
+				// there are 2 parts
+				// this is the anchor for the popup
+				//var anchor_for_help_popup = document.createElement("a");
+				//anchor_for_help_popup.setAttribute("href", "#" + questions_obj_arr[0].qno + "_help");
+				//anchor_for_help_popup.setAttribute("data-transition", "pop");
+				//anchor_for_help_popup.setAttribute("data-rel", "popup");
+				//anchor_for_help_popup.setAttribute("title", "Help");
+				//anchor_for_help_popup.innerText = "Help";
+				//anchor_for_help_popup.className = "my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext";
+				//text_div.appendChild(anchor_for_help_popup);
+				question_title_div.innerHTML += '<a href="#' + curr_question_obj.qno + '_help" ' +
+							'data-transition="pop" data-rel="popup" ' +
+							'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
+							'title="help">Help</a>';
+				// This is the popup itself =========== 
+				//var help_div = document.createElement("div");
+				//help_div.id = questions_obj_arr[0].qno + "_help";
+				//help_div.setAttribute("data-role", "popup");
+				//help_div.setAttribute("data-theme", "a");
+				//help_div.className  = "ui-content" ;
+				//help_div.style.maxWidth = "350px";
+				//help_div.style.color = "blue";
+				//var help_par = document.createElement("p");
+				//help_par.innerText = questions_obj_arr[0].help_text;
+				//my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
+				//help_div.appendChild(help_par);
+				//new_question_view.appendChild (help_div);
+				question_title_div.innerHTML += '<div id=' + curr_question_obj.qno + '_help ' +
+						' data-role="popup" data-theme="a" class="ui-content">' +
+						' <p>' + curr_question_obj.help_text + '</p> ' +
+						'</div>';
+				my_log ("reached here - named question after help" + curr_question_obj.help_text);
+			}
+
+
+
 			//my_log ("after curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
 			question_stubs_div = document.createElement("div");
 			//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
@@ -962,7 +1044,7 @@ function displayMetaData() {
 		}
 	}
 	// show logged in username
-	$('#curr_loggedIn_user').html('Logged in as:<br/>' + window.localStorage.getItem('emailid'));
+	$('#curr_loggedIn_user').html('Logged in as:<br/>' + window.localStorage.getItem('username'));
 }
 
 document.addEventListener ("deviceready", displayMetaData, false);
@@ -1004,11 +1086,13 @@ function onDirectoryReadSuccess(dirEntries) {
 	uploadNotification.init(len);
         for (i = 0; i < len; i++) {
             if (dirEntries[i].isFile == true) {
-                var ownCloudURI = encodeURI("http://173.230.133.34/upload.php");
+                //var ownCloudURI = encodeURI("http://173.230.133.34/upload.php");
+                var ownCloudURI = encodeURI("http://qscript.co/upload");
                 var options = new FileUploadOptions();
                 options.fileKey = "file";
                 options.fileName = dirEntries[i].name;
                 options.mimeType = "text/plain";
+		/*
 		var user_id = window.localStorage.getItem('userid');
 	        var params = {};
 	        params.dirpath = "/var/www/data/Demo/" + global_survey_related_info.job_name + "/" + global_survey_related_info.device.uuid + "/" +
@@ -1018,6 +1102,22 @@ function onDirectoryReadSuccess(dirEntries) {
 	        options.params = params;
                 var ft = new FileTransfer();
                 ft.upload(dirEntries[i].fullPath, ownCloudURI, onTransferSuccess, onTransferFail, options);
+		*/
+                var companyname = window.localStorage.getItem('companyname');
+                var userId = window.localStorage.getItem('userid');
+                if(companyname!="" && userId!="")
+                {
+					var params = {};
+					params.dirpath = "/var/www/data/"+ companyname + "/" + global_survey_related_info.job_name + "/" + global_survey_related_info.device.uuid + "/"+ userId +"/synced";
+					params.username = window.localStorage.getItem('username');
+					params.password = window.localStorage.getItem('password');
+					options.params = params;
+
+
+					var ft = new FileTransfer();
+					ft.upload(dirEntries[i].fullPath, ownCloudURI, onTransferSuccess, onTransferFail, options);
+                }
+
             }
         }
         //alert("All files are uploaded1");
@@ -1153,14 +1253,15 @@ var moveToComplete = {
 	onFileReaderSuccess: {
 		init: function(fileEntries) {
 			for (var i = 0; i < fileEntries.length; i++) {
-	        	if (fileEntries[i].isFile) {
-	        		if(fileEntries[i].name.indexOf("_" + global_survey_related_info.serial_no + ".") >= 0) {
+			if (fileEntries[i].isFile) {
+				if (fileEntries[i].name.indexOf("_" + global_survey_related_info.serial_no + ".") >= 0 ||
+					fileEntries[i].name.indexOf(".jpg") >= 0) {
 						var dirPath = global_survey_related_info.our_dir_fullPath + "/complete";
 						var DirEntry = new DirectoryEntry("complete", dirPath);
 						fileEntries[i].moveTo(DirEntry, fileEntries[i].name, this.onSuccess, this.onError);
-	        		}
-		        }
-	        }
+				}
+			}
+		}
 		},
 
 		onSuccess: function(entry) {

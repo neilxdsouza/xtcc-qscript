@@ -25,8 +25,8 @@ QuestionAttributes::QuestionAttributes(const QuestionAttributes & qa)
 	//hidden_ = qa.hidden_;
 	//allowBlank_ = qa.allowBlank_;
 	//helpText_ = qa.helpText_;
-	my_log_from_cpp ("helpText_:");
-	my_log_from_cpp (helpText_.c_str());
+	//my_log_from_cpp ("helpText_:");
+	//my_log_from_cpp (helpText_.c_str());
 }
 
 string QuestionAttributes::Print()
