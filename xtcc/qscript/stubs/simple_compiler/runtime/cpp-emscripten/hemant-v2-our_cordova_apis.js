@@ -127,10 +127,10 @@ function onResolveError(evt) {
 
 function onFileSystemSuccess (fileSystem) {
 	global_survey_related_info.fileSystemObject = fileSystem;
-	my_log ("global_survey_related_info.fileSystemObject.root.name: " +  global_survey_related_info.fileSystemObject.root.name);
-	my_log ("global_survey_related_info.fileSystemObject.name: " +  global_survey_related_info.fileSystemObject.name);
+	//my_log ("global_survey_related_info.fileSystemObject.root.name: " +  global_survey_related_info.fileSystemObject.root.name);
+	//my_log ("global_survey_related_info.fileSystemObject.name: " +  global_survey_related_info.fileSystemObject.name);
 
-	window.resolveLocalFileSystemURI("file:///sdcard/our_ui.js", onResolveSuccess, onResolveError);
+	//window.resolveLocalFileSystemURI("file:///sdcard/our_ui.js", onResolveSuccess, onResolveError);
 }
 
 
@@ -615,7 +615,7 @@ function capturePhoto()
 }
 
 
-function capturePhoto2(index) 
+function capturePhoto2(index, qno) 
 {
 	my_log ("enter capturePhoto2, index: " + index);
 	if (global_survey_related_info.media_path_data_arr === undefined) {
@@ -628,19 +628,52 @@ function capturePhoto2(index)
 		my_log ("Exit : save_media_path_data2");
 	};
 
+
 	var CaptureSuccess = function (mediaFiles) {
 		my_log ("enter CaptureSuccess");
 		var media_file_paths = "", i=0, len = 0;
 		for (i = 0, len = mediaFiles.length; i < len; i += 1) {
 			//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 			my_log ("filename captured: " + mediaFiles[i].fullPath);
-			media_file_paths += mediaFiles[i].fullPath + '\n';
-			window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
+			//media_file_paths += mediaFiles[i].fullPath + '\n';
+			media_file_paths += mediaFiles[i].name + '\n';
+			//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
+			window.resolveLocalFileSystemURI(mediaFiles[i].fullPath,
+				function (fileEntry) {
+					my_log ("entered moveFile");
+					window.resolveLocalFileSystemURI(
+						"file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/",
+						function(dirEntry){
+							my_log ("moving file: " + fileEntry.name + " to " + dirEntry.fullPath);
+							fileEntry.moveTo(dirEntry, fileEntry.name, function() {
+								my_log("moveFile success done");
+								var my_img = document.getElementById("div_capt_img_" + qno + "_" + index);
+								var image_path =  "file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/" + mediaFiles[0].name;
+								my_log ("image_path: " + image_path);
+								if (my_img) {
+									//"file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/"
+									//my_img.innerHTML =  "<img src=\"" + "file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/" + mediaFiles[0].name + "\" alt=\"Smiley face\" height=\"100\" width=\"100\">";
+									//my_img.innerHTML =  "<img src=\"" + image_path + "\" alt=\"Smiley face\" height=\"100\" width=\"100\">";
+									//my_img.innerHTML =  "<img src=\"1389939787872.jpg\" alt=\"Smiley face\" height=\"100\" width=\"100\">";
+									var rel_path = "../../../"  + global_survey_related_info.device.uuid + "/" + global_survey_related_info.job_name + "/" + window.localStorage.getItem('userid') + "/incomplete/" + mediaFiles[0].name;
+									//var rel_path = "../../../"  +  "1389939787872.jpg";
+									my_log ("rel_path: " + rel_path);
+									my_img.innerHTML =  "<img src=\"" + rel_path + "\"  alt=\"Smiley face\" height=\"100\" width=\"100\">";
+								} else {
+									my_log ("unable to get image div to show clicked image, filename : "  + mediaFiles[0].name);
+								}
+							},
+							onFail);
+						}, onFail);
+
+				},
+				onFail);
 		}
 		//global_survey_related_info.media_path_data = media_file_paths;
 		//global_survey_related_info.media_path_data_arr.push(media_file_paths);
 		global_survey_related_info.media_path_data_arr[index] = media_file_paths;
 		global_survey_related_info.media_fileEntry_arr[index].createWriter (save_media_path_data2, fail_to_write_file);
+
 		my_log ("exit CaptureSuccess");
 	};
 

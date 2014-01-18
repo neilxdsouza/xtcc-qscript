@@ -2202,7 +2202,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 419 "src/q.ypp"
-    {qscript_parser::globalActivePageName_ = (yyvsp[(2) - (2)].name); cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; }
+    {qscript_parser::globalActivePageName_ = (yyvsp[(2) - (2)].name); /*cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; */ }
     break;
 
   case 47:
@@ -4247,7 +4247,7 @@ AbstractStatement * ProcessCaptureQuestion (const string &name
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	VideoCaptureQuestion* q=0;
 	if (q_type == video_capture) {
-		cout << "Got an video_capture question" << endl;
+		//cout << "Got an video_capture question" << endl;
 		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type
@@ -4259,14 +4259,14 @@ AbstractStatement * ProcessCaptureQuestion (const string &name
 		//		, name, ::text_expr_vec, q_type
 		//		, cmpd_stmt_ptr
 		//		, av_info, question_attributes);
-		cout << "Got an audio_capture question" << endl;
+		//cout << "Got an audio_capture question" << endl;
 		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type
 				, cmpd_stmt_ptr
 				, av_info, question_attributes);
 	} else if (q_type == image_capture) {
-		cout << "Got an image_capture question" << endl;
+		//cout << "Got an image_capture question" << endl;
 		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type

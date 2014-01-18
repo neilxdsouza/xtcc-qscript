@@ -629,7 +629,8 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 					media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
 			new_html += "<p>Please click a photo</p>";
 			new_html += "<p>" + create_single_question_title_simple (questions_obj_arr[i]) + "</p>";
-			new_html += "<button onclick=\"capturePhoto2("+ i +");\">Capture Photo</button> <br>"; 
+			new_html += "<button onclick='capturePhoto2("+ i + ",\"" + questions_obj_arr[i].qno + "\");'>Capture Photo</button> <br>"; 
+			new_html += "<div id=\"div_capt_img_" + questions_obj_arr[i].qno + "_" +  i + "\" >Captured image will be displayed here</div>"; 
 		}
 		var new_question_view = document.getElementById("new_question_view");
 		new_question_view.innerHTML = new_html;

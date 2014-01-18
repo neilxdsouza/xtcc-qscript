@@ -416,7 +416,7 @@ randomize_stmt: NAME '.' RANDOMIZE ';' {
 	}
 	;
 
-page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; } cmpd_stmt {
+page_stmt: PAGE NAME {qscript_parser::globalActivePageName_ = $2; /*cout << "globalActivePageName_: " << qscript_parser::globalActivePageName_ << endl; */ } cmpd_stmt {
 		std::stringstream mesg;
 		mesg << "Need to add check that names for pages are unique";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
@@ -1821,7 +1821,7 @@ AbstractStatement * ProcessCaptureQuestion (const string &name
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	VideoCaptureQuestion* q=0;
 	if (q_type == video_capture) {
-		cout << "Got an video_capture question" << endl;
+		//cout << "Got an video_capture question" << endl;
 		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type
@@ -1833,14 +1833,14 @@ AbstractStatement * ProcessCaptureQuestion (const string &name
 		//		, name, ::text_expr_vec, q_type
 		//		, cmpd_stmt_ptr
 		//		, av_info, question_attributes);
-		cout << "Got an audio_capture question" << endl;
+		//cout << "Got an audio_capture question" << endl;
 		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type
 				, cmpd_stmt_ptr
 				, av_info, question_attributes);
 	} else if (q_type == image_capture) {
-		cout << "Got an image_capture question" << endl;
+		//cout << "Got an image_capture question" << endl;
 		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type

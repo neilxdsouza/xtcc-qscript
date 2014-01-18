@@ -2927,10 +2927,7 @@ PageStatement::PageStatement (DataType dtype, int32_t l_line_no,
 	  pageName_ (l_page_name), pageBody_ (l_page_body),
 	  pageSize_ (l_page_size)
 {
-	cout
-		<< "pageName_: " << pageName_
-		<< ", pageSize_: " << pageSize_
-		<< endl;
+	//cout << "pageName_: " << pageName_ << ", pageSize_: " << pageSize_ << endl;
 }
 
 void PageStatement::GetQuestionNames(vector<string> & question_list,
