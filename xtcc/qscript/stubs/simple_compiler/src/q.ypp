@@ -103,6 +103,7 @@
 %token GOTO
 %token HIDDEN
 %token ALLOW_BLANK
+%token HELP_POPUP
 %token MUTEX
 %token OTHER
 %token CLEAR
@@ -663,7 +664,7 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		text_expr_vec.clear();
 		question_attributes.Reset();
 	}
-	|NAME text_expr_list qtype ';' {
+	|NAME text_expr_list qtype attribute_list ';' {
 		$$ = qscript_parser::ProcessCaptureQuestion($1, "dummy question text");
 		text_expr_vec.clear();
 		question_attributes.Reset();
@@ -786,6 +787,10 @@ attribute: HIDDEN {
 	}
 	| ALLOW_BLANK {
 		question_attributes.setAllowBlank();
+	}
+	| HELP_POPUP TEXT {
+		// just parse in this branch - we can safely ignore the help text
+		//question_attributes.setHelpText($2);
 	}
 	;
 
