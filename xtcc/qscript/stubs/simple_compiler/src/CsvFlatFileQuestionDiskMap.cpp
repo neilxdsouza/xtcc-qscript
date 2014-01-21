@@ -33,7 +33,7 @@ extern int32_t verbatim_mode_flag;
 extern std::string  jno;
 extern int32_t  ser_no;
 
-string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn)
+string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn, AbstractQuestion * q)
 {
 	stringstream output_buffer;
 	int n_inputs = 0;
@@ -45,12 +45,20 @@ string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn)
 		const int & code = *it;
 		output_buffer << "," << code;
 	}
+
+	stringstream complete_name ;
+	complete_name << q->questionName_;
+	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
+		complete_name << "_" << q->loop_index_values[i] + 1;
+	}
+
 	for (int i=0; i < no_mpn - n_inputs; ++i) {
-		output_buffer << ",";
+		output_buffer << "," << complete_name.str();
 	}
 	return output_buffer.str();
 }
 
+extern int32_t verbatim_mode_flag;
 void CsvFlatFileQuestionDiskMap::write_csv_header (std::stringstream & output_buffer)
 {
 	stringstream complete_name ;
@@ -58,15 +66,44 @@ void CsvFlatFileQuestionDiskMap::write_csv_header (std::stringstream & output_bu
 	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
 		complete_name << "_" << q->loop_index_values[i] + 1;
 	}
-	for (int32_t i = 0; i < q->no_mpn; ++i) {
-		output_buffer << "," << complete_name.str() << "_" << i + 1;
+	if (GeocodeGMapV3Question * gq = dynamic_cast<GeocodeGMapV3Question*> (q)) {
+		output_buffer
+			<< "," << complete_name.str() << "_geocode"
+			<< "," << complete_name.str() << "_address";
+	} else if (RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q)) {
+		if (rq->no_mpn == 1) {
+			output_buffer 
+				<< ", " << complete_name.str();
+		} else {
+			if (verbatim_mode_flag) {
+				output_buffer
+					<< ", " << complete_name.str();
+			} else {
+				for (int32_t i = 0; i < q->no_mpn; ++i) {
+					output_buffer << "," << complete_name.str() << "_" << i + 1;
+				}
+			}
+		}
+	} else if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q)) {
+		for (int32_t i = 0; i < q->no_mpn; ++i) {
+			output_buffer << "," << complete_name.str() << "_" << i + 1;
+		}
+	} else if (VideoCaptureQuestion * vq = dynamic_cast<VideoCaptureQuestion*> (q)) {
+			output_buffer << "," << complete_name.str();
+	} else {
+		output_buffer << "," << "unhandled question type";
 	}
-
 }
 
 void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, SequentialFileIterator & data_file_iterator)
 {
 	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	stringstream complete_name ;
+	complete_name << q->questionName_;
+	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
+		complete_name << "_" << q->loop_index_values[i] + 1;
+	}
+
 	//char * ptr = output_buffer + start_pos;
 	//*ptr++ = ',';
 	int no_responses_written = 0;
@@ -163,40 +200,51 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 #endif /* 0 */
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q)) {
 		//output_buffer << ",nq";
-		output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn);
+		output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn, q);
 	} else if (RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q)) {
 		cerr << " case rq: " << endl;
-		output_buffer << ",rq";
 		if (rq->no_mpn > 1) {
+			//output_buffer << ",rq";
 			cerr << " case rq->no_mpn > 1" << endl;
-			output_buffer << " verbatim_mode_flag: " << verbatim_mode_flag;
+			//output_buffer << " case rq->no_mpn > 1 verbatim_mode_flag nxd: " << verbatim_mode_flag;
 			if (verbatim_mode_flag) {
 				stringstream verb_file_name;
 				verb_file_name
+					<< data_file_iterator.dir_part 
 					<< q->questionName_ << "." 
-					<< jno << "_" << ser_no 
-					<< ".dat" ;
+					//<< jno << "_" << ser_no 
+					<< data_file_iterator.filename_part
+					//<< ".dat" 
+					;
 				cerr << "trying to open verb_file: " 
 					<< verb_file_name.str()
 					<< endl;
 				std::fstream verb_file(verb_file_name.str().c_str());
 				cerr << "reached here - verb_file";
 				if (verb_file) {
+					cerr << "successfully opned file" << endl;
+					//output_buffer << "OPENED : " << verb_file_name << ":"  ;
 					char buffer[257];
 					buffer[255]=buffer[256]=0;
 					string entire_text;
 					while (verb_file) {
 						verb_file.getline (buffer, 255);
-						entire_text += string(buffer);
+						string part_read(buffer);
+						entire_text += part_read;
+						cerr << "part_read: " << part_read << endl;
 					}
-					output_buffer << entire_text ;
+					cerr << "entire_text: " << entire_text << endl;
+					output_buffer << ", " << entire_text ;
+				} else {
+					cerr << "unable to open : " << verb_file << endl;
+					output_buffer << ", \"could not open : " << verb_file_name.str() << "\"" ;
 				}
 				
 			} else {
-				output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn);
+				output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn, q);
 			}
 		} else {
-			output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn);
+			output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn, q);
 		}
 	} else if (VideoCaptureQuestion * mcq = dynamic_cast<VideoCaptureQuestion*> (q)) {
 		stringstream media_data_file_name;
@@ -224,10 +272,12 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 				entire_text += string(buffer);
 			}
 			output_buffer << entire_text ;
+		} else {
+			output_buffer << complete_name;
 		}
+
 	} else if (GeocodeGMapV3Question * gq = dynamic_cast<GeocodeGMapV3Question*> (q)) {
 		cerr << " case GeocodeGMapV3Question: " << endl;
-		output_buffer << ",\"GeocodeGMapV3Question\" : ";
 		if (verbatim_mode_flag) {
 			// read geo data from current folder.
 
@@ -244,6 +294,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 				<< endl;
 			std::fstream geocode_data_file(geocode_data_file_name.str().c_str());
 			if (geocode_data_file) {
+				output_buffer << ",\"GeocodeGMapV3Question\" : ";
 				char buffer[257];
 				buffer[255]=buffer[256]=0;
 				string entire_text;
@@ -252,6 +303,8 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 					entire_text += string(buffer);
 				}
 				output_buffer << entire_text ;
+			} else {
+				output_buffer << ", \"GeocodeGMapV3Question\" : \"empty\"";
 			}
 
 			stringstream address_data_file_name;
@@ -275,6 +328,8 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 					entire_text += string(buffer);
 				}
 				output_buffer << ", \"geocoded_address\" : "<< entire_text ;
+			} else {
+				output_buffer << ", \"geocoded_address\" : empty";
 			}
 
 		} else {

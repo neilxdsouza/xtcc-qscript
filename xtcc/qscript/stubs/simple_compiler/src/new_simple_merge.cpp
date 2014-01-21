@@ -111,7 +111,7 @@ void SequentialFileIterator::split_name_into_filename_and_dir (const string & fi
 	string::size_type last_slash = file_path.find_last_of('/');
 	dir_part = file_path.substr (0, last_slash + 1);
 	filename_part = file_path.substr (last_slash + 1, file_path.length() - (last_slash + 1) );
-	cout << "filename_part: " << filename_part << endl;
-	cout << "dir_part: " << dir_part << endl;
+	cerr << "filename_part: " << filename_part << endl;
+	cerr << "dir_part: " << dir_part << endl;
 
 }

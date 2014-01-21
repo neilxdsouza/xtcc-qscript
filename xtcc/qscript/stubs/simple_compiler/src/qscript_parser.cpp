@@ -3937,8 +3937,24 @@ void print_write_csv_data_to_disk(FILE *script)
 	fprintf(script, "	//}\n");
 	fprintf(script, "\n");
 
+
+
+
+
 	fprintf(script, "	stringstream csv_flat_file_output_buffer_str;\n");
+
+	fprintf(script, "	static bool first_time = true;\n");
+	fprintf(script, "	if (first_time) {\n");
+	fprintf(script, "		csv_flat_file_output_buffer_str << \"ser_no\";\n");
+	fprintf(script, "		for (int i=0; i<csv_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "			csv_flatfile_question_disk_map[i]->write_csv_header (csv_flat_file_output_buffer_str);\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		csv_flat_file_output_buffer_str << endl;\n");
+	fprintf(script, "		first_time = false;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "\n");
 	fprintf(script, "	csv_flat_file_output_buffer_str << ser_no;\n");
+
 
 
 	fprintf(script, "	for (int i=0; i<csv_flatfile_question_disk_map.size(); ++i) {\n");
