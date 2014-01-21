@@ -212,6 +212,38 @@ function create_single_question_title (single_question_text_obj) {
 	return question_translated_text;
 }
 
+function create_help_div_html (qno, help_text) {
+    /*
+    var new_question_view = "";
+    new_question_view += '<a href="#"' + qno + "_help " +
+			'data-transition="pop" data-rel="popup" ' +
+			'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
+			'title="help">Help</a>';
+    new_question_view += '<div id=' + qno + '_help ' +
+		' data-role="popup" data-theme="a" class="ui-content">' +
+		' <p>' + help_text + '</p> ' +
+		'</div>';
+    my_log ("create_help_div_html called qno " + qno + "help_text: " + help_text);
+    my_log (" new_question_view : " + new_question_view);
+    return new_question_view;
+    */
+
+    var help_div = document.createElement("div");
+    help_div.id = qno + "_help";
+    help_div.setAttribute("data-role", "popup");
+    help_div.setAttribute("data-theme", "a");
+    help_div.className  = "ui-content" ;
+    help_div.style.maxWidth = "350px";
+    help_div.style.color = "blue";
+    var help_par = document.createElement("p");
+    help_par.innerText = help_text;
+    //my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
+    help_div.appendChild(help_par);
+    my_log ("help_div.outerHTML: " + help_div.outerHTML);
+    //new_question_view.appendChild (help_div);
+    return help_div;
+}
+
 function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
 	var verbatim_file_names;
 	verbatim_file_names = [];
@@ -958,7 +990,9 @@ function serialize (form, my_question_obj) {
 						//global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
 						global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 						*/
-						global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
+						//the_verbatim_data.replace(/,/g, " _ ");
+						var quoted_verbatim = JSON.stringify (the_verbatim_data) ;
+						global_survey_related_info.verbatim_data_arr.push(quoted_verbatim);
 					}
 				}
 			break;
@@ -1088,7 +1122,8 @@ function onDirectoryReadSuccess(dirEntries) {
         for (i = 0; i < len; i++) {
             if (dirEntries[i].isFile == true) {
                 //var ownCloudURI = encodeURI("http://173.230.133.34/upload.php");
-                var ownCloudURI = encodeURI("http://qscript.co/upload");
+                //var ownCloudURI = encodeURI("http://qscript.co/upload");
+                var ownCloudURI = encodeURI("http://xtcc-qscript.com/upload");
                 var options = new FileUploadOptions();
                 options.fileKey = "file";
                 options.fileName = dirEntries[i].name;
@@ -1385,10 +1420,12 @@ function createMarker(latlng, name, html) {
 		});
 	google.maps.event.addListener(marker, 'click', function() {
 		my_log ("click function of map triggered");
-		// =========
-		//var geocode_data = results[0].geometry.location;
-		//var geocode_data = latlng;
-		global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = latlng;
+		//var comma_replaced_latng = latlng.replace(/,/g, " _ ");
+		var comma_replaced_latng = latlng;
+		comma_replaced_latng = JSON.stringify(latlng);
+		comma_replaced_latng = comma_replaced_latng.replace(/,/g, " _ ");
+
+		global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = comma_replaced_latng;
 		map.setCenter( latlng);
 		// =========
 		infowindow.setContent(contentString); 
@@ -1426,13 +1463,14 @@ function geocodeAddress() {
 	//	document.getElementById('city').value  + "," +
 	//	document.getElementById('pincode').value;
 	var address = addr1.value + "," + addr2.value + ", " + city.value + ", " + pin.value;
-	global_survey_related_info.geocode_addr_data_json = 
+	var data_address = 
 		"{" + 
 		" \"addr1\" : \"" + addr1.value + "\" " +
-		",\"addr2\" : \"" + addr2.value + "\" " +
-		",\"city\" : \"" + city.value + "\" " +
-		",\"pin\" : \"" + pin.value + "\" " + 
+		" , \"addr2\" : \"" + addr2.value + "\" " +
+		" , \"city\" : \"" + city.value + "\" " +
+		" , \"pin\" : \"" + pin.value + "\" " + 
 		"}";
+	global_survey_related_info.geocode_addr_data_json = data_address.replace(/,/g, " _ ");
 	my_log ("address: " + address);
 
 
