@@ -213,35 +213,35 @@ function create_single_question_title (single_question_text_obj) {
 }
 
 function create_help_div_html (qno, help_text) {
-    /*
     var new_question_view = "";
-    new_question_view += '<a href="#"' + qno + "_help " +
+    new_question_view += '<a href="#' + qno + '_help" ' +
 			'data-transition="pop" data-rel="popup" ' +
 			'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
 			'title="help">Help</a>';
-    new_question_view += '<div id=' + qno + '_help ' +
+    new_question_view += '<div id="' + qno + '_help" ' +
 		' data-role="popup" data-theme="a" class="ui-content">' +
 		' <p>' + help_text + '</p> ' +
 		'</div>';
-    my_log ("create_help_div_html called qno " + qno + "help_text: " + help_text);
-    my_log (" new_question_view : " + new_question_view);
-    return new_question_view;
-    */
+    //my_log ("create_help_div_html called qno " + qno + "help_text: " + help_text);
+    //my_log (" new_question_view : " + new_question_view);
 
-    var help_div = document.createElement("div");
-    help_div.id = qno + "_help";
-    help_div.setAttribute("data-role", "popup");
-    help_div.setAttribute("data-theme", "a");
-    help_div.className  = "ui-content" ;
-    help_div.style.maxWidth = "350px";
-    help_div.style.color = "blue";
-    var help_par = document.createElement("p");
-    help_par.innerText = help_text;
-    //my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
-    help_div.appendChild(help_par);
-    my_log ("help_div.outerHTML: " + help_div.outerHTML);
-    //new_question_view.appendChild (help_div);
-    return help_div;
+    //var help_div = document.createElement("div");
+    //help_div.id = qno + "_help";
+    //help_div.setAttribute("data-role", "popup");
+    //help_div.setAttribute("data-theme", "a");
+    //help_div.className  = "ui-content" ;
+    //help_div.style.maxWidth = "350px";
+    //help_div.style.color = "blue";
+    //var help_par = document.createElement("p");
+    //help_par.innerText = help_text;
+    ////my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
+    //help_div.appendChild(help_par);
+    //alert ("help_div: " + help_div.innerHTML);
+    //my_log ("help_div.outerHTML: " + help_div.outerHTML);
+    ////new_question_view.appendChild (help_div);
+    //return help_div;
+    alert (new_question_view);
+    return new_question_view;
 }
 
 function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
@@ -513,7 +513,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				}
 			}
 			
-			new_question_view = "<table>";
+			new_question_view = "<table border='1'>";
 			if(is_question_text_same) {
 				new_question_view += "<tr><th>" + questions_obj_arr[0].question_text_arr[0] + "</th></tr>";
 			}
@@ -551,7 +551,11 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				} else {
 					new_question_view += "<input cols='40' rows='3' type='number' value='" + prevValue + "' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
 				}
-				new_question_view += "</form></td></tr>";
+				new_question_view += "</form>";
+				if (questions_obj_arr[i].help_text.length > 0) {
+					new_question_view += create_help_div_html (questions_obj_arr[i].qno, questions_obj_arr[i].help_text);
+				}
+				new_question_view += "</td></tr>";
 			}
 			new_question_view += "</table>";
 		}
@@ -710,10 +714,12 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				//anchor_for_help_popup.innerText = "Help";
 				//anchor_for_help_popup.className = "my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext";
 				//text_div.appendChild(anchor_for_help_popup);
-				question_title_div.innerHTML += '<a href="#' + curr_question_obj.qno + '_help" ' +
-							'data-transition="pop" data-rel="popup" ' +
-							'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
-							'title="help">Help</a>';
+				// nxd : 21-jan-2014 p1
+				//question_title_div.innerHTML += '<a href="#' + curr_question_obj.qno + '_help" ' +
+				//			'data-transition="pop" data-rel="popup" ' +
+				//			'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
+				//			'title="help">NxD</a>';
+				//	21-jan-2014		
 				// This is the popup itself =========== 
 				//var help_div = document.createElement("div");
 				//help_div.id = questions_obj_arr[0].qno + "_help";
@@ -727,11 +733,17 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				//my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
 				//help_div.appendChild(help_par);
 				//new_question_view.appendChild (help_div);
-				question_title_div.innerHTML += '<div id=' + curr_question_obj.qno + '_help ' +
-						' data-role="popup" data-theme="a" class="ui-content">' +
-						' <p>' + curr_question_obj.help_text + '</p> ' +
-						'</div>';
-				my_log ("reached here - named question after help" + curr_question_obj.help_text);
+				// nxd : 21-jan-2014 p2
+				//question_title_div.innerHTML += '<div id=' + curr_question_obj.qno + '_help ' +
+				//		' data-role="popup" data-theme="a" class="ui-content">' +
+				//		' <p>' + curr_question_obj.help_text + '</p> ' +
+				//		'</div>';
+				//	21-jan-2014		
+				//
+				var help_html = create_help_div_html (curr_question_obj.qno, curr_question_obj.help_text);
+				alert (help_html);
+				question_title_div.innerHTML +=  help_html;
+				//my_log ("reached here - named question after help" + curr_question_obj.help_text);
 			}
 
 
