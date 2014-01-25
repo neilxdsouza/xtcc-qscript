@@ -33,6 +33,20 @@ extern int32_t verbatim_mode_flag;
 extern std::string  jno;
 extern int32_t  ser_no;
 
+void csv_escape (string & sample_string)
+{
+	cerr << __PRETTY_FUNCTION__ <<" received string: " << sample_string << endl;
+	int found = sample_string.find ('"');
+	int n_rplc = 0;
+	while (found != string::npos) {
+		string escaped_dq("\"\"");
+		sample_string.replace (found, 1, escaped_dq);
+		found = sample_string.find ('"', found+2);
+		++ n_rplc;
+	}
+	cerr << "EXIT " <<  __PRETTY_FUNCTION__ << "n_rplc: " << n_rplc << "str: " << sample_string << endl;
+}
+
 string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn, AbstractQuestion * q)
 {
 	stringstream output_buffer;
@@ -53,7 +67,8 @@ string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn,
 	}
 
 	for (int i=0; i < no_mpn - n_inputs; ++i) {
-		output_buffer << "," << complete_name.str();
+		//output_buffer << "," << complete_name.str();
+		output_buffer << "," ;
 	}
 	return output_buffer.str();
 }
@@ -220,7 +235,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 					<< verb_file_name.str()
 					<< endl;
 				std::fstream verb_file(verb_file_name.str().c_str());
-				cerr << "reached here - verb_file";
+				//cerr << "reached here - verb_file";
 				if (verb_file) {
 					cerr << "successfully opned file" << endl;
 					//output_buffer << "OPENED : " << verb_file_name << ":"  ;
@@ -231,15 +246,16 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 						verb_file.getline (buffer, 255);
 						string part_read(buffer);
 						entire_text += part_read;
-						cerr << "part_read: " << part_read << endl;
+						//cerr << "part_read: " << part_read << endl;
 					}
 					cerr << "entire_text: " << entire_text << endl;
-					output_buffer << ", " << entire_text ;
+					csv_escape(entire_text);
+					output_buffer << ", \"" << entire_text << "\"";
 				} else {
 					cerr << "unable to open : " << verb_file << endl;
-					output_buffer << ", \"could not open : " << verb_file_name.str() << "\"" ;
+					//output_buffer << ", \"could not open : " << verb_file_name.str() << "\"" ;
+					output_buffer << ", ";
 				}
-				
 			} else {
 				output_buffer <<  print_data_as_csv ( the_input_data, q->no_mpn, q);
 			}
@@ -273,7 +289,8 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 			}
 			output_buffer << entire_text ;
 		} else {
-			output_buffer << complete_name;
+			//output_buffer << complete_name;
+			output_buffer << "{ }";
 		}
 
 	} else if (GeocodeGMapV3Question * gq = dynamic_cast<GeocodeGMapV3Question*> (q)) {
@@ -294,17 +311,19 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 				<< endl;
 			std::fstream geocode_data_file(geocode_data_file_name.str().c_str());
 			if (geocode_data_file) {
-				output_buffer << ",\"GeocodeGMapV3Question\" : ";
+				//output_buffer << ",\"GeocodeGMapV3Question\" : ";
+				string entire_text ("\"GeocodeGMapV3Question\" : ");
 				char buffer[257];
 				buffer[255]=buffer[256]=0;
-				string entire_text;
 				while (geocode_data_file) {
 					geocode_data_file.getline (buffer, 255);
 					entire_text += string(buffer);
 				}
-				output_buffer << entire_text ;
+				csv_escape(entire_text);
+				output_buffer << ",\"" << entire_text << "\"";
 			} else {
-				output_buffer << ", \"GeocodeGMapV3Question\" : \"empty\"";
+				//output_buffer << ", \"GeocodeGMapV3Question\" : \"empty\"";
+				output_buffer << ", \"GeocodeGMapV3Question\" : {}";
 			}
 
 			stringstream address_data_file_name;
@@ -322,14 +341,16 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 			if (address_data_file) {
 				char buffer[257];
 				buffer[255]=buffer[256]=0;
-				string entire_text;
+				string entire_text("\"geocoded_address\":");
 				while (address_data_file) {
 					address_data_file.getline (buffer, 255);
 					entire_text += string(buffer);
 				}
-				output_buffer << ", \"geocoded_address\" : "<< entire_text ;
+				//output_buffer << ", \"geocoded_address\" : "<< entire_text ;
+				csv_escape(entire_text);
+				output_buffer << ",\"" << entire_text << "\"";
 			} else {
-				output_buffer << ", \"geocoded_address\" : empty";
+				output_buffer << ", \"geocoded_address\" : {}";
 			}
 
 		} else {
