@@ -30,7 +30,6 @@ function check_all_questions_answered_or_allow_blank() {
 }
 
 
-/* newNextQ Button {{{2 */
 var newNextQ= document.getElementById("newNextQ");
 EventUtil.addHandler (newNextQ, "click", function(event) {
 	my_log ("Enter newNextQ");
@@ -46,9 +45,7 @@ EventUtil.addHandler (newNextQ, "click", function(event) {
 	}
 });
 //my_log ("created newNextQ handler function");
-/* newNextQ Button }}}2 */
 
-/* prevQ Button {{{2 */
 var prevQ= document.getElementById("prevQ");
 EventUtil.addHandler (prevQ, "click", function(event) {
 	my_log ("Enter prevQ");
@@ -58,9 +55,7 @@ EventUtil.addHandler (prevQ, "click", function(event) {
 	navigate_previous ("dummy data");
 });
 //my_log ("created prevQ handler function");
-/* prevQ Button }}}2 */
 
-/* handleStartSurveyButton  {{{2 */
 var return_serial_no_button = document.getElementById("btn_return_serial_no");
 function handleStartSurveyButton (event)
 {
@@ -142,7 +137,6 @@ function handleStartSurveyButton (event)
 }
 EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
 //my_log ("created handleStartSurveyButton function");
-/* handleStartSurveyButton  }}}2 */
 
 function handleStartSurveyButtonBrowserOnly (event) {
 	var question_view = document.getElementById("question_view");
@@ -249,7 +243,8 @@ function create_help_div_html (qno, help_text) {
     return new_question_view;
 }
 
-function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
+function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) 
+{
 	//for verbatim questions
 	var verbatim_file_names;
 	verbatim_file_names = [];
@@ -605,8 +600,18 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 
 
 			new_question_view += "<div><form id ='id_form_" + questions_obj_arr[0].qno + "' name ='form_" + questions_obj_arr[0].qno + "' >";
-			//new_question_view += "<input cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></input>";			
-			new_question_view += "<textarea cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></textarea>";
+			//new_question_view += "<input cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></input>";
+			if (questions_obj_arr[0].no_mpn == 1) {
+				new_question_view += "<input type='number' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'";
+
+				if (questions_obj_arr[0].current_response.length) {
+					prevValue = curr_question_obj.current_response[0];
+					new_question_view += " value='" + prevValue + "'";
+				}
+				new_question_view += "></input>";
+			} else {
+				new_question_view += "<textarea cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></textarea>";
+			}
 			new_question_view += "</form></div>";
 			if (questions_obj_arr[0].no_mpn > 1) {
 				//my_log (" case single no_mpn > 1 i.e. verbatim ");
@@ -812,8 +817,8 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 					function gotImageFile(file) {
 						var reader = new FileReader();
 						reader.onloadend = function(evt) {
-							//my_log ("Read verbatim data: " + evt.target.result);
-							//my_log ("global_survey_related_info.current_verbatim_index: " + global_survey_related_info.current_verbatim_index);
+							//my_log ("Read image data: " + evt.target.result);
+							//my_log ("global_survey_related_info.current_image_index: " + global_survey_related_info.current_image_index);
 							//my_log ("gotVerbatimFile index: " + index);
 							var image_div_box = document.getElementById( global_survey_related_info.image_div_id_arr[index]);
 							if (image_div_box && evt.target.result!="") {
@@ -825,27 +830,28 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 						reader.readAsText(file);
 					}
 					
-					if (global_survey_related_info.verbatim_data_file_fileEntry_arr === undefined) {
-						global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
+					//my_log("Enter: gotVerbatimFileEntry");
+					if (global_survey_related_info.image_data_file_fileEntry_arr === undefined) {
+						global_survey_related_info.image_data_file_fileEntry_arr  = [];
 					} else {
-						my_log ("global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+						my_log ("global_survey_related_info.image_data_file_fileEntry_arr.length: " + global_survey_related_info.image_data_file_fileEntry_arr.length);
 					}
-					//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
-					global_survey_related_info.verbatim_data_file_fileEntry_arr.push(fileEntry);
+					//global_survey_related_info.current_image_data_file_fileEntry = fileEntry;
+					global_survey_related_info.image_data_file_fileEntry_arr.push(fileEntry);
 					fileEntry.file(gotImageFile, getFileErrorHandler);
-					//my_log ("Exit global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+					//my_log ("Exit global_survey_related_info.image_data_file_fileEntry_arr.length: " + global_survey_related_info.image_data_file_fileEntry_arr.length);
 				};
 			} (i);
 
 
-			//my_log ("creating verbatim_file handle: i " + i);
-			global_survey_related_info.current_verbatim_index = i;
+			//my_log ("creating image_file handle: i " + i);
+			global_survey_related_info.current_image_index = i;
 			global_survey_related_info.fileSystemObject.root.getFile(
 				image_file_names[i], {create: true},
 				//gotVerbatimFileEntry,
 				function_result_arr[i],
 				getFileErrorHandler);
-		}
+		}// load the older images clicked 
 	}
 	else if (questions_obj_arr[0].question_type == 'audio_capture') {
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
