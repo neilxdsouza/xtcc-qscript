@@ -229,7 +229,7 @@ function gotVerbatimFileEntry(fileEntry) {
 		global_survey_related_info.media_fileEntry_arr.push(fileEntry);
 	}
 
-	function gotGeocodeFileEntry(fileEntry) {
+	/*function gotGeocodeFileEntry(fileEntry) {
 		my_log("Enter: gotGeocodeFileEntry");
 		if (global_survey_related_info.geocode_fileEntry_arr === undefined) {
 			global_survey_related_info.geocode_fileEntry_arr = [];
@@ -245,7 +245,7 @@ function gotVerbatimFileEntry(fileEntry) {
 		}
 		//global_survey_related_info.current_media_capture_file_fileEntry = fileEntry;
 		global_survey_related_info.address_fileEntry_arr.push(fileEntry);
-	}
+	}*/
 
 
 function gotGPSFileEntry(fileEntry) {

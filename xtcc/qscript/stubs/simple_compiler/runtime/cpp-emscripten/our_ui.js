@@ -1,7 +1,12 @@
+var geocoder;
+var map;
+var marker = null;
+var infowindow = null ;
+
 // geolocation timer global variable
 var geolocationTimer = 60;
 
-//my_log ("Started loading our_ui.js");
+my_log ("Started loading our_ui.js");
 //
 
 function check_all_questions_answered_or_allow_blank() {
@@ -216,8 +221,8 @@ function create_help_div_html (qno, help_text) {
     var new_question_view = "";
     new_question_view += '<a href="#' + qno + '_help" ' +
 			'data-transition="pop" data-rel="popup" ' +
-			'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" ' +
-			'title="help">Help</a>';
+			'class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-question-sign ui-btn-icon-notext" ' +
+			'title="help"></a>';
     new_question_view += '<div id="' + qno + '_help" ' +
 		' data-role="popup" data-theme="a" class="ui-content">' +
 		' <p>' + help_text + '</p> ' +
@@ -240,17 +245,26 @@ function create_help_div_html (qno, help_text) {
     //my_log ("help_div.outerHTML: " + help_div.outerHTML);
     ////new_question_view.appendChild (help_div);
     //return help_div;
-    alert (new_question_view);
+    //alert (new_question_view);
     return new_question_view;
 }
 
 function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
+	//for verbatim questions
 	var verbatim_file_names;
 	verbatim_file_names = [];
 	if (global_survey_related_info.verbatim_text_box_id_arr === undefined) {
 		global_survey_related_info.verbatim_text_box_id_arr = [];
 	}
 	global_survey_related_info.verbatim_text_box_id_arr = [];
+	
+	//For image_capture questions
+	var image_file_names;
+	image_file_names = [];
+	if (global_survey_related_info.image_div_id_arr === undefined) {
+		global_survey_related_info.image_div_id_arr = [];
+	}
+	global_survey_related_info.image_div_id_arr = [];
 
 	if (global_survey_related_info.address_fileEntry_arr === undefined) {
 		// 1st time creation - this is useless, just 
@@ -278,16 +292,12 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		var geocode_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "_geocode" + "." + global_survey_related_info.our_file_name + ".dat";
 		var address_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "_address" + "." + global_survey_related_info.our_file_name + ".dat";
 
-		global_survey_related_info.fileSystemObject.root.getFile(
-					geocode_capture_file_path, {create: true}, gotGeocodeFileEntry, getFileErrorHandler);
-		global_survey_related_info.fileSystemObject.root.getFile(
-					address_capture_file_path, {create: true}, gotAddressFileEntry, getFileErrorHandler);
-		my_log ("case geocode_gmapv3");
+		//my_log ("case geocode_gmapv3");
 		//var new_question_view = "The humble beginnings of a geocode question";
 		var new_question_view = document.getElementById("new_question_view");
 		//new_question_view.childNodes.length = 0;
 		new_question_view.innerHTML = "";
-		my_log ("cleared all childNodes from new_question_view");
+		//my_log ("cleared all childNodes from new_question_view");
 		// Load the script first
 		//var geocode_gmap_v3_script = document.createElement("script");
 		//geocode_gmap_v3_script.type = "text/javascript";
@@ -321,8 +331,8 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			anchor_for_help_popup.setAttribute("data-transition", "pop");
 			anchor_for_help_popup.setAttribute("data-rel", "popup");
 			anchor_for_help_popup.setAttribute("title", "Help");
-			anchor_for_help_popup.innerText = "Help";
-			anchor_for_help_popup.className = "my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext";
+			anchor_for_help_popup.innerText = "";
+			anchor_for_help_popup.className = "my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-question-sign ui-btn-icon-notext";
 			text_div.appendChild(anchor_for_help_popup);
 			// This is the popup itself =========== 
 			var help_div = document.createElement("div");
@@ -362,7 +372,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		geocode_button.type = "button";
 		geocode_button.value = "GeoCode";
 		global_survey_related_info.current_geocode_question = questions_obj_arr[0].qno;
-		my_log ("set current_geocode_question");
+		//my_log ("set current_geocode_question");
 		if (global_survey_related_info.geocode_question_data === undefined) {
 			global_survey_related_info.geocode_question_data = { };
 			my_log ("created global_survey_related_info.geocode_question_data object");
@@ -390,7 +400,109 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		//new_question_view.appendChild (map_question_view_frag);
 
 		//document.getElementById("new_question_view").innerHTML = new_question_view;
+
+		//Now fetch the data from the incomplete folder and populate the fields when the users is revisiting
+
+		global_survey_related_info.fileSystemObject.root.getFile(
+					address_capture_file_path, {create: true}, gotAddressFileEntry, getFileErrorHandler);
+
+		global_survey_related_info.fileSystemObject.root.getFile(
+					geocode_capture_file_path, {create: true}, gotGeocodeFileEntry, getFileErrorHandler);
+
+		function gotAddressFileEntry(fileEntry) {
+			my_log("Enter: gotAddressFileEntry");
+			if (global_survey_related_info.address_fileEntry_arr === undefined) {
+				global_survey_related_info.address_fileEntry_arr = [];
+			}
+			global_survey_related_info.address_fileEntry_arr.push(fileEntry);
+			function gotAddressFile(file) {
+				var reader = new FileReader();
+				reader.onloadend = function(evt) {
+					//using the replace function because the address is saved after replacing the commas with ' _ '
+					addressJsonObj = JSON.parse(evt.target.result.replace(/ _ /g, ","));
+					var addr1_text_box = document.getElementById("addr1");
+					var addr2_text_box = document.getElementById("addr2");
+					var city_text_box = document.getElementById("city");
+					var pin_text_box = document.getElementById("pin");
+					if (addr1_text_box) {
+						addr1_text_box.value = addressJsonObj.addr1;
+					}
+					if (addr2_text_box) {
+						addr2_text_box.value = addressJsonObj.addr2;
+					}
+					if (city_text_box) {
+						city_text_box.value = addressJsonObj.city;
+					}
+					if (pin_text_box) {
+						pin_text_box.value = addressJsonObj.pin;
+					}
+				};
+				reader.readAsText(file);
+			}
+			
+			/*if (global_survey_related_info.address_fileEntry_arr === undefined) {
+				global_survey_related_info.address_fileEntry_arr  = [];
+			} else {
+				my_log ("global_survey_related_info.address_fileEntry_arr.length: " + global_survey_related_info.address_fileEntry_arr.length);
+			}
+			global_survey_related_info.address_fileEntry_arr.push(fileEntry);*/
+			fileEntry.file(gotAddressFile, getFileErrorHandler);
+		};
+
+			//global_survey_related_info.fileSystemObject.root.getFile(
+			//		address_capture_file_path, {create: true}, gotAddressFileEntryFunction, getFileErrorHandler);
+
+		//Now extract the lat long and place the marker on google map
+		//var gotGeocodeFileEntryFunction = function () {
+		//return function (fileEntry) {
+			
+		function gotGeocodeFileEntry(fileEntry) {
+			my_log("Enter: gotGeocodeFileEntry");
+			if (global_survey_related_info.geocode_fileEntry_arr === undefined) {
+				global_survey_related_info.geocode_fileEntry_arr = [];
+			}
+			global_survey_related_info.geocode_fileEntry_arr.push(fileEntry);
+
+			function gotGeocodeFile(file) {
+				var reader = new FileReader();
+				reader.onloadend = function(evt) {
+					my_log("geocode_capture_file_path" + geocode_capture_file_path);
+					my_log("Geocode data"+evt.target.result);
+					if (evt.target.result.length > 0) {
+						var geocodeJsonObj = JSON.parse(evt.target.result.replace(/ _ /g, ","));
+						my_log ("geocodeJsonObj: " + geocodeJsonObj);
+						my_log ("geocodeJsonObj.d: " + geocodeJsonObj.d);
+						my_log ("geocodeJsonObj.e: " + geocodeJsonObj.e);
+						//var google_format_marker = "(" + geocodeJsonObj.d + "," + geocodeJsonObj.e + ")";
+						var google_format_marker = new google.maps.LatLng(geocodeJsonObj.d, geocodeJsonObj.e);
+
+						//my_log("google_format_marker" + google_format_marker);
+						marker = createMarker(google_format_marker, "name", "<b>Location</b><br>"+google_format_marker);
+					} else {
+						my_log ("geocode data file was empty");
+					}
+				};
+				reader.readAsText(file);
+			}
+			/*
+			if (global_survey_related_info.geocode_fileEntry_arr === undefined) {
+				global_survey_related_info.geocode_fileEntry_arr  = [];				                           
+			} else {
+				//my_log ("global_survey_related_info.geocode_fileEntry_arr.length: " + global_survey_related_info.geocode_fileEntry_arr.length);
+			}
+			global_survey_related_info.geocode_fileEntry_arr.push(fileEntry);
+			*/
+			fileEntry.file(gotGeocodeFile, getFileErrorHandler);
+		};
 		
+		//function gotGeocodeFileEntryFunction(fileEntry) {
+		//}
+
+		my_log ("geocode_capture_file_path:" + geocode_capture_file_path);
+		//global_survey_related_info.fileSystemObject.root.getFile(
+		//		geocode_capture_file_path, {create: true}, gotGeocodeFileEntryFunction, getFileErrorHandler);
+
+
 	} else if (questions_obj_arr[0].question_type == 'video_q') {
 		
 		var new_question_view = "";
@@ -452,7 +564,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			var curr_question_obj = questions_obj_arr[0];
 			new_question_view += "<div>" + questions_obj_arr[0].question_text_arr[0] + "</div>";
 
-
+			/*
 			if (questions_obj_arr[0].help_text.length > 0) {
 				// there are 2 parts
 				// this is the anchor for the popup
@@ -486,6 +598,10 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 						' <p>' + questions_obj_arr[0].help_text + '</p> ' +
 						'</div>';
 			}
+			*/
+			if (questions_obj_arr[0].help_text.length > 0) {
+					new_question_view += create_help_div_html (questions_obj_arr[0].qno, questions_obj_arr[0].help_text);
+				}
 
 
 			new_question_view += "<div><form id ='id_form_" + questions_obj_arr[0].qno + "' name ='form_" + questions_obj_arr[0].qno + "' >";
@@ -513,7 +629,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				}
 			}
 			
-			new_question_view = "<table border='1'>";
+			new_question_view = "<table>";
 			if(is_question_text_same) {
 				new_question_view += "<tr><th>" + questions_obj_arr[0].question_text_arr[0] + "</th></tr>";
 			}
@@ -659,17 +775,77 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		*/
 		var new_html = "", media_capture_file_path ="", i=0;
 		for (i = 0; i < questions_obj_arr.length; ++i) {
+			var curr_question_obj = questions_obj_arr[i];
+			global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
 			media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[i].qno + "." + global_survey_related_info.our_file_name + ".dat";
 			my_log ("media_capture_file_path: " + media_capture_file_path);
 			global_survey_related_info.fileSystemObject.root.getFile(
 					media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
 			new_html += "<p>Please click a photo</p>";
 			new_html += "<p>" + create_single_question_title_simple (questions_obj_arr[i]) + "</p>";
+			if (questions_obj_arr[i].help_text.length > 0) {
+					new_html += create_help_div_html (questions_obj_arr[i].qno, questions_obj_arr[i].help_text);
+				}
 			new_html += "<button onclick='capturePhoto2("+ i + ",\"" + questions_obj_arr[i].qno + "\");'>Capture Photo</button> <br>"; 
 			new_html += "<div id=\"div_capt_img_" + questions_obj_arr[i].qno + "_" +  i + "\" >Captured image will be displayed here</div>"; 
+
+			var image_fn = "";
+			image_fn = global_survey_related_info.our_dir_path + "/incomplete/" +
+				//questions_obj_arr[0].qno + "." + 
+				curr_question_obj.qno + "." + 
+				global_survey_related_info.our_file_name + ".dat";
+			image_file_names.push(image_fn);
+			global_survey_related_info.image_div_id_arr.push("div_capt_img_" + curr_question_obj.qno+ "_" +  i);
+			//alert(image_file_names[i]);
+			//alert(global_survey_related_info.image_div_id_arr[i]);
 		}
 		var new_question_view = document.getElementById("new_question_view");
 		new_question_view.innerHTML = new_html;
+
+		//this is the code for repopulating the images on revisiting
+		var function_result_arr = [];
+		for (var i = 0; i < image_file_names.length; ++i) {
+			function_result_arr[i] = function (index) {
+				return function (fileEntry) {
+					//my_log ("gotVerbatimFileEntry index: " + index);
+
+					function gotImageFile(file) {
+						var reader = new FileReader();
+						reader.onloadend = function(evt) {
+							//my_log ("Read verbatim data: " + evt.target.result);
+							//my_log ("global_survey_related_info.current_verbatim_index: " + global_survey_related_info.current_verbatim_index);
+							//my_log ("gotVerbatimFile index: " + index);
+							var image_div_box = document.getElementById( global_survey_related_info.image_div_id_arr[index]);
+							if (image_div_box && evt.target.result!="") {
+								var rel_path = "../../../"  + global_survey_related_info.device.uuid + "/" + global_survey_related_info.job_name + "/" + window.localStorage.getItem('userid') + "/incomplete/" + evt.target.result;
+								image_div_box.innerHTML = "<img src=\"" + rel_path + "\"  alt=\"Smiley face\" height=\"100\" width=\"100\">";
+							}
+						//	console.log(evt.target.result);
+						};
+						reader.readAsText(file);
+					}
+					
+					if (global_survey_related_info.verbatim_data_file_fileEntry_arr === undefined) {
+						global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
+					} else {
+						my_log ("global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+					}
+					//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
+					global_survey_related_info.verbatim_data_file_fileEntry_arr.push(fileEntry);
+					fileEntry.file(gotImageFile, getFileErrorHandler);
+					//my_log ("Exit global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+				};
+			} (i);
+
+
+			//my_log ("creating verbatim_file handle: i " + i);
+			global_survey_related_info.current_verbatim_index = i;
+			global_survey_related_info.fileSystemObject.root.getFile(
+				image_file_names[i], {create: true},
+				//gotVerbatimFileEntry,
+				function_result_arr[i],
+				getFileErrorHandler);
+		}
 	}
 	else if (questions_obj_arr[0].question_type == 'audio_capture') {
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
@@ -741,7 +917,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				//	21-jan-2014		
 				//
 				var help_html = create_help_div_html (curr_question_obj.qno, curr_question_obj.help_text);
-				alert (help_html);
+				//alert (help_html);
 				question_title_div.innerHTML +=  help_html;
 				//my_log ("reached here - named question after help" + curr_question_obj.help_text);
 			}
@@ -1003,8 +1179,9 @@ function serialize (form, my_question_obj) {
 						global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 						*/
 						//the_verbatim_data.replace(/,/g, " _ ");
-						var quoted_verbatim = JSON.stringify (the_verbatim_data) ;
-						global_survey_related_info.verbatim_data_arr.push(quoted_verbatim);
+						//var quoted_verbatim = JSON.stringify (the_verbatim_data) ;
+						//global_survey_related_info.verbatim_data_arr.push(quoted_verbatim);
+						global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
 					}
 				}
 			break;
@@ -1078,7 +1255,7 @@ function btnSync() {
 
 // diplays survey title, description and logged in user on survey page
 function displayMetaData() {
-	// $('#div_console_log').hide();	// hide console message 
+	$('#div_console_log').hide();	// hide console message 
 	var projDetails = JSON.parse(window.localStorage.getItem('projDetails'));
 	var div_serial_no = document.getElementById("div_serial_no");
 
@@ -1358,10 +1535,12 @@ var uploadNotification = {
 	}
 };
 
+/*
 var geocoder;
 var map;
 var marker = null;
 var infowindow = null ;
+*/
 
 
 function initialize_gmap() {
@@ -1419,7 +1598,7 @@ function initialize_gmap() {
 
 	// A function to create the marker and set up the event window function 
 function createMarker(latlng, name, html) {
-	my_log ("Enter createMarker");
+	my_log ("Enter createMarker" + latlng + ", name:" + name + ", html");
 	var contentString = html;
 	if (marker) {
 		marker.setMap(null);
