@@ -102,6 +102,7 @@ struct ExpressionStatement: public AbstractStatement
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual ~ExpressionStatement();
 	private:
 	ExpressionStatement& operator=(const ExpressionStatement&);
@@ -122,6 +123,7 @@ struct DeclarationStatement: public AbstractStatement
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	private:
 	DeclarationStatement& operator=(const DeclarationStatement&);
 	DeclarationStatement(const DeclarationStatement&);
@@ -242,6 +244,7 @@ struct CompoundStatement: public AbstractStatement
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual ~CompoundStatement();
 	void GetQuestionNames(vector<string> & question_list,
 			      AbstractStatement * endStatement);
@@ -278,6 +281,7 @@ struct ForStatement: public AbstractStatement
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
@@ -311,6 +315,7 @@ struct IfStatement : public AbstractStatement
 //			, ostringstream& program_code);
 	void GenerateConsolidatedForLoopIndexes();
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual ~IfStatement();
 	void GetQuestionNames(vector<string> & question_list,
@@ -433,6 +438,7 @@ struct StubManipStatement: public AbstractStatement
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual ~StubManipStatement();
 	private:
 		StubManipStatement& operator=(const StubManipStatement&);
@@ -482,6 +488,7 @@ struct FunctionDeclarationStatement: public AbstractStatement
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	~FunctionDeclarationStatement();
 	private:
 	FunctionDeclarationStatement& operator=
@@ -506,6 +513,7 @@ struct FunctionStatement: public AbstractStatement
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	~FunctionStatement();
 	private:
 	FunctionStatement& operator=(const FunctionStatement&);
@@ -575,6 +583,7 @@ struct ErrorStatement: public AbstractStatement
 			, int32_t l_nest_level, int32_t l_for_nest_level
 			);
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	private:
 	ErrorStatement& operator=(const ErrorStatement&);
 	ErrorStatement(const ErrorStatement&);
@@ -587,6 +596,7 @@ struct GotoStatement: public AbstractStatement
 		      , int32_t l_nest_level, int32_t l_for_nest_level
 		      , string l_gotoLabel);
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	private:
 	GotoStatement& operator=(const GotoStatement&);
 	GotoStatement(const GotoStatement&);
@@ -611,6 +621,7 @@ struct ClearStatement: public AbstractStatement
 		        int32_t l_nest_level, int32_t l_for_nest_level,
 			const vector <Unary2Expression *> & expr_vec, string err_msg);
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	//bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
 	vector<bool> VerifyForClearStatement(const vector<Unary2Expression*> expr_vec);
 	//SymbolTableEntry* symbolTableEntry_ ;
@@ -632,6 +643,7 @@ struct ColumnStatement: public AbstractStatement
 			, int32_t l_nest_level, int32_t l_for_nest_level
 			, AbstractExpression * expr);
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	friend bool RunColumnExpressionChecks();
 	private:
@@ -649,6 +661,7 @@ struct NewCardStatement: public AbstractStatement
 			 , int32_t l_nest_level, int32_t l_for_nest_level
 			 , AbstractExpression * expr);
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	friend bool RunColumnExpressionChecks();
 	private:
@@ -671,6 +684,7 @@ struct PageStatement: public AbstractStatement
 	CompoundStatement * pageBody_;
 	void GenerateConsolidatedForLoopIndexes();
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement);
@@ -694,6 +708,7 @@ struct RandomizeStatement: public AbstractStatement
 	// 		CompoundStatement * l_page_body);
 	named_attribute_list * namedAttributeList_;
 	void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	private:
 	RandomizeStatement& operator=(const RandomizeStatement&);
 	RandomizeStatement(const RandomizeStatement&);

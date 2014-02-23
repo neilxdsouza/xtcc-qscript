@@ -39,6 +39,7 @@ struct AbstractStatement
 	//virtual void GenerateCode(ostringstream& quest_defns
 	//		, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode & code)=0;
+	virtual void GenerateJavaCode(StatementCompiledCode & code)=0;
 	virtual ~AbstractStatement();
 	//virtual AbstractQuestion* IsAQuestionStatement();
 	virtual void GetQuestionNames(std::vector<std::string> & question_list,

@@ -75,3 +75,42 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+
+void named_attribute_list::GenerateJavaCode(StatementCompiledCode & code)
+{
+	code.program_code << "/* "
+		<< __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ 
+		<< "*/" << endl;
+	code.quest_defns << "named_attribute_list " 
+		<<  name << ";\n";
+	code.quest_defns_init_code
+		<< name << ".name = \"" << name << "\";\n";
+	for (int i=0; i<attribute.size(); ++i) {
+		code.quest_defns_init_code 
+			<<  name << ".attribute.push_back (string(\"" << attribute[i]
+				<< "\"));\n";
+	}
+
+	code.quest_defns_init_code
+		<< "named_attribute_list_vec.push_back ( &" << name << ");" << endl;
+
+	if (program_options_ns::emscripten_flag) {
+		// empty - do not generate messages code in html
+		// file - to reduce the code size generated
+	} else {
+		code.quest_defns_init_code
+			<< "\tif (write_messages_flag) {\n"
+			<< "\tfor (int i=0; i<"
+			<< name << ".attribute.size(); ++i) {\n"
+			<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+			<<	" << "
+			<< name
+			<< ".attribute[i] << \"</message>\\n\" << endl;\n"
+			<< "\t}\n"
+			<< "}\n";
+	}
+	if (next_) {
+		next_->GenerateJavaCode(code);
+	}
+}

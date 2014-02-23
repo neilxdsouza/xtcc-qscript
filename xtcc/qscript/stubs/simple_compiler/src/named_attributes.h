@@ -30,6 +30,7 @@ struct named_attribute_list: public AbstractStatement
 	named_attribute_list();
 	virtual ~named_attribute_list();
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GenerateJavaCode(StatementCompiledCode & code);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);
 		named_attribute_list (const named_attribute_list&);

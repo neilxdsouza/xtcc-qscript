@@ -26,6 +26,7 @@ using  std::cout;
 	extern void yyrestart(FILE *input_file);
 	extern int32_t yyparse();
 	extern void GenerateCode();
+	//extern void GenerateCodeJava(fname);
 	//extern vector </*Statement::*/FunctionInformation*> func_info_table;
 	using qscript_parser::func_info_table;
 
@@ -48,6 +49,7 @@ namespace program_options_ns {
 	int wx_flag = 0;
 	int gtk_flag = 0;
 	int emscripten_flag = 0;
+	int java_flag = 0;
 	int browser_only_flag = 0;
 	int data_export_flag = false;
 	string QSCRIPT_HOME;
@@ -171,7 +173,11 @@ int32_t main(int32_t argc, char* argv[])
 	if (!yyparse() && !no_errors) {
 		cout << "Input parsed successfully: There could still be errors detected in code generation from if-else statements." << endl;
 		//data_entry_loop();
-		qscript_parser::GenerateCode(fname, program_options_ns::ncurses_flag);
+		if (program_options_ns::java_flag) {
+			qscript_parser::GenerateCodeJava(fname);
+		} else {
+			qscript_parser::GenerateCode(fname, program_options_ns::ncurses_flag);
+		}
 		if (no_errors) {
 			cout << "There were "
 				<< no_errors
@@ -333,8 +339,10 @@ void process_options (int32_t argc, char* argv[])
 			{ "wx", no_argument, &program_options_ns::wx_flag, 1},
 			{ "gtk", no_argument, &program_options_ns::gtk_flag, 1},
 			{ "emscripten", no_argument, &program_options_ns::emscripten_flag, 1},
+			{ "java", no_argument, &program_options_ns::java_flag, 1},
 			{ "browser-only", no_argument, &program_options_ns::browser_only_flag, 1},
-			{ "data-export", no_argument, &program_options_ns::data_export_flag, 1}
+			{ "data-export", no_argument, &program_options_ns::data_export_flag, 1},
+			{ 0, 0, 0, 0}
 		};
 	int option_index = 0;
 	while (1) {

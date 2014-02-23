@@ -181,6 +181,136 @@ string ExtractBaseFileName(const string & fname)
 	return output_file_name;
 }
 
+void GenerateCodeJava(const string & src_file_name)
+{
+	if(qscript_debug::DEBUG_qscript_parser)
+		cerr << "ENTER qscript_parser::GenerateCode" << endl;
+	string output_file_name = ExtractBaseFileName(src_file_name);
+	output_file_name += ".java";
+	//string script_name("test_script.C");
+	FILE * script = fopen(output_file_name.c_str(), "w");
+	if(!script){
+		cerr << "unable to open output file : " << output_file_name << endl;
+		exit(1);
+	}
+	//ostringstream quest_defns, program_code;
+
+	print_header(script, false);
+	tree_root->GenerateConsolidatedForLoopIndexes();
+	StatementCompiledCode compute_flat_map_code;
+	if (!program_options_ns::data_export_flag) {
+		compute_flat_map_code.program_code << "\n#if 0" << endl;
+	}
+	PrintComputeFlatFileMap(compute_flat_map_code);
+	if (!program_options_ns::data_export_flag) {
+		compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
+	}
+	StatementCompiledCode code;
+	tree_root->GenerateCode(code);
+
+	fprintf(script, "struct TheQuestionnaire: public AbstractQuestionnaire\n{\n");
+#if 0
+	fprintf(script, "AbstractQuestion * last_question_answered;\n");
+	fprintf(script, "AbstractQuestion * last_question_visited;\n");
+	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
+	fprintf(script, "fstream messages;\n");
+	fprintf(script, "bool back_jump;\n");
+	fprintf(script, "string jno;\n" );
+	fprintf(script, "int ser_no;\n");
+	fprintf(script, "bool stopAtNextQuestion;\n");
+	fprintf(script, "int32_t questions_start_from_here_index;\n" );
+	fprintf(script, "int ser_no_pos;\n");
+	fprintf (script, " 	string jumpToQuestion;\n");
+	fprintf (script, " 	int32_t jumpToIndex;\n");
+	fprintf(script, "vector <BaseText> base_text_vec;\n");
+#endif /*  0 */
+	fprintf(script, "%s\n", code.quest_defns.str().c_str());
+	//fprintf(script, "TheQuestionnaire() \n");
+
+	fprintf (script, "TheQuestionnaire (string p_jno): AbstractQuestionnaire(p_jno)\n");
+	// nxd 10-may-2013
+#if 1
+	fprintf(script, " /* length(): %ld */", code.quest_defns_constructor.str().length() );
+	if (code.quest_defns_constructor.str().length() == 0) {
+		//fprintf(script, ":");
+	} else {
+		fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
+		//fprintf(script, ",");
+	}
+	//fprintf(script, " last_question_answered(0), last_question_visited(0), back_jump(false), stopAtNextQuestion(false)\n");
+	//fprintf(script, ", jno (\"%s\"), ser_no(0)\n", project_name.c_str());
+#endif /*  0 */
+
+	fprintf(script, "{\n");
+	//fprintf(script, "last_question_answered = 0;\n");
+	if (program_options_ns::emscripten_flag) {
+		// empty - do not generate messages code in html
+		// file - to reduce the code size generated
+	} else {
+		fprintf(script, "if (write_messages_flag) {\n");
+		fprintf(script, "\tmessages.open (\"%s.xml\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
+		fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
+		fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
+		fprintf(script, "\tmessages << \"<messages>\\n\";");
+		fprintf(script, "\tmessages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";");
+		fprintf(script, "}\n");
+	}
+	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
+	fprintf(script, "\tquestions_start_from_here_index = question_list.size();\n\tint our_question_index_no = 100000;\n");
+
+	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
+	if (program_options_ns::data_export_flag) {
+		fprintf(script, "\tcompute_flat_file_map_and_init();\n");
+	} else {
+		fprintf(script, "\t//compute_flat_file_map_and_init();\n");
+	}
+	if (program_options_ns::emscripten_flag) {
+		// empty - do not generate messages code in html
+		// file - to reduce the code size generated
+	} else {
+		fprintf(script, "\tif (write_messages_flag) {\n");
+		fprintf(script, "\tmessages << \"</messages>\\n\";\n");
+		fprintf(script, "\tmessages.flush() ;\n");
+		fprintf(script, "\t}\n");
+	}
+	fprintf(script, "}\n");
+#if 0
+	print_question_messages(script);
+	print_summary_axis(script);
+	// 5-apr-2011 , 0:12 (am)
+	// continue from here - put the compute_flat_map_code into
+	// a write data function - commiting this
+	// - generated code wont compile
+#endif /* 0 */
+	fprintf(script, "%s\n", compute_flat_map_code.program_code.str().c_str());
+	print_eval_questionnaire(script, code.program_code, false);
+#if 0
+	fprintf(script, "%s\n", write_data_to_disk_code());
+	print_navigation_support_functions(script);
+	print_reset_questionnaire(script);
+	print_read_a_serial_no (script);
+	PrintDisplayActiveQuestions(script);
+	PrintGetUserResponse(script);
+	print_write_qtm_data_to_disk(script);
+	print_write_ascii_data_to_disk(script);
+	//print_prompt_user_for_serial_no(script);
+	print_write_xtcc_data_to_disk(script);
+	print_do_freq_counts(script);
+	//print_close(script, code.program_code, ncurses_flag);
+	//fflush(script);
+#endif /*  0 */
+	fprintf(script, "};\n");
+
+	if (program_options_ns::stdout_flag) {
+		//PrintStdoutMain(script);
+		PrintWxSupport_1(script);
+	}
+	print_close(script, code.program_code, false);
+	fflush(script);
+	if(qscript_debug::DEBUG_qscript_parser)
+		cerr << "EXIT qscript_parser::GenerateCode" << endl;
+}
+
 void GenerateCode(const string & src_file_name, bool ncurses_flag)
 {
 	if(qscript_debug::DEBUG_qscript_parser)

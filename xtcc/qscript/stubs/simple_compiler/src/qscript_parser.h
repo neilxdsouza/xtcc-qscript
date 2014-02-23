@@ -87,6 +87,7 @@ namespace qscript_parser
 	extern string project_name;
 	extern vector <AbstractQuestion*> question_list;
 	extern void GenerateCode(const string & src_file_name, bool ncurses_flag);
+	extern void GenerateCodeJava(const string & src_file_name);
 	extern int32_t ReadQScriptConfig();
 	extern void CompileGeneratedCode(const string & src_file_name);
 	extern void CompileGeneratedCodeEmscripten(const string & src_file_name);

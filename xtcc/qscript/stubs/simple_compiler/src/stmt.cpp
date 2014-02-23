@@ -99,6 +99,18 @@ void ExpressionStatement::GenerateCode(StatementCompiledCode &code)
 	}
 }
 
+void ExpressionStatement::GenerateJavaCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* ENTER ExpressionStatement::GenerateJavaCode */" << endl;
+	ExpressionCompiledCode expr_code;
+	expression_->PrintExpressionCode(expr_code);
+	code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str() << ";" << endl;
+	if (next_){
+		code.program_code << "/* EXIT ExpressionStatement::GenerateJavaCode */" << endl;
+		next_->GenerateCode(code);
+	}
+}
+
 
 ExpressionStatement::~ExpressionStatement()
 {
@@ -144,10 +156,41 @@ void DeclarationStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	if (symbolTableEntry_->e){
 		code.program_code << " = " << expr_code.code_expr.str();
-
 	}
 	code.program_code << ";" << endl;
+	if (next_){
+		next_->GenerateCode(code);
+	}
+}
 
+
+void DeclarationStatement::GenerateJavaCode(StatementCompiledCode &code)
+{
+	if (qscript_debug::DEBUG_DeclarationStatement)
+		cout << " // DeclarationStatement::GenerateJavaCode " << endl;
+	//ostringstream code_expr1, code_bef_expr1;
+	ExpressionCompiledCode expr_code;
+	if (symbolTableEntry_->e){
+		symbolTableEntry_->e->PrintExpressionCode(expr_code);
+		code.program_code << expr_code.code_bef_expr.str();
+	}
+	if (type_ >= INT8_TYPE && type_  <= DOUBLE_TYPE){
+		code.program_code << noun_list[type_].sym
+			<< " " << symbolTableEntry_->name_;
+	} else if (type_  >= INT8_ARR_TYPE && type_  <= DOUBLE_ARR_TYPE){
+		DataType tdt = DataType(INT8_TYPE + type_-INT8_ARR_TYPE);
+		code.program_code << noun_list[tdt].sym
+			<< symbolTableEntry_->name_ << "["
+			<< symbolTableEntry_->n_elms << "]";
+	} else if (type_  >= INT8_REF_TYPE&& type_  <= DOUBLE_REF_TYPE){
+		DataType tdt = DataType(INT8_TYPE + type_-INT8_REF_TYPE);
+		code.program_code << noun_list[tdt].sym
+			<< " & " << symbolTableEntry_->name_;
+	}
+	if (symbolTableEntry_->e){
+		code.program_code << " = " << expr_code.code_expr.str();
+	}
+	code.program_code << ";" << endl;
 	if (next_){
 		next_->GenerateCode(code);
 	}
@@ -410,6 +453,189 @@ string Generate_false_code_for_questions_in_other_block (string question_name, I
 }
 
 void IfStatement::GenerateCode(StatementCompiledCode &code)
+{
+	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
+	if (qscript_debug::DEBUG_IfStatement) {
+		code.array_quest_init_area << "/* ENTER " << __PRETTY_FUNCTION__ << ", "
+				<< __FILE__ << ", " << __LINE__
+				<< " source lineNo_: " << lineNo_
+				<< " */\n";
+	}
+		
+	static vector<IfStatementStackElement*> ifStatementStack;
+	static int32_t if_nest_level =0;
+	bool if_nest_level_was_increased = false;
+	//++if_nest_level;
+	if (ifStatementStack.size()>0) {
+		if (this == ifStatementStack[ifStatementStack.size()-1]
+				->ifStatementPtr_->elseBody_){
+			code.program_code <<
+				"// if statement at same level of nesting"
+				" as previous if i.e. part of the else if"
+				" clause: if_nest_level: "
+				<< if_nest_level
+				<< endl;
+		} else {
+			++if_nest_level;
+			if_nest_level_was_increased = true;
+		}
+	} else {
+		++if_nest_level;
+		if_nest_level_was_increased = true;
+	}
+	//ostringstream code_bef_expr, code_expr;
+	ExpressionCompiledCode expr_code;
+	expr_code.code_bef_expr << "/* if_nest_level: " << if_nest_level << " */\n";
+	expr_code.code_expr << "if (";
+	ifCondition_->PrintExpressionCode(expr_code);
+	expr_code.code_expr << ") {";
+	code.program_code << expr_code.code_bef_expr.str()
+		<< expr_code.code_expr.str();
+	vector<string> question_list_else_body;
+	code.program_code << "// ifStatementStack.size(): "
+		<< ifStatementStack.size() << endl;
+	if (ifStatementStack.size() > 0) {
+		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
+			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
+				ifStatementStack[i]->ifStatementPtr_->ifBody_
+					->GetQuestionNames
+					(question_list_else_body, this);
+				//break;
+			}
+		}
+	}
+	code.program_code << "// question_list_else_body :" ;
+	for (int32_t i=0; i<question_list_else_body.size(); ++i) {
+		code.program_code << " " << question_list_else_body[i];
+	}
+	code.program_code << endl;
+	if (elseBody_) {
+		//elseBody_->GetQuestionNames(question_list_else_body, 0);
+		elseBody_->GetQuestionNames(question_list_else_body, next_);
+		// this problem has been syntactically handled - the compiler does not allow an empty
+		// else block if the "if" block has questions in it
+		// stringstream mesg;
+		// mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
+	} else {
+		// this problem has been syntactically handled - the compiler does not allow an empty
+		// else block if the "if" block has questions in it
+		// stringstream mesg;
+		// mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
+	}
+	for(int32_t i = 0; i < question_list_else_body.size(); ++i) {
+		bool if_mode_1_else_mode_0 = true;
+		code.program_code << Generate_false_code_for_questions_in_other_block (question_list_else_body[i], this, if_mode_1_else_mode_0);
+		//code.program_code <<  question_list_else_body[i]
+		//	<< "->isAnswered_ = false;"
+		//	<< endl;
+	}
+	ifBody_->GenerateCode(code);
+	code.program_code << " }" << endl;
+
+	// need at this scope level to detect missing else blocks
+	vector<string> question_list_if_body;
+	if (elseBody_) {
+		code.program_code << " else {" << endl;
+
+		IfStatement * elseIfStatement = dynamic_cast<IfStatement*>
+						(elseBody_);
+		if (elseIfStatement){
+			IfStatementStackElement *  stk_el=
+				new IfStatementStackElement(if_nest_level,
+					this);
+
+			code.program_code <<
+				"// pushing onto ifStatementStack \n";
+
+			ifStatementStack.push_back(stk_el);
+		}
+
+		//vector<string> question_list_if_body;
+
+		for (int32_t i = 0; i < ifStatementStack.size(); ++i) {
+			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
+				ifStatementStack[i]->ifStatementPtr_
+					->GetQuestionNames
+					(question_list_if_body, this);
+				//break;
+			}
+		}
+		//ifBody_->GetQuestionNames(question_list_if_body, 0);
+		ifBody_->GetQuestionNames(question_list_if_body, next_);
+
+		code.program_code << "// end of ifBody_->GetQuestionNames \n";
+		if (elseIfStatement) {
+			//elseIfStatement->elseBody_->GetQuestionNames
+			//	(question_list_if_body, 0);
+			code.program_code << " // elseIfStatement exists \n";
+		} else {
+			code.program_code << " // elseIfStatement DOES NOT exists \n";
+			code.program_code << "/* question_list_if_body.size(): "
+				<< question_list_if_body.size() << " */ \n";
+			for(int32_t i = 0; i < question_list_if_body.size(); ++i){
+				bool if_mode_1_else_mode_0 = false;
+				code.program_code << Generate_false_code_for_questions_in_other_block(question_list_if_body[i], this, false);
+				//code.program_code <<  question_list_if_body[i]
+				//	<< "->isAnswered_ = false;"
+				//	<< endl;
+			}
+			code.program_code << "// **************** \n";
+		}
+		elseBody_->GenerateCode(code);
+
+		if (elseIfStatement) {
+			IfStatementStackElement * stk_el =
+				ifStatementStack.back();
+			delete stk_el;
+			ifStatementStack.pop_back();
+		}
+		code.program_code << "}" << endl;
+	}
+
+	if (if_nest_level_was_increased){
+		--if_nest_level;
+		if_nest_level_was_increased = false;
+	}
+
+	if (qscript_debug::DEBUG_IfStatement) {
+		code.program_code << " /* finished generating code IfStatement */ " << endl;
+		code.array_quest_init_area << "/* EXIT " << __PRETTY_FUNCTION__ << ", "
+				<< __FILE__ << ", " << __LINE__ << ", source line no:" << lineNo_ << " */\n";
+	}
+
+	if (elseBody_ == 0 ) {
+		// cout << LOG_MESSAGE("elseBody_ == 0");
+		// this call below is for error detection
+		code.program_code << "// elseBody_ == 0 - detecting if ifBody_ has questions: yes => we flag an error" << endl;
+		//ifBody_->GetQuestionNames(question_list_if_body, 0);
+		ifBody_->GetQuestionNames(question_list_if_body, next_);
+		code.program_code << "// question_list_if_body: " ;
+		for (int32_t i=0; i<question_list_if_body.size(); ++i) {
+			code.program_code << " " << question_list_if_body[i];
+		}
+		code.program_code << endl;
+		if (question_list_if_body.size() > 0 || question_list_else_body.size()>0) {
+			stringstream s;
+			s << "If block on line number: " << lineNo_ << " has questions but does not have an else block. Please add a dummy else block like this" << endl
+				<< " CODE EXAMPLE FOR DUMMY ELSE BLOCK FOLLOWS " << endl
+				<< " /* ************************************* */" << endl
+				<< " else {\n\t1;\n}\n"
+				<< " /* ************************************* */" << endl
+				<< " END OF CODE EXAMPLE" << endl
+				<< " although the dummy else block seems irrelevant it helps the compiler produce correct code to handle if else statements"
+				<< endl;
+			print_err(compiler_sem_err, s.str(), lineNo_, __LINE__, __FILE__);
+			++qscript_parser::no_errors;
+		}
+	}
+	if (next_)
+		next_->GenerateCode(code);
+	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
+}
+
+void IfStatement::GenerateJavaCode(StatementCompiledCode &code)
 {
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
 	if (qscript_debug::DEBUG_IfStatement) {
@@ -880,6 +1106,98 @@ string PrintConsolidatedForLoopIndex(
 	return consolidated_for_loop_index.str();
 }
 
+void CompoundStatement::GenerateJavaCode(StatementCompiledCode &code)
+{
+	code.quest_defns << "//CompoundStatement::GenerateCode()\n"
+		<< "// Generating array declarations"
+		<< ": flagGeneratedQuestionDefinitions_: " << flagGeneratedQuestionDefinitions_
+		<< ", qscript_parser::for_loop_max_counter_stack.size(): "
+		<< 	qscript_parser::for_loop_max_counter_stack.size()
+		<< ", counterContainsQuestions_: " << counterContainsQuestions_
+		<< ", flagIsAForBody_: " << flagIsAForBody_
+		<< ", source lineNo_: " << lineNo_
+		<< endl;
+
+	// probably this block of code should go into
+	// ForStatement along with flagGeneratedQuestionDefinitions_
+	// will git branch and check this idea out
+#if 0
+	if (flagGeneratedQuestionDefinitions_ == false
+	   //&& qscript_parser::for_loop_max_counter_stack.size()>0
+	   && flagIsAForBody_
+	   && counterContainsQuestions_) {
+		if (qscript_debug::DEBUG_CompoundStatement) {
+			code.quest_defns << "//CompoundStatement::GenerateCode()\n"
+				<< "// Generating array declarations\n";
+		}
+		if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_) {
+			if (qscript_debug::DEBUG_CompoundStatement) {
+				code.array_quest_init_area << "/* invoking GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+					<< " */\n";
+			}
+			GenerateQuestionArrayInitLoopOpen(code);
+			if (qscript_debug::DEBUG_CompoundStatement) {
+				code.array_quest_init_area << "/* finished call to GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+					<< " */\n";
+			}
+		}
+		flagGeneratedQuestionDefinitions_ = true;
+	}
+#endif /* 0 */
+	code.program_code << "{" << endl;
+	/* Warning - duplicated code block - also present in
+	 * CompoundStatement::Generate_ComputeFlatFileMap */
+	//cout    << "ConsolidatedForLoopIndexStack_.size():"
+	//	<< ConsolidatedForLoopIndexStack_.size()
+	//	<< endl;
+	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
+		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
+			<< " = ";
+		code.program_code << PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << ";\n";
+	}
+	/* End of duplicated code block */
+	if (compoundBody_) {
+		compoundBody_->GetQuestionsInBlock(questionsInBlock_, this);
+		code.program_code << "/* compound statement on line no: "
+			<< lineNo_ << " questionsInBlock_, size:"
+			<< questionsInBlock_.size() << " ";
+		for (int i=0; i< questionsInBlock_.size(); ++i) {
+			code.program_code << questionsInBlock_[i]->questionName_ << ", ";
+		}
+		code.program_code << " */\n";
+		compoundBody_->GenerateCode(code);
+	}
+#if 0
+	if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){
+		GenerateQuestionArrayInitLoopClose(code);
+	}
+#endif /* 0 */
+	if (flagIsAForBody_ && qscript_parser::page_nest_lev == 1) {
+		code.program_code << "/* flagIsAForBody_ && page_nest_lev == 1  */"
+			<< endl;
+		code.program_code
+			<< "if (vec_page_" << qscript_parser::globalActivePageName_
+			<< "_ret_val.size() == "
+			<< qscript_parser::globalActivePageSize_
+			<< ") {"
+			<< "last_question_visited =  "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val;"
+			<< "EvalReturnValue ev_ret_val;" << endl
+	 		<< "ev_ret_val.errMessageVec_ = error_messages_vec; " << endl
+	 		<< "ev_ret_val.qVec_ = "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val;" << endl
+			//<< "return " <<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val" << ";" << endl
+			<< "return " << "ev_ret_val;" << endl
+			<< "}" << endl;
+	}
+	code.program_code << "}" << endl;
+	if (next_)
+		next_->GenerateCode(code);
+}
+
 void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 {
 	code.quest_defns << "//CompoundStatement::GenerateCode()\n"
@@ -1301,6 +1619,54 @@ void ForStatement::CheckForIndexUsageConsistency()
 }
 
 void ForStatement::GenerateCode(StatementCompiledCode &code)
+{
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.array_quest_init_area << "/* " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+			<< "*/\n";
+	}
+
+	if (forBody_->counterContainsQuestions_) {
+		if (qscript_debug::DEBUG_ForStatement) {
+			code.quest_defns << "// " << __PRETTY_FUNCTION__
+				<< "// Generating array declarations\n";
+			code.array_quest_init_area << "// invoking GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+					<< " \n";
+		}
+		GenerateQuestionArrayInitLoopOpen(code);
+		if (qscript_debug::DEBUG_ForStatement) {
+			code.array_quest_init_area << "// finished call to GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+					<< " \n";
+		}
+	}
+
+	if (qscript_parser::page_nest_lev > 0) {
+		code.program_code << "/* page_nest_lev > 0 */" << endl;
+	}
+
+	ExpressionCompiledCode expr_code;
+	expr_code.code_expr << "for (";
+	initializationExpression_->PrintExpressionCode(expr_code);
+	expr_code.code_expr <<   ";";
+	testExpression_->PrintExpressionCode(expr_code);
+	expr_code.code_expr << ";";
+	incrementExpression_->PrintExpressionCode(expr_code);
+	expr_code.code_expr <<  ")";
+
+	code.program_code << expr_code.code_bef_expr.str();
+	code.program_code << expr_code.code_expr.str();
+	forBody_->GenerateCode(code);
+
+	if (forBody_->counterContainsQuestions_) {
+		GenerateQuestionArrayInitLoopClose(code);
+	}
+
+	if (next_)
+		next_->GenerateCode(code);
+}
+
+void ForStatement::GenerateJavaCode(StatementCompiledCode &code)
 {
 	if (qscript_debug::DEBUG_ForStatement) {
 		code.array_quest_init_area << "/* " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
@@ -2423,6 +2789,370 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 }
 
+void StubManipStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	using qscript_parser::question_list;
+	code.program_code << "/*StubManipStatement::GenerateCode() BEGIN "
+		<< questionName_ << ":" << namedStub_ << "*/"
+		<< endl;
+	code.program_code << "{" << endl;
+
+
+	if (type_ == STUB_MANIP_DEL || type_ == STUB_MANIP_ADD) {
+		if (namedRange_ && rhs_) {
+			code.program_code << "set<int32_t>::iterator set_iter = "
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.begin();" << endl;
+			code.program_code << "for( ; set_iter!= "
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.end(); ++set_iter){" << endl;
+			code.program_code << "\tfor (int32_t "
+				<< qscript_parser::temp_name_generator.GetNewName();
+			code.program_code
+				<< " = 0; "
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< " < "
+				<< namedStub_ << ".stubs.size(); ++"
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< ") {" << endl;
+			code.program_code << "\t\tif (" << namedStub_
+				<< ".stubs["
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< "].code == *set_iter) {" << endl;
+			if (type_ == STUB_MANIP_DEL){
+				code.program_code << "\t\t\t"
+					<< namedStub_ << ".stubs["
+					<< qscript_parser::temp_name_generator.GetCurrentName()
+					<< "].mask = false; " << endl;
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code << "\t\t\t"
+					<< namedStub_ << ".stubs["
+					<< qscript_parser::temp_name_generator.GetCurrentName()
+					<< "].mask = true; " << endl;
+			}
+			code.program_code << "\t\t}" << endl;
+			code.program_code << "\t}" << endl;
+			code.program_code << "}" << endl;
+		} else if (lhs_ && rhs_) {
+			
+			code.program_code << "/* from here  */"
+				<< endl;
+			code.program_code << "set<int32_t>::iterator set_iter = "
+				<< rhs_->questionName_;
+
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code<< "->input_data.begin();" << endl;
+			code.program_code << "for( ; set_iter!= "
+				<< rhs_->questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.end(); ++set_iter) {" << endl;
+			code.program_code << lhs_->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code<< "->input_data.insert(*set_iter);\n";
+			code.program_code << lhs_->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->isAnswered_ = true;\n";
+			code.program_code << "\t}" << endl;
+		} else if (lhs_ == 0 && rhs_ == 0 && namedRange_) {
+			ExpressionCompiledCode expr_code;
+			PrintTemporaryXtccSet(expr_code, &xtccSet_);
+			code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
+			code.program_code << "{\n";
+			// ===================
+			code.program_code << "for (set<int32_t>::iterator xtcc_set_iter1="
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentName()
+				<< ".indiv.begin()"
+				<< "; xtcc_set_iter1 !="
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentName()
+				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
+				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".stubs.size(); ++xtcc_i2) {\n"
+				<< "\t\tif ("
+				<< "*xtcc_set_iter1  == "
+				<< namedStub_
+				<< ".stubs[xtcc_i2].code) {\n";
+
+			if (type_ == STUB_MANIP_DEL) {
+				code.program_code
+					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code
+					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
+			}
+
+			code.program_code
+				<< "\t\t}\n"
+				<< "\t}\n"
+				<< "}\n"
+
+				<< "for(int32_t xtcc_i1 = 0; xtcc_i1 < "
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentName()
+				<< ".range.size(); ++xtcc_i1) {\n"
+				<< "\tfor(int32_t set_member = "
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentName()
+				<< ".range[xtcc_i1].first; set_member <= "
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentName()
+				<< ".range[xtcc_i1].second\n"
+				<< "\t\t\t;++set_member) {\n"
+				<< "\t\tfor (int32_t xtcc_i2=0; xtcc_i2<"
+				<< namedStub_
+				<< ".stubs.size(); ++xtcc_i2) {\n"
+				<< "\t\t\tif (set_member == "
+				<< namedStub_
+				<< ".stubs[xtcc_i2].code) {\n"
+				<< "\t\t\t\t";
+			if (type_ == STUB_MANIP_DEL){
+				code.program_code
+					<< namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code
+					<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
+			}
+			code.program_code
+				<< "\t\t\t}\n"
+				<< "\t\t}\n"
+				<< "\t}\n"
+				<< "}\n";
+			code.program_code << "}\n";
+
+			// ==================
+		} else if (lhs_ && maskExpr_ && rhs_ == 0 && namedRange_ == 0) {
+			NamedStubQuestion * nq = dynamic_cast < NamedStubQuestion *> (lhs_);
+			code.program_code << "/*  NxD */if ("
+				<< nq->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code
+				<< "->q_type == spn) "
+				<<  nq->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code
+				<< "->input_data.clear();\n";
+			if (nq->q_type == spn) {
+				stringstream warning_mesg;
+				warning_mesg << "Warning: Using setadd to set a single coded question";
+				print_warning (better_coding_style
+						, warning_mesg.str().c_str(), qscript_parser::line_no, __LINE__, __FILE__);
+			}
+			{
+				// changes go here
+				ExpressionCompiledCode expr_code1;
+				maskExpr_->PrintExpressionCode(expr_code1);
+				code.program_code  
+					<< " if ( " << expr_code1.code_expr.str()
+					<< " < " << nq->nr_ptr->minCode_
+					<< " || " << expr_code1.code_expr.str()
+					<< " > " << nq->nr_ptr->maxCode_
+					<< ") {\n  cerr << \"runtime error - \" << \"" 
+					<< __PRETTY_FUNCTION__ 
+					<< ", expression code is < or > than code range that question accepts ... exiting\""
+					<< " << endl;\n\t exit(1); } ";
+				code.program_code << lhs_->questionName_ ;
+				if (arrLIndex_) {
+					ExpressionCompiledCode expr_code2;
+					arrLIndex_->PrintExpressionCode(expr_code2);
+					code.program_code << "_list.questionList[" << expr_code2.code_expr.str() << "]";
+				}
+				code.program_code << "->input_data.insert(" 
+					<< expr_code1.code_expr.str();
+				code.program_code	<< ");\n";
+				code.program_code << lhs_->questionName_ ;
+				if (arrLIndex_) {
+					ExpressionCompiledCode expr_code1;
+					arrLIndex_->PrintExpressionCode(expr_code1);
+					code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+				}
+				code.program_code << "->isAnswered_ = true;\n";
+			}
+			
+		} else if (lhs_ && rhs_ == 0 && namedRange_ == 0) {
+			//stringstream s;
+			//s << "/* not yet programmed : "
+			//	<< __FILE__ << ", " << __LINE__ << ", "
+			//	<< __PRETTY_FUNCTION__ << " */" << endl;
+			//s << "This should cause an ERROR in the generated code: "
+			//	<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			//code.program_code << s.str();
+			if (xtccSet_ . isEmpty() ) {
+				stringstream s;
+				s << " In-correct setup of StubManipStatement. xtccSet_ should not be empty. This error should have been caught in the parsing stage.";
+				print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+			} else {
+				//cout << "xtccSet_ is non-empty as expected\n";
+				stringstream mesg;
+				mesg << "This code has to be revisited. first of all we are not allowing SETADD/SETDEL on array questions. Secondly there is no check on mutex. ";
+				LOG_MAINTAINER_MESSAGE(mesg.str());
+				for (set<int32_t>::iterator it=xtccSet_.indiv.begin();
+						it != xtccSet_.indiv.end();
+						++it) {
+					if (lhs_->IsValid(*it)) {
+						if (type_ == STUB_MANIP_DEL) {
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+								<< *it << ");\n";
+						} else if (type_ == STUB_MANIP_ADD) {
+							code.program_code << "/*  NxD */if ("
+								<< lhs_->questionName_;
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code
+								<< "->q_type == spn) " 
+								<<  lhs_->questionName_;
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code
+								<< "->input_data.clear();\n" ;
+							code.program_code << lhs_->questionName_ ;
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code << "->input_data.insert(" 
+								<< *it << ");\n";
+						}
+						//	lhs->input_data.insert(*it);
+					} else {
+						stringstream err_msg;
+						err_msg << "invalid element: " << *it << " in set_del/set_add. ";
+						print_err(compiler_internal_error, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
+					}
+				}
+				for (int32_t xtcc_i1 = 0; xtcc_i1 < xtccSet_.range.size(); ++xtcc_i1) {
+					for (int32_t set_member = xtccSet_.range[xtcc_i1].first; set_member <= xtccSet_.range[xtcc_i1].second;
+							++set_member) {
+						if (type_ == STUB_MANIP_DEL) {
+							if (lhs_->IsValid(set_member)) {
+								//lhs->input_data.insert(set_member);
+								code.program_code << lhs_->questionName_ << "->input_data.erase("
+									<< set_member << ");\n";
+							} else {
+								stringstream err_msg;
+								err_msg << "invalid element: " << set_member << " in set_del. ";
+								print_err(compiler_internal_error, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
+							}
+						} else if (type_ == STUB_MANIP_ADD) {
+							if (lhs_->IsValid(set_member)) {
+								code.program_code << lhs_->questionName_ << "->input_data.insert("
+									<< set_member << ");\n";
+							} else {
+								stringstream err_msg;
+								err_msg << "invalid element: " << set_member << " in set_add. ";
+								print_err(compiler_internal_error, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
+							}
+						}
+
+					}
+				}
+				code.program_code << lhs_->questionName_ ;
+				if (arrLIndex_) {
+					ExpressionCompiledCode expr_code1;
+					arrLIndex_->PrintExpressionCode(expr_code1);
+					code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+				}
+				code.program_code << "->isAnswered_ = true;\n";
+			}
+			//print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			stringstream s;
+			s << " incorrect setup of StubManipStatement: ";
+			print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	} else if (type_ == STUB_MANIP_UNSET_ALL || type_ == STUB_MANIP_SET_ALL) {
+		code.program_code << "for(int32_t "
+			<< qscript_parser::temp_name_generator.GetNewName();
+		code.program_code
+			<< " = 0; "
+			<< qscript_parser::temp_name_generator.GetCurrentName()
+			<< " < "
+			<< namedStub_ << ".stubs.size(); ++"
+			<< qscript_parser::temp_name_generator.GetCurrentName()
+			<< "){" << endl;
+		if (type_ == STUB_MANIP_UNSET_ALL) {
+			code.program_code << namedStub_
+				<< ".stubs["
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< "].mask = false; " << endl;
+		} else if (type_ == STUB_MANIP_SET_ALL) {
+			code.program_code << namedStub_
+				<< ".stubs["
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< "].mask = true; " << endl;
+		}
+		code.program_code << "}" << endl;
+	} else {
+		stringstream err_text;
+		err_text << "AbstractQuestion: " << questionName_
+			<< " , dataype of StubManipStatement statement is not as expected"
+			<< endl;
+		print_err(compiler_sem_err, err_text.str()
+				, lineNo_, __LINE__, __FILE__);
+		code.program_code << "ERROR: StubManipStatement: this should fail compilation" << endl;
+	}
+
+	code.program_code << endl;
+
+	code.program_code << "}" << endl;
+	code.program_code << "/*StubManipStatement::GenerateCode() END "
+		<< questionName_ << ":" << namedStub_ << "*/"
+		<< endl;
+
+	if (next_)
+		next_->GenerateCode(code);
+}
+
 StubManipStatement::~StubManipStatement()
 { }
 
@@ -2541,6 +3271,13 @@ void FunctionDeclarationStatement::GenerateCode(StatementCompiledCode &code)
 		if (next_) next_->GenerateCode(code);
 }
 
+
+void FunctionDeclarationStatement::GenerateJavaCode(StatementCompiledCode &code)
+{
+		funcInfo_->print(code.program_code);
+		if (next_) next_->GenerateCode(code);
+}
+
 FunctionDeclarationStatement::~FunctionDeclarationStatement()
 {
 	for (uint32_t i = 0; i< mem_addr.size(); ++i){
@@ -2593,6 +3330,34 @@ FunctionStatement:: FunctionStatement(DataType dtype, int32_t lline_number
 				, __LINE__, __FILE__);
 		type_ = ERROR_TYPE;
 	}
+}
+
+void FunctionStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	code.program_code << "//FunctionStatement::GenerateJavaCode()" << endl;
+	if (funcInfo_->returnType_ >= VOID_TYPE
+	   && funcInfo_->returnType_ <= DOUBLE_TYPE){
+		code.program_code << noun_list[funcInfo_->returnType_].sym;
+	} else {
+		ostringstream err_msg;
+		err_msg << " Unxpected return type for function  ";
+
+
+		print_err(compiler_code_generation_error, err_msg.str().c_str(),
+				qscript_parser::line_no, __LINE__, __FILE__);
+	}
+
+	if (funcInfo_->functionName_ == string("printf")){
+		code.program_code << "/* FunctionStatement::GenerateCode*/ fprintf(qscript_stdout,";
+	} else {
+		code.program_code << funcInfo_->functionName_.c_str() << "(";
+	}
+	code.program_code << " /* FunctionStatement::GenerateJavaCode */" << endl;
+	FunctionParameter* v_ptr = funcInfo_->parameterList_;
+	v_ptr->print(code.program_code);
+	code.program_code << ")";
+	if (functionBody_) functionBody_->GenerateCode(code);
+	if (next_) next_->GenerateCode(code);
 }
 
 void FunctionStatement::GenerateCode(StatementCompiledCode & code)
@@ -2696,6 +3461,12 @@ void ErrorStatement::GenerateCode(StatementCompiledCode & code)
 	cerr << __PRETTY_FUNCTION__ << " should never be called\n";
 }
 
+void ErrorStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	code.program_code << "error" << endl;
+	cerr << __PRETTY_FUNCTION__ << " should never be called\n";
+}
+
 GotoStatement::GotoStatement(DataType l_type, int32_t l_line_number
 			    , int32_t l_nest_level, int32_t l_for_nest_level
 			     , string l_gotoLabel)
@@ -2724,6 +3495,21 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+void GotoStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	code.program_code << "/*GotoStatement::GenerateCode() */ "
+		<< endl;
+	code.program_code << "jumpToQuestion = \"" << gotoLabel_ << "\";\n\
+			goto start_of_questions;\n";
+	if (next_) {
+		code.program_code << "/* EXIT GotoStatement::GenerateCode */" << endl;
+
+		next_->GenerateCode(code);
+	}
+}
+
+
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			    	int32_t l_nest_level, int32_t l_for_nest_level,
 			const vector <Unary2Expression *> & expr_vec, string err_msg)
@@ -2770,6 +3556,45 @@ vector<bool> ClearStatement::VerifyForClearStatement (const vector<Unary2Express
 
 
 void ClearStatement::GenerateCode(StatementCompiledCode & code)
+{
+	code.program_code << " /*  Clear statement code */ " 
+		<< endl;
+	for (int i = 0; i < questionExprVec_.size(); ++i) {
+		//ExpressionCompiledCode code1;
+		//questionExprVec_[i]->PrintExpressionCode(code1);
+		//code.program_code << code1.code_bef_expr.str()
+		//		   << code1.code_expr.str();
+		//code.program_code << "->isAnswered_ = false;\n";
+		Unary2Expression * u2e =  questionExprVec_[i];
+		if (u2e -> exprOperatorType_ == oper_name && u2e -> type_ == QUESTION_TYPE) {
+			AbstractQuestion * q = u2e->symbolTableEntry_->question_;
+			code.program_code << q->questionName_ << "->isAnswered_ = false;\n";
+		} else if (u2e -> exprOperatorType_ == oper_arrderef /* && u2e -> type_ == QUESTION_ARR_TYPE */) {
+			AbstractQuestion * q = u2e->symbolTableEntry_->question_;
+			code.program_code << q->questionName_ << "_list.questionList[";
+			ExpressionCompiledCode code1;
+			u2e->operand_->PrintExpressionCode(code1);
+			code.program_code << code1.code_bef_expr.str()
+				<< code1.code_expr.str()
+				<< "]->isAnswered_ = false;\n";
+		} else {
+			code.program_code << "Internal compiler error - this should trigger a compilation failure, "
+				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+				<< endl;
+		}
+	}
+
+	code.program_code << "stopAtNextQuestion = false;\n"
+		<< "error_messages_vec.push_back(\"" << errorMessage_ << "\");\n"
+		<< "goto start_of_questions;\n"
+		<< endl;
+
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+void ClearStatement::GenerateJavaCode(StatementCompiledCode & code)
 {
 	code.program_code << " /*  Clear statement code */ " 
 		<< endl;
@@ -2887,6 +3712,13 @@ void ColumnStatement::GenerateCode(StatementCompiledCode & code)
 }
 
 
+void ColumnStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
 NewCardStatement::NewCardStatement(DataType l_type, int32_t l_line_number,
 			    	 int32_t l_nest_level, int32_t l_for_nest_level
 				, AbstractExpression * expr)
@@ -2913,6 +3745,13 @@ void NewCardStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 }
 
 void NewCardStatement::GenerateCode(StatementCompiledCode & code)
+{
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+void NewCardStatement::GenerateJavaCode(StatementCompiledCode & code)
 {
 	if (next_) {
 		next_->GenerateCode(code);
@@ -2990,6 +3829,41 @@ void PageStatement::GenerateCode(StatementCompiledCode & code)
 	}
 }
 
+
+void PageStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	qscript_parser::globalActivePageName_ = pageName_;
+	qscript_parser::globalActivePageSize_ = pageSize_;
+	code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	code.program_code << "vector <AbstractRuntimeQuestion*> vec_page_"
+		<< pageName_ << "_ret_val;" << std::endl;
+	qscript_parser::page_nest_lev = 1;
+	qscript_parser::flag_first_question_in_page = true;
+	pageBody_->GenerateCode(code);
+
+	code.program_code
+		<< "if (vec_page_" << pageName_ << "_ret_val.size() > 0) {"
+		<< " last_question_visited =  vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl
+		//<< " return vec_page_" << pageName_ << "_ret_val;"
+		<< "EvalReturnValue ev_ret_val;" << endl
+	 	<< "ev_ret_val.qVec_ = "
+		<< " vec_page_" << pageName_ << "_ret_val;"
+	 	<< "ev_ret_val.errMessageVec_ = error_messages_vec; " << endl
+	 	<< "return ev_ret_val;" << endl
+		<< std::endl
+		<< "}" << endl
+		;
+
+
+	qscript_parser::page_nest_lev = 0;
+	code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	if (next_) {
+		next_->GenerateCode (code);
+	}
+}
+
+
 void PageStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
 	pageBody_->Generate_ComputeFlatFileMap (code);
@@ -3030,4 +3904,20 @@ void RandomizeStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+
+void RandomizeStatement::GenerateJavaCode(StatementCompiledCode & code)
+{
+	//code.program_code
+	code.quest_defns_init_code
+		<< "/* "  << __PRETTY_FUNCTION__ << " */"
+		<< namedAttributeList_ -> name
+		<< " . " << "randomize();\n"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+
 

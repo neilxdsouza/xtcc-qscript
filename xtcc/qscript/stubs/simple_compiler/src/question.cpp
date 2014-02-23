@@ -1389,6 +1389,23 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 }
 
 
+void RangeQuestion::GenerateJavaCode(StatementCompiledCode & code )
+{
+	if(for_bounds_stack.size() == 0){
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	} else {
+		AbstractQuestion::PrintSetupBackJump(code);
+		PrintArrayDeclarations(code);
+
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
+	}
+	if(next_){
+		next_->GenerateJavaCode(code);
+	}
+}
 
 void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 {
@@ -1531,6 +1548,27 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
 	}  else {
 		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
+}
+
+void NamedStubQuestion::GenerateJavaCode(StatementCompiledCode &code)
+{
+	if(for_bounds_stack.size() == 0){
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}  else {
+		//----------------------------------------
+		AbstractQuestion::PrintSetupBackJump(code);
+		// PrintArrayDeclarations(code.quest_defns);
+		PrintArrayDeclarations(code);
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
+	}
+
+	if(next_){
+		next_->GenerateJavaCode(code);
 	}
 
 }
@@ -3414,6 +3452,23 @@ string RangeQuestion::PrintSelectedAnswers(int code_index)
 // 	: text_(), nameExpr_(0)
 // { }
 //
+
+void VideoQuestion:: GenerateJavaCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
+		<< endl;
+	if (next_) {
+		next_->GenerateJavaCode(code);
+	}
+}
+
 void VideoQuestion:: GenerateCode(StatementCompiledCode &code)
 {
 	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
@@ -3640,6 +3695,21 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 			 , l_av_info, l_question_attributes)
 { }
 
+void VideoCaptureQuestion:: GenerateJavaCode(StatementCompiledCode &code)
+{
+	code.program_code << "/* START ======== VideoQuestion::GenerateJavaCode code goes here */"
+		<< endl;
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	}
+	code.program_code << "/* END ======== VideoQuestion::GenerateJavaCode code goes here */"
+		<< endl;
+	if (next_) {
+		next_->GenerateJavaCode(code);
+	}
+}
+
 void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
 {
 	code.program_code << "/* START ======== VideoQuestion::GenerateCode code goes here */"
@@ -3794,6 +3864,23 @@ void GeocodeGMapV3Question::GetQuestionNames(vector<string> & question_list
 	}
 }
 
+void GeocodeGMapV3Question::GenerateJavaCode(StatementCompiledCode & code )
+{
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintSetupBackJump(code);
+		GenerateCodeSingleQuestion(code, false);
+	} else {
+		AbstractQuestion::PrintSetupBackJump(code);
+		PrintArrayDeclarations(code);
+
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
+	}
+	if(next_){
+		next_->GenerateJavaCode(code);
+	}
+}
 
 void GeocodeGMapV3Question::GenerateCode(StatementCompiledCode & code )
 {

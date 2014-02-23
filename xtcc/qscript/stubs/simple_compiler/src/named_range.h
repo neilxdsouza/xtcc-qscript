@@ -24,6 +24,7 @@ struct named_range: public AbstractStatement
 	int maxCode_;
 	//named_range(): name(""), stubs(){}
 	void GenerateCode(StatementCompiledCode & code);
+	void GenerateJavaCode(StatementCompiledCode & code);
 	//named_range()
 	//	: AbstractStatement(NAMED_RANGE, 0)
 	//	  , name(), stubs()
