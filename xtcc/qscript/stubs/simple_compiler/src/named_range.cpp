@@ -38,6 +38,7 @@ named_range::~named_range()
 
 void named_range::GenerateCode(StatementCompiledCode & code)
 {
+	code.quest_defns << "// "  << __PRETTY_FUNCTION__ << endl;
 	code.quest_defns << "vector <stub_pair> " 
 		<< qscript_parser::temp_name_generator.GetNewName()
 		//<< "(" << stubs.size() << ");"
@@ -92,7 +93,8 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 
 void named_range::GenerateJavaCode(StatementCompiledCode & code)
 {
-	code.quest_defns << "vector <stub_pair> " 
+	code.quest_defns << "//" << __PRETTY_FUNCTION__ << endl;
+	code.quest_defns << "ArrayList <stub_pair> " 
 		<< qscript_parser::temp_name_generator.GetNewName()
 		//<< "(" << stubs.size() << ");"
 		<< ";" << endl << endl;
@@ -100,7 +102,7 @@ void named_range::GenerateJavaCode(StatementCompiledCode & code)
 		code.quest_defns_init_code
 			<< "/*  nxd */ "
 			<< qscript_parser::temp_name_generator.GetCurrentName()
-			<< ".push_back( stub_pair(\"" << stubs[i].stub_text
+			<< ".add( new stub_pair(\"" << stubs[i].stub_text
 			<< "\", " << stubs[i].code
 			//<< ", false" 
 			<< ", " << (stubs[i].is_mutex ? "true" : "false" ) 
@@ -137,7 +139,7 @@ void named_range::GenerateJavaCode(StatementCompiledCode & code)
 	mesg << "Review source of this file: check we are not allowing duplicate codes in the stubs ";
 	LOG_MAINTAINER_MESSAGE(mesg.str());
 	if (next_) {
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 

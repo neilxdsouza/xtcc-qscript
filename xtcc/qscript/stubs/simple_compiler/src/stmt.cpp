@@ -107,7 +107,7 @@ void ExpressionStatement::GenerateJavaCode(StatementCompiledCode &code)
 	code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str() << ";" << endl;
 	if (next_){
 		code.program_code << "/* EXIT ExpressionStatement::GenerateJavaCode */" << endl;
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 
@@ -192,7 +192,7 @@ void DeclarationStatement::GenerateJavaCode(StatementCompiledCode &code)
 	}
 	code.program_code << ";" << endl;
 	if (next_){
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 
@@ -714,7 +714,7 @@ void IfStatement::GenerateJavaCode(StatementCompiledCode &code)
 		//	<< "->isAnswered_ = false;"
 		//	<< endl;
 	}
-	ifBody_->GenerateCode(code);
+	ifBody_->GenerateJavaCode(code);
 	code.program_code << " }" << endl;
 
 	// need at this scope level to detect missing else blocks
@@ -766,7 +766,7 @@ void IfStatement::GenerateJavaCode(StatementCompiledCode &code)
 			}
 			code.program_code << "// **************** \n";
 		}
-		elseBody_->GenerateCode(code);
+		elseBody_->GenerateJavaCode(code);
 
 		if (elseIfStatement) {
 			IfStatementStackElement * stk_el =
@@ -814,7 +814,7 @@ void IfStatement::GenerateJavaCode(StatementCompiledCode &code)
 		}
 	}
 	if (next_)
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
 }
 
@@ -1108,7 +1108,7 @@ string PrintConsolidatedForLoopIndex(
 
 void CompoundStatement::GenerateJavaCode(StatementCompiledCode &code)
 {
-	code.quest_defns << "//CompoundStatement::GenerateCode()\n"
+	code.quest_defns << "//CompoundStatement::GenerateJavaCode()\n"
 		<< "// Generating array declarations"
 		<< ": flagGeneratedQuestionDefinitions_: " << flagGeneratedQuestionDefinitions_
 		<< ", qscript_parser::for_loop_max_counter_stack.size(): "
@@ -1168,7 +1168,7 @@ void CompoundStatement::GenerateJavaCode(StatementCompiledCode &code)
 			code.program_code << questionsInBlock_[i]->questionName_ << ", ";
 		}
 		code.program_code << " */\n";
-		compoundBody_->GenerateCode(code);
+		compoundBody_->GenerateJavaCode(code);
 	}
 #if 0
 	if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){
@@ -1195,7 +1195,7 @@ void CompoundStatement::GenerateJavaCode(StatementCompiledCode &code)
 	}
 	code.program_code << "}" << endl;
 	if (next_)
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 }
 
 void CompoundStatement::GenerateCode(StatementCompiledCode &code)
@@ -1711,7 +1711,7 @@ void ForStatement::GenerateJavaCode(StatementCompiledCode &code)
 	}
 
 	if (next_)
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 }
 
 void ForStatement::Generate_ComputeFlatFileMap(StatementCompiledCode &code)
@@ -3150,7 +3150,7 @@ void StubManipStatement::GenerateJavaCode(StatementCompiledCode & code)
 		<< endl;
 
 	if (next_)
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 }
 
 StubManipStatement::~StubManipStatement()
@@ -3275,7 +3275,7 @@ void FunctionDeclarationStatement::GenerateCode(StatementCompiledCode &code)
 void FunctionDeclarationStatement::GenerateJavaCode(StatementCompiledCode &code)
 {
 		funcInfo_->print(code.program_code);
-		if (next_) next_->GenerateCode(code);
+		if (next_) next_->GenerateJavaCode(code);
 }
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement()
@@ -3357,7 +3357,7 @@ void FunctionStatement::GenerateJavaCode(StatementCompiledCode & code)
 	v_ptr->print(code.program_code);
 	code.program_code << ")";
 	if (functionBody_) functionBody_->GenerateCode(code);
-	if (next_) next_->GenerateCode(code);
+	if (next_) next_->GenerateJavaCode(code);
 }
 
 void FunctionStatement::GenerateCode(StatementCompiledCode & code)
@@ -3505,7 +3505,7 @@ void GotoStatement::GenerateJavaCode(StatementCompiledCode & code)
 	if (next_) {
 		code.program_code << "/* EXIT GotoStatement::GenerateCode */" << endl;
 
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 
@@ -3629,7 +3629,7 @@ void ClearStatement::GenerateJavaCode(StatementCompiledCode & code)
 		<< endl;
 
 	if (next_) {
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 
@@ -3715,7 +3715,7 @@ void ColumnStatement::GenerateCode(StatementCompiledCode & code)
 void ColumnStatement::GenerateJavaCode(StatementCompiledCode & code)
 {
 	if (next_) {
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 
@@ -3754,7 +3754,7 @@ void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 void NewCardStatement::GenerateJavaCode(StatementCompiledCode & code)
 {
 	if (next_) {
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 
@@ -3839,7 +3839,7 @@ void PageStatement::GenerateJavaCode(StatementCompiledCode & code)
 		<< pageName_ << "_ret_val;" << std::endl;
 	qscript_parser::page_nest_lev = 1;
 	qscript_parser::flag_first_question_in_page = true;
-	pageBody_->GenerateCode(code);
+	pageBody_->GenerateJavaCode(code);
 
 	code.program_code
 		<< "if (vec_page_" << pageName_ << "_ret_val.size() > 0) {"
@@ -3859,7 +3859,7 @@ void PageStatement::GenerateJavaCode(StatementCompiledCode & code)
 	qscript_parser::page_nest_lev = 0;
 	code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
 	if (next_) {
-		next_->GenerateCode (code);
+		next_->GenerateJavaCode (code);
 	}
 }
 
@@ -3915,7 +3915,7 @@ void RandomizeStatement::GenerateJavaCode(StatementCompiledCode & code)
 		<< " . " << "randomize();\n"
 		<< endl;
 	if (next_) {
-		next_->GenerateCode(code);
+		next_->GenerateJavaCode(code);
 	}
 }
 

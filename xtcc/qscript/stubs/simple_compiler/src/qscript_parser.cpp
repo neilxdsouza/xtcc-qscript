@@ -184,7 +184,7 @@ string ExtractBaseFileName(const string & fname)
 void GenerateCodeJava(const string & src_file_name)
 {
 	if(qscript_debug::DEBUG_qscript_parser)
-		cerr << "ENTER qscript_parser::GenerateCode" << endl;
+		cerr << "ENTER qscript_parser::GenerateJavaCode" << endl;
 	string output_file_name = ExtractBaseFileName(src_file_name);
 	output_file_name += ".java";
 	//string script_name("test_script.C");
@@ -206,7 +206,7 @@ void GenerateCodeJava(const string & src_file_name)
 		compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
 	}
 	StatementCompiledCode code;
-	tree_root->GenerateCode(code);
+	tree_root->GenerateJavaCode(code);
 
 	fprintf(script, "struct TheQuestionnaire: public AbstractQuestionnaire\n{\n");
 #if 0

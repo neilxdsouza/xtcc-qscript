@@ -142,6 +142,7 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
 	virtual void GenerateJavaCode(StatementCompiledCode &code)=0;
 	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)=0;
+	virtual void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)=0;
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
 			  , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -269,6 +270,7 @@ struct RangeQuestion: public AbstractQuestion
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateJavaCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	virtual void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
@@ -393,6 +395,7 @@ class NamedStubQuestion: public AbstractQuestion
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateJavaCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
@@ -464,6 +467,7 @@ public:
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateJavaCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	void GetQuestionNames(vector<string> & question_list
 			, AbstractStatement* endStatement)
 	{
@@ -501,6 +505,7 @@ public:
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateJavaCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	void GetQuestionNames(vector<string> & question_list
 			, AbstractStatement* endStatement)
 	{
@@ -541,6 +546,7 @@ public:
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateJavaCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	void GetQuestionNames(vector<string> & question_list
 			, AbstractStatement* endStatement);
 	void WriteDataToDisk(ofstream& data_file);
@@ -569,6 +575,7 @@ class DummyArrayQuestion: public AbstractQuestion
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateJavaCode(StatementCompiledCode &code) {}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode){}
+	void GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode) {}
 	void GetQuestionNames(vector<string> & question_list
 			      , AbstractStatement* endStatement);
 	/* 

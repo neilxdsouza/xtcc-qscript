@@ -1210,6 +1210,184 @@ string PrintQuestionTitleCode (vector <TextExpression*> & textExprVec)
 	return quest_decl.str();
 }
 
+void RangeQuestion::GenerateJavaCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
+{
+	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
+
+	static int32_t xtcc_set_counter = 0;
+	const int32_t BUF_SIZE = 100;
+	char xtcc_set_name[BUF_SIZE];
+	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
+	code.quest_defns << "// " << __PRETTY_FUNCTION__ << endl;
+	code.quest_defns  << "XtccSet " << xtcc_set_name << ";" << endl;
+	/*
+	for(	set<int32_t>::iterator it = r_data->indiv.begin();
+			it != r_data->indiv.end(); ++it){
+		code.quest_defns << xtcc_set_name << ".indiv.insert(" << *it
+			<< ");" << endl;
+	}
+	for(uint32_t i = 0; i < r_data->range.size(); ++i){
+		code.quest_defns << xtcc_set_name
+			<< ".range.push_back(pair<int32_t,int32_t>("
+			<< r_data->range[i].first << ","
+			<< r_data->range[i].second
+			<< "));" << endl;
+	}
+	*/
+	//code.quest_defns << r_data->print_replicate_code(string(xtcc_set_name));
+	code.quest_defns_init_code << r_data->print_replicate_code(string(xtcc_set_name));
+	string q_type_str;
+	print_q_type(q_type_str);
+
+	string datatype_str;
+	print_data_type(datatype_str);
+
+	ostringstream quest_decl;
+#if 0
+	quest_decl << "stringstream " << questionName_ << "_str;\n";
+	quest_decl << questionName_ << "_str "
+			<< "<< \"" << questionName_ << "\" ";
+	if (for_bounds_stack.size() > 0 ) {
+
+	}
+#endif /* 0 */
+	quest_decl << "// " << __PRETTY_FUNCTION__ << endl;
+	quest_decl << "{\n";
+	quest_decl << "ArrayList<TextExpression> text_expr_vec;\n";
+
+#if 0
+	for (int i=0; i < textExprVec_.size(); ++i) {
+		/*
+		if (textExprVec_[i]->nameExpr_ == 0) {
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec_[i]->text_
+				<< "\")));\n";
+		} else {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		}
+		*/
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) {
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec_[i]->text_
+				<< "\")));\n";
+		} else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
+			ExpressionCompiledCode expr_code;
+
+			if (textExprVec_[i]->questionIndexExpr_)
+				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+			if (textExprVec_[i]->questionIndexExpr_ ) {
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
+						<< textExprVec_[i]->pipedQuestion_->questionName_
+						<< ", "
+						<< expr_code.code_expr.str()
+						<< ") ); /*  -NxD- */\n";
+			} else {
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
+						<< textExprVec_[i]->pipedQuestion_->questionName_
+						<< ") ); /*  -NxD- */\n";
+			}
+		} else {
+			stringstream err_msg;
+			err_msg << " unhandled TextExpressionType ";
+			print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		}
+
+	}
+#endif /* 0 */
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode) {
+		quest_decl << "RangeQuestion  " << questionName_;
+	} else {
+		quest_decl <<  questionName_;
+	}
+	quest_decl << " = new RangeQuestion("
+		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< "string( \"" << questionName_.c_str() << "\")" << ",";
+
+	//quest_decl	<< "string(\" " << questionText_ << "\")"
+	quest_decl << " text_expr_vec";
+	quest_decl	<< ","
+		<< q_type_str << ","
+		<< no_mpn << ","
+		<< datatype_str << ","
+		<< xtcc_set_name;
+	if (for_bounds_stack.size() > 0) {
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+	quest_decl << ", string(\"" << pageName_ << "\")";
+	quest_decl << ");\n";
+	// I think these lines should move into the else clause of the if (array_mode)
+	// which currently does not exist
+	// if (!array_mode) {
+	// 	quest_decl << "}\n";
+	// }
+
+	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+
+	if (array_mode) {
+		quest_decl << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
+		quest_decl
+			//<< "/*  "
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			//<< " */"
+			<< endl;
+		quest_decl << "}\n";
+	} else {
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << "}\n";
+	}
+
+	if (for_bounds_stack.size() == 0) {
+		//code.quest_defns << quest_decl.str();
+		code.quest_defns << "RangeQuestion  " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		// new
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+	} else {
+		code.array_quest_init_area << quest_decl.str();
+	}
+
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	} else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
+}
 
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 {
@@ -1219,6 +1397,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	const int32_t BUF_SIZE = 100;
 	char xtcc_set_name[BUF_SIZE];
 	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
+	code.quest_defns  << "//  " << __PRETTY_FUNCTION__ << endl;
 	code.quest_defns  << "XtccSet " << xtcc_set_name << ";" << endl;
 	/*
 	for(	set<int32_t>::iterator it = r_data->indiv.begin();
@@ -1391,18 +1570,19 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 
 void RangeQuestion::GenerateJavaCode(StatementCompiledCode & code )
 {
-	if(for_bounds_stack.size() == 0){
+	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code, false);
+		GenerateJavaCodeSingleQuestion(code, false);
 	} else {
 		AbstractQuestion::PrintSetupBackJump(code);
 		PrintArrayDeclarations(code);
 
-		GenerateCodeSingleQuestion(code, true);
+		GenerateJavaCodeSingleQuestion(code, true);
 		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 		//	<< endl;
 	}
-	if(next_){
+	if (next_) {
+		code.quest_defns << "//About to call GenerateJavaCode " << endl;
 		next_->GenerateJavaCode(code);
 	}
 }
@@ -1423,6 +1603,134 @@ void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 	if(next_){
 		next_->GenerateCode(code);
 	}
+}
+
+void NamedStubQuestion::GenerateJavaCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
+{
+	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
+	
+
+	string q_type_str;
+	print_q_type(q_type_str);
+
+	string datatype_str;
+	print_data_type(datatype_str);
+
+	ostringstream quest_decl;
+
+	quest_decl << "{\n";
+	quest_decl << "// " << __PRETTY_FUNCTION__ << endl;
+	quest_decl << "vector<TextExpression > text_expr_vec;\n";
+#if 0
+	for (int i=0; i < textExprVec_.size(); ++i) {
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) {
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec_[i]->text_
+				<< "\")));\n";
+		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
+
+			if (textExprVec_[i]->questionIndexExpr_ ) {
+				ExpressionCompiledCode expr_code;
+				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
+						<< textExprVec_[i]->pipedQuestion_->questionName_
+						<< ", "
+						<< expr_code.code_expr.str()
+						<< ") ); /*  -NxD- */\n";
+			} else {
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
+						<< textExprVec_[i]->pipedQuestion_->questionName_
+						<< ") ); /*  -NxD- */\n";
+			}
+		} else {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		}
+	}
+#endif /* 0 */
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "NamedStubQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl << " = new NamedStubQuestion("
+		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< "string( \"" << questionName_ << "\")" << ",";
+
+	quest_decl << " text_expr_vec";
+	//quest_decl	<< "string(\" " << questionText_ << "\")"
+	quest_decl	<< ","
+		<< q_type_str << ","
+		<< no_mpn << ","
+		<< datatype_str << ",&"
+		<< nr_ptr->name;
+	if(for_bounds_stack.size() >0 ){
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+	quest_decl << ", string(\"" << pageName_ << "\")";
+	quest_decl << ");\n";
+	//if (!array_mode) {
+	//	quest_decl << "}\n";
+	//}
+
+	if (array_mode) {
+		quest_decl << "question_list.push_back(" << questionName_ << "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
+		quest_decl
+			//<< "/*  "
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			//<< " */"
+			<< endl;
+		quest_decl << "}\n";
+	} else {
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << "}\n";
+	}
+
+	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "NamedStubQuestion  " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
+			<< "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+	} else {
+		code.array_quest_init_area << quest_decl.str();
+	}
+	//program_code << "\t\t" << questionName_.c_str() << "->eval();\n";
+
+	if (for_bounds_stack.size() == 0) {
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
 }
 
 //extern vector <scope*> active_scope_list;
@@ -1556,13 +1864,13 @@ void NamedStubQuestion::GenerateJavaCode(StatementCompiledCode &code)
 {
 	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code, false);
+		GenerateJavaCodeSingleQuestion(code, false);
 	}  else {
 		//----------------------------------------
 		AbstractQuestion::PrintSetupBackJump(code);
 		// PrintArrayDeclarations(code.quest_defns);
 		PrintArrayDeclarations(code);
-		GenerateCodeSingleQuestion(code, true);
+		GenerateJavaCodeSingleQuestion(code, true);
 		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 		//	<< endl;
 	}
@@ -3459,7 +3767,7 @@ void VideoQuestion:: GenerateJavaCode(StatementCompiledCode &code)
 		<< endl;
 	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code, false);
+		GenerateJavaCodeSingleQuestion(code, false);
 	}
 
 	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
@@ -3483,6 +3791,100 @@ void VideoQuestion:: GenerateCode(StatementCompiledCode &code)
 	if (next_) {
 		next_->GenerateCode(code);
 	}
+}
+
+void VideoQuestion:: GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "VideoQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new VideoQuestion("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec";
+
+	if (q_type == video) {
+		quest_decl << ", video" ;
+	} else if (q_type == audio) {
+		quest_decl << ", audio" ;
+	} else if (q_type == image) {
+		quest_decl << ", image" ;
+	} else {
+		quest_decl << " , trigger syntax error - unhanled type";
+	}
+	quest_decl
+		<< ", QuestionAttributes(false, false)"
+		;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
+		<< ", string(\"" << file_path << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* VideoQuestion::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "VideoQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+#if 0
+		code.program_code
+			<< "if ((" << questionName_ << "->isAnswered_ == false) || "
+			<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && "
+			<< questionName_
+			<< "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||"
+			// ============ NAVIGATE_PREVIOUS =============
+			<< endl
+			<< "("
+			<< "  (p_jump_to_group_name.length() == 0 && p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
+			<<     questionName_
+			<< "    ) == p_jump_to_index)) ||"
+			<< "  (p_jump_to_group_name.length()  > 0 && p_navigation_mode == NAVIGATE_PREVIOUS && "
+			<<     questionName_ << " -> pageName_ "
+			<< "     == p_jump_to_group_name) "
+			<< ")" << endl
+			// ============ NAVIGATE_PREVIOUS =============
+
+			<< "{" << endl
+			<< "last_question_visited = " << questionName_ << ";" << endl
+			<< "fprintf(qscript_stdout, \"last_question_visited:" << questionName_ << "\\n\");\n"
+			<< "\treturn " << questionName_ << ";" << endl
+			<< "}"
+			<< endl;
+#endif /*  0  */
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
+	code.program_code << "/* END ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
 }
 
 void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
@@ -3701,7 +4103,7 @@ void VideoCaptureQuestion:: GenerateJavaCode(StatementCompiledCode &code)
 		<< endl;
 	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code, false);
+		GenerateJavaCodeSingleQuestion(code, false);
 	}
 	code.program_code << "/* END ======== VideoQuestion::GenerateJavaCode code goes here */"
 		<< endl;
@@ -3727,6 +4129,73 @@ void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
 }
 
 void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "VideoCaptureQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new VideoCaptureQuestion("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec";
+
+	if (q_type == video_capture) {
+		quest_decl << ", video_capture" ;
+	} else if (q_type == audio_capture) {
+		quest_decl << ", audio_capture" ;
+	} else if (q_type == image_capture) {
+		quest_decl << ", image_capture" ;
+	} else {
+		quest_decl << " , trigger syntax error - unhanled type";
+	}
+	//quest_decl << ", QuestionAttributes(false, false)" ;
+	quest_decl << "," << question_attributes.Print();
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* VideoCaptureQuestion::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "VideoCaptureQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
+	code.program_code << "/* END ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
+
+void VideoCaptureQuestion:: GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
 {
 	ostringstream quest_decl;
 	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
@@ -3868,12 +4337,12 @@ void GeocodeGMapV3Question::GenerateJavaCode(StatementCompiledCode & code )
 {
 	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code, false);
+		GenerateJavaCodeSingleQuestion(code, false);
 	} else {
 		AbstractQuestion::PrintSetupBackJump(code);
 		PrintArrayDeclarations(code);
 
-		GenerateCodeSingleQuestion(code, true);
+		GenerateJavaCodeSingleQuestion(code, true);
 		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 		//	<< endl;
 	}
@@ -3901,6 +4370,81 @@ void GeocodeGMapV3Question::GenerateCode(StatementCompiledCode & code )
 }
 
 void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
+{
+	ostringstream quest_decl;
+	code.program_code << "/* START ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	string q_title_code = PrintQuestionTitleCode (textExprVec_);
+	quest_decl << q_title_code;
+
+	if (array_mode)
+		quest_decl << "GeocodeGMapV3Question * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl
+		<< " = new GeocodeGMapV3Question("
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< " string( \"" << questionName_ << "\")"
+		<< ", text_expr_vec";
+
+	//if (q_type == video_capture) {
+	//	quest_decl << ", video_capture" ;
+	//} else if (q_type == audio_capture) {
+	//	quest_decl << ", audio_capture" ;
+	//} else if (q_type == image_capture) {
+	//	quest_decl << ", image_capture" ;
+	//} else {
+	//	quest_decl << " , trigger syntax error - unhanled type";
+	//}
+	quest_decl << ", geocode_gmapv3";
+	quest_decl
+		<< ", QuestionAttributes("
+		<< question_attributes.hidden_
+		<< ", "
+		<< question_attributes.allowBlank_
+		<< ", string(\""
+		<< question_attributes.helpText_
+		<< "\")"
+		<<  ") " ;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
+		<< ", string(\"" << pageName_ << "\")"
+		<< ");"
+		<< endl;
+
+
+	quest_decl << "}\n";
+
+	if (for_bounds_stack.size() == 0) {
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "/* GeocodeGMapV3Question::GenerateCodeSingleQuestion */" << endl;
+		code.quest_defns << "GeocodeGMapV3Question * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
+			<< ");"
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
+	}  else {
+		AbstractQuestion::PrintEvalArrayQuestion(code);
+	}
+
+	code.program_code << "/* END ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
+		<< endl;
+}
+
+void GeocodeGMapV3Question:: GenerateJavaCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
 {
 	ostringstream quest_decl;
 	code.program_code << "/* START ======== GeocodeGMapV3Question::GenerateCodeSingleQuestion code goes here */"
