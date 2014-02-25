@@ -346,6 +346,10 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		// Address
 		var addr_div = document.createElement("div");
 		addr_div.id = "addr_info";
+		var apt_no = document.createElement("input");
+		apt_no.id = "apt_no";
+		apt_no.type = "text";
+		apt_no.placeholder = "Apartment No";
 		var addr1 = document.createElement("input");
 		addr1.id = "addr1";
 		addr1.type = "text";
@@ -375,6 +379,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = undefined;
 		my_log ("set current_geocode_question data to undefined");
 		EventUtil.addHandler (geocode_button, "click", geocodeAddress);
+		addr_div.appendChild(apt_no);
 		addr_div.appendChild(addr1);
 		addr_div.appendChild(addr2);
 		addr_div.appendChild(city);
@@ -415,10 +420,14 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				reader.onloadend = function(evt) {
 					//using the replace function because the address is saved after replacing the commas with ' _ '
 					addressJsonObj = JSON.parse(evt.target.result.replace(/ _ /g, ","));
+					var apt_no_text_box = document.getElementById("apt_no");
 					var addr1_text_box = document.getElementById("addr1");
 					var addr2_text_box = document.getElementById("addr2");
 					var city_text_box = document.getElementById("city");
 					var pin_text_box = document.getElementById("pin");
+					if (apt_no_text_box) {
+						apt_no_text_box.value = addressJsonObj.apt_no;
+					}
 					if (addr1_text_box) {
 						addr1_text_box.value = addressJsonObj.addr1;
 					}
@@ -1632,6 +1641,7 @@ function createMarker(latlng, name, html) {
 
 function geocodeAddress() {
 	my_log ("Enter geocodeAddress");
+	var apt_no =  document.getElementById('apt_no');
 	var addr1 =  document.getElementById('addr1');
 	var addr2 =  document.getElementById('addr2');
 	var city =  document.getElementById('city');
@@ -1656,7 +1666,8 @@ function geocodeAddress() {
 	var address = addr1.value + "," + addr2.value + ", " + city.value + ", " + pin.value;
 	var data_address = 
 		"{" + 
-		" \"addr1\" : \"" + addr1.value + "\" " +
+		" \"apt_no\" : \"" + apt_no.value + "\" " +
+		" , \"addr1\" : \"" + addr1.value + "\" " +
 		" , \"addr2\" : \"" + addr2.value + "\" " +
 		" , \"city\" : \"" + city.value + "\" " +
 		" , \"pin\" : \"" + pin.value + "\" " + 
