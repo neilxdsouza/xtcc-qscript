@@ -78,7 +78,7 @@
 
 #include <limits.h>
 #include <vector>
-#include <iostream>
+//#include <iostream>
 #include "user_navigation.h"
 #include "UserResponse.h"
 #include "data_entry.hpp"
@@ -86,7 +86,6 @@ using namespace std;
 	//vector<int> data;
 	UserNavigation user_navigation=NOT_SET;
 	user_response::UserResponseType the_user_response=user_response::NotSet;
-#include <iostream>
 //#define yylex scan_datalex
 	typedef void * yyscan_t;
 	//int scan_datalex(yyscan_t scanner);
@@ -96,7 +95,7 @@ using namespace std;
 
 
 /* Line 268 of yacc.c  */
-#line 100 "cpp-emscripten/data_entry.cpp"
+#line 99 "cpp-emscripten/data_entry.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -140,14 +139,14 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 35 "cpp-emscripten/data_entry.ypp"
+#line 34 "cpp-emscripten/data_entry.ypp"
 
 	int ival;
 
 
 
 /* Line 293 of yacc.c  */
-#line 151 "cpp-emscripten/data_entry.cpp"
+#line 150 "cpp-emscripten/data_entry.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -159,7 +158,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 163 "cpp-emscripten/data_entry.cpp"
+#line 162 "cpp-emscripten/data_entry.cpp"
 
 #ifdef short
 # undef short
@@ -446,7 +445,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    52,    52,    67,    68,    71,    75
+       0,    51,    51,    66,    67,    70,    74
 };
 #endif
 
@@ -1383,7 +1382,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 52 "cpp-emscripten/data_entry.ypp"
+#line 51 "cpp-emscripten/data_entry.ypp"
     {
 		the_user_response = user_response::UserEnteredData;
 	}
@@ -1392,7 +1391,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 71 "cpp-emscripten/data_entry.ypp"
+#line 70 "cpp-emscripten/data_entry.ypp"
     {
 	      vector <int> & data = *data_ptr; 
 	      data.push_back((yyvsp[(1) - (1)].ival));
@@ -1402,7 +1401,7 @@ yyreduce:
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 75 "cpp-emscripten/data_entry.ypp"
+#line 74 "cpp-emscripten/data_entry.ypp"
     {
 		vector <int> & data = *data_ptr; 
 		data.push_back((yyvsp[(1) - (3)].ival));
@@ -1415,7 +1414,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1419 "cpp-emscripten/data_entry.cpp"
+#line 1418 "cpp-emscripten/data_entry.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1646,7 +1645,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 100 "cpp-emscripten/data_entry.ypp"
+#line 99 "cpp-emscripten/data_entry.ypp"
 
 	extern char * scan_datatext;
 	//void scan_dataerror(char *s){

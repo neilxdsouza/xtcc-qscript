@@ -71,13 +71,13 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 					//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 					all_questions_success = false;
 				} else {
-					cout << "--reached here" << endl;
+					//cout << "--reached here" << endl;
 					// input is not blank
 					int success;
 					vector <int> input_data;
 					parse_input_data (p_user_input.questionResponseDataVec_[i]
 							/* current_response */, &input_data, success);
-					cout << "success: " << success << endl;
+					//cout << "success: " << success << endl;
 					if (success == 0) {
 						//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 						all_questions_success = false;
@@ -87,9 +87,9 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 						int pos_1st_invalid_data;
 						if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
 									input_data)) {
-							cout << __PRETTY_FUNCTION__
-								<< endl
-								<< "Got valid data for : " << q->questionName_ << endl;
+							//cout << __PRETTY_FUNCTION__
+							//	<< endl
+							//	<< "Got valid data for : " << q->questionName_ << endl;
 							// default direction - chosen by us
 							// go for the next question
 
@@ -103,10 +103,10 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 							//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 						} else {
 							//stdout_eval (q, theQuestionnaire, callback_ui_input);
-							cout << __PRETTY_FUNCTION__
-								<< "Did not Get valid data for : "
-								<< " asking for input again (calling GetUserInput): "
-								<< q->questionName_ << endl;
+							//cout << __PRETTY_FUNCTION__
+							//	<< "Did not Get valid data for : "
+							//	<< " asking for input again (calling GetUserInput): "
+							//	<< q->questionName_ << endl;
 							err_mesg_vec.push_back (err_mesg);
 							//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 							all_questions_success = false;
@@ -296,15 +296,15 @@ string NamedStubQuestion::PrintSelectedAnswers()
 	//Wt::WString select_answers_text;
 	string select_answers_text;
 	bool first_time = true;
-	using std::endl;
-	using std::cout;
+	//using std::endl;
+	//using std::cout;
 	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
 			inp_data_iter != input_data.end(); ++inp_data_iter) {
 		std::stringstream mesg_key;
 		mesg_key << nr_ptr->name << "_" << *inp_data_iter - 1;
 		if (first_time) {
 			//select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
-			cout << "searching for : " << mesg_key.str() << endl;
+			//cout << "searching for : " << mesg_key.str() << endl;
 			//if (ui_mode == Wt_Mode) {
 			//	Wt::WString w_str = Wt::WString::tr(mesg_key.str());
 			//	select_answers_text += w_str.toUTF8();
@@ -319,7 +319,7 @@ string NamedStubQuestion::PrintSelectedAnswers()
 			first_time = false;
 		} else {
 			//select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
-			cout << "searching for : " << mesg_key.str() << endl;
+			//cout << "searching for : " << mesg_key.str() << endl;
 			//if (ui_mode == Wt_Mode) {
 			//	select_answers_text += Wt::WString(", ").toUTF8() +  Wt::WString::tr(mesg_key.str()).toUTF8();
 			//} else {

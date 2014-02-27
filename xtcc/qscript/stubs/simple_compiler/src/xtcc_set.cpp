@@ -224,6 +224,28 @@ string XtccSet::print_replicate_code(string set_name)
 
 }
 
+string XtccSet::print_replicate_code_java(string set_name)
+{
+	using std::endl;
+	using std::stringstream;
+	stringstream code;
+	//code << "XtccSet " << set_name << ";" << endl;;
+	for(	set<int32_t>::iterator it = indiv.begin();
+			it != indiv.end(); ++it){
+		code << set_name << ".indiv.add(" << *it
+			<< ");" << endl;
+	}
+	for(uint32_t i = 0; i < range.size(); ++i){
+		code 	<< set_name
+			<< ".range.add(new pair<Integer,Integer>("
+			<< range[i].first << ","
+			<< range[i].second
+			<< "));" << endl;
+	}
+	return code.str();
+
+}
+
 int32_t XtccSet::GetMax()
 {
 	// assume no negative codes are allowed

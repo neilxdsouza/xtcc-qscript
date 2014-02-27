@@ -1,25 +1,25 @@
 #include <string>
 #include <sstream>
-#include <iostream>
+//#include <iostream>
 #include "utils.h"
 #include "qscript_parser_common.h"
 
-using std::cerr;
-using std::cout;
-using std::string;
-using std::endl;
+//using std::cerr;
+//using std::cout;
+//using std::string;
+//using std::endl;
 using std::stringstream;
 using std::vector;
 using qscript_parser::no_errors;
 
 // disable below if to test split_on_char function and compile
 // this file independently.
-#if 1
+#if 0
 void print_err(compiler_err_category cmp_err, string err_msg,
 	int32_t line_no, int32_t compiler_line_no, string compiler_file_name)
 {
 	++no_errors;
-	cerr << "xtcc ";
+	//cerr << "xtcc ";
 	switch(cmp_err){
 	case compiler_syntax_err:
 		cerr << "syntax error: ";
@@ -40,7 +40,9 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: "
 		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
 }
+#endif /* 0 */
 
+#if 1
 /* for those who are reading the source and want to understand the logic
  * the maintainer messages are cluttering up the stdout of the compiler.
  * Im storing them in a map so they will appear only once - less clutter
@@ -98,8 +100,8 @@ vector <std::string> split_on_char (const string &s, char ch)
 	size_t found_ch = s.find (ch, start_pos);
 	if (found_ch != string::npos) {
 		while (found_ch != string::npos) {
-			cout << "start_pos: " << start_pos << ", found_ch: " << found_ch << endl;
-			cout << "s.substr: " << s.substr(start_pos, (found_ch-start_pos)) << endl;
+			//cout << "start_pos: " << start_pos << ", found_ch: " << found_ch << endl;
+			//cout << "s.substr: " << s.substr(start_pos, (found_ch-start_pos)) << endl;
 			result.push_back (s.substr(start_pos, (found_ch-start_pos)));
 			start_pos = found_ch+1;
 			found_ch = s.find (ch, start_pos);

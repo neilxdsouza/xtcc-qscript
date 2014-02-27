@@ -796,6 +796,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		new_question_view.innerHTML = new_html;
 		*/
 		var new_html = "", media_capture_file_path =[], i=0;
+		media_capture_file_path.length = 0;
 		for (i = 0; i < questions_obj_arr.length; ++i) {
 			var curr_question_obj = questions_obj_arr[i];
 			//global_survey_related_info.media_fileEntry_arr  = [];

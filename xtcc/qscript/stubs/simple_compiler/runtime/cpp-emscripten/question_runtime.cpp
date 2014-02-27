@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <iostream>
+//#include <iostream>
 #include <string>
 #include <fstream>
 //#include <Wt/WString>
@@ -365,8 +365,8 @@ bool AbstractRuntimeQuestion::VerifyData(
 		if (data.size() > no_mpn){
 			err_mesg = "Multi coded Question, no values exceed max allowed:  ";
 			invalid_code = true;
-			cerr << "should I clear this? - the DE operator has done hard work entering this data"
-				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			//cerr << "should I clear this? - the DE operator has done hard work entering this data"
+			//	<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			data.clear();
 		}
 		int count_mutex_data = 0;
@@ -379,8 +379,8 @@ bool AbstractRuntimeQuestion::VerifyData(
 		if (data.size()>1 && count_mutex_data >= 1) {
 			err_mesg = "Mutex code entered with other codes";
 			invalid_code = true;
-			cerr << "should I clear this? - the DE operator has done hard work entering this data"
-				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			//cerr << "should I clear this? - the DE operator has done hard work entering this data"
+			//	<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			data.clear();
 		}
 	} else {
@@ -410,7 +410,7 @@ end:
 
 int NamedStubQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 {
-	printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
+	//printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
 	int total = 0;
 #if 1
 	char * buffer_ptr = buffer_start;
@@ -448,8 +448,8 @@ int NamedStubQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
 	}
 #endif /* 0 */
-	printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
-			__PRETTY_FUNCTION__, questionName_.c_str(), total);
+	//printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
+	//		__PRETTY_FUNCTION__, questionName_.c_str(), total);
 	return total;
 }
 
@@ -480,7 +480,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 
 int DummyArrayQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 {
-	printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
+	//printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
 	int total = 0;
 #if 1
 	char * buffer_ptr = buffer_start;
@@ -497,8 +497,8 @@ int DummyArrayQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
 	}
 #endif /* 0 */
-	printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
-			__PRETTY_FUNCTION__, questionName_.c_str(), total);
+	//printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
+	//		__PRETTY_FUNCTION__, questionName_.c_str(), total);
 	return total;
 }
 
@@ -513,7 +513,7 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 
 int RangeQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 {
-	printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
+	//printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
 	int total = 0;
 #if 1
 	char * buffer_ptr = buffer_start;
@@ -549,8 +549,8 @@ int RangeQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
 	}
 #endif /* 0 */
-	printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
-			__PRETTY_FUNCTION__, questionName_.c_str(), total);
+	//printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
+	//		__PRETTY_FUNCTION__, questionName_.c_str(), total);
 	return total;
 }
 
@@ -710,10 +710,10 @@ void NamedStubQuestion::MakeDisplaySummaryDataRanges()
 	//fprintf (qscript_stdout, "displayData_.begin == displayData_.end \n");
 	vector<stub_pair> & vec= (nr_ptr->stubs);
 	if (vec.size() == 0) {
-		cerr << "runtime error: Impossible !!! stubs with no codes: "
-			<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
-			<< " question name: " << questionName_ << endl;
-		exit(1);
+		//cerr << "runtime error: Impossible !!! stubs with no codes: "
+		//	<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
+		//	<< " question name: " << questionName_ << endl;
+		//exit(1);
 	}
 	int start_code = vec[0].code;
 	int previous_code = start_code;
@@ -836,7 +836,7 @@ bool AbstractRuntimeQuestion::check_and_store_input_data_single_question
 	(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
 	 vector <int> & data)
 {
-	cout << "ENTER: " << __PRETTY_FUNCTION__ << endl;
+	//cout << "ENTER: " << __PRETTY_FUNCTION__ << endl;
 	//string err_mesg, re_arranged_buffer; int pos_1st_invalid_data;
 	bool r_value = false;
 	bool invalid_code = VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
@@ -855,18 +855,18 @@ bool AbstractRuntimeQuestion::check_and_store_input_data_single_question
 		//return false;
 		r_value = false;
 	}
-	cout << "exit: "
-		<< __PRETTY_FUNCTION__
-		<< "return value: (true == success) (false = FAILURE)" <<  r_value
-		<< ", re_arranged_buffer:" << re_arranged_buffer
-		<< ", pos_1st_invalid_data: " << pos_1st_invalid_data
-		<< ", err_mesg: " << err_mesg
-		<< endl;
-	cout << "data: " ;
-	for (int i=0; i<data.size(); ++i) {
-		cout << " " << data[i];
-	}
-	cout << endl;
+	//cout << "exit: "
+	//	<< __PRETTY_FUNCTION__
+	//	<< "return value: (true == success) (false = FAILURE)" <<  r_value
+	//	<< ", re_arranged_buffer:" << re_arranged_buffer
+	//	<< ", pos_1st_invalid_data: " << pos_1st_invalid_data
+	//	<< ", err_mesg: " << err_mesg
+	//	<< endl;
+	//cout << "data: " ;
+	//for (int i=0; i<data.size(); ++i) {
+	//	cout << " " << data[i];
+	//}
+	//cout << endl;
 	return r_value;
 }
 
@@ -942,9 +942,23 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 			 , l_q_type, 1, INT32_TYPE
 			 , l_question_attributes
 			 , l_isStartOfBlock, l_page_name)
-{
+{ }
 
-}
+VideoCaptureQuestion::VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, const vector<int32_t> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		, string l_page_name)
+	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE
+			 , l_loop_index_values, l_dummy_array
+			 , l_question_attributes
+			 , l_isStartOfBlock, l_page_name)
+{ }
 
 int VideoCaptureQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
 {
@@ -979,6 +993,23 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 		, string l_page_name)
 	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			 , l_q_type, 1, INT32_TYPE
+			 , l_question_attributes
+			 , l_isStartOfBlock, l_page_name)
+{ }
+
+
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, const vector<int32_t> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		, string l_page_name)
+	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE
+			 , l_loop_index_values, l_dummy_array
 			 , l_question_attributes
 			 , l_isStartOfBlock, l_page_name)
 { }

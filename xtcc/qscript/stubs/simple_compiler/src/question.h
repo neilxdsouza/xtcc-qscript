@@ -502,6 +502,16 @@ public:
 			, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes
 			);
+	VideoCaptureQuestion(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, vector<AbstractExpression*>& l_for_bounds_stack
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateJavaCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);

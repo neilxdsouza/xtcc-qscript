@@ -18,7 +18,7 @@
  * =====================================================================================
  */
 
-#include <iostream>
+//#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <dirent.h>
@@ -90,6 +90,7 @@ void setup_ui (int argc, char * argv[] )
 
 vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 {
+	printf ("Enter PrepareQuestionText\n");
 	//my_log_from_cpp ("Enter: PrepareQuestionText");
 	using std::string;
 	using std::stringstream;
@@ -112,7 +113,7 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 			//	len_qno += 4;
 			//}
 			//len_qno += 1; // for the "."
-			question_no << q->loop_index_values[i] << ".";
+			question_no  << "$" << q->loop_index_values[i] ;
 		}
 	}
 	result.push_back (question_no.str());
@@ -250,14 +251,14 @@ void DisplayStubs (AbstractRuntimeQuestion *q)
 				it != rq->displayData_.end(); ++it) {
 			//cout << *it << endl;
 			if ( (*it).displayDataType_ == display_data::single_element) {
-				cout << "  " << (*it).startOfRangeOrSingle_ << " ";
+				//cout << "  " << (*it).startOfRangeOrSingle_ << " ";
 			} else if ( (*it).displayDataType_ == display_data::range_element) {
-				cout << "  " << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_;
+				//cout << "  " << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_;
 			}
 		}
-		cout << endl;
+		//cout << endl;
 	} else {
-		cerr << "Unhandled exception" << endl;
+		//cerr << "Unhandled exception" << endl;
 		exit(1);
 	}
 	//cout << marker_end << endl;
@@ -297,7 +298,7 @@ void GetUserInput (
 	const vector <AbstractRuntimeQuestion *> & q_vec,
 	struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
+	//cout << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
 #if 0
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
@@ -414,16 +415,16 @@ void GetUserInput (
 void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 {
 	if (q->input_data.begin() != q->input_data.end()) {
-		cout << "Current Answers values: ";
+		//cout << "Current Answers values: ";
 
 		for (set<int32_t>::iterator iter = q->input_data.begin();
 			iter != q->input_data.end(); ++iter){
-			cout << *iter << " ";
+			//cout << *iter << " ";
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	string end_marker("----------------- END OF ANSWERS -----------------------");
-	cout << end_marker << endl;
+	//cout << end_marker << endl;
 }
 
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
@@ -644,6 +645,8 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 				err_json_string.str().c_str(),
 				question_json_string2.str().c_str()
 				);
+
+	printf ("question_json_string: %s\n" , question_json_string.str().c_str());
 	//printf ("after call to create_question_form\n");
 }
 

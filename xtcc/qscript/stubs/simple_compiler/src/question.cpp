@@ -1235,7 +1235,7 @@ void RangeQuestion::GenerateJavaCodeSingleQuestion(StatementCompiledCode & code,
 	}
 	*/
 	//code.quest_defns << r_data->print_replicate_code(string(xtcc_set_name));
-	code.quest_defns_init_code << r_data->print_replicate_code(string(xtcc_set_name));
+	code.quest_defns_init_code << r_data->print_replicate_code_java(string(xtcc_set_name));
 	string q_type_str;
 	print_q_type(q_type_str);
 
@@ -1798,7 +1798,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		<< no_mpn << ","
 		<< datatype_str << ",&"
 		<< nr_ptr->name;
-	if(for_bounds_stack.size() >0 ){
+	if (for_bounds_stack.size() > 0) {
 		quest_decl << ", stack_of_loop_indices "
 			<< ", dum_" << questionName_;
 	}
@@ -3909,6 +3909,11 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 		<< " string( \"" << questionName_ << "\")"
 		<< ", text_expr_vec";
 
+	if (for_bounds_stack.size() > 0) {
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+
 	if (q_type == video) {
 		quest_decl << ", video" ;
 	} else if (q_type == audio) {
@@ -4097,6 +4102,30 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 			 , l_av_info, l_question_attributes)
 { }
 
+
+VideoCaptureQuestion::VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_for_bounds_stack
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ 
+	cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
+		<< for_bounds_stack.size() << endl;
+}
+
 void VideoCaptureQuestion:: GenerateJavaCode(StatementCompiledCode &code)
 {
 	code.program_code << "/* START ======== VideoQuestion::GenerateJavaCode code goes here */"
@@ -4119,6 +4148,12 @@ void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
 	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintSetupBackJump(code);
 		GenerateCodeSingleQuestion(code, false);
+	} else {
+		AbstractQuestion::PrintSetupBackJump(code);
+		PrintArrayDeclarations(code);
+		GenerateCodeSingleQuestion(code, true);
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
 	}
 
 	code.program_code << "/* END ======== VideoQuestion::GenerateCode code goes here */"
@@ -4130,16 +4165,20 @@ void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
 
 void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)
 {
+	cout << __PRETTY_FUNCTION__ << ", /*  NxD ---- */" << "for_bounds_stack.size(): "
+		<< for_bounds_stack.size() << endl;
 	ostringstream quest_decl;
-	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here */"
+	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCodeSingleQuestion code goes here array_mode :"
+		<< array_mode
+		<< " */"
 		<< endl;
-	quest_decl << "{\n";
+	quest_decl << "{ /*  NxD */\n";
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 	string q_title_code = PrintQuestionTitleCode (textExprVec_);
 	quest_decl << q_title_code;
 
 	if (array_mode)
-		quest_decl << "VideoCaptureQuestion * " << questionName_;
+		quest_decl << "/*  NxD  */VideoCaptureQuestion * " << questionName_;
 	else
 		quest_decl << questionName_;
 
@@ -4159,6 +4198,13 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 	} else {
 		quest_decl << " , trigger syntax error - unhanled type";
 	}
+
+
+	if (for_bounds_stack.size() > 0) {
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+
 	//quest_decl << ", QuestionAttributes(false, false)" ;
 	quest_decl << "," << question_attributes.Print();
 
@@ -4174,9 +4220,28 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 		<< endl;
 
 
-	quest_decl << "}\n";
+
+	if (array_mode) {
+		quest_decl << "question_list.push_back(" << questionName_ << "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
+		quest_decl
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			<< endl;
+		quest_decl << "}\n";
+	} else {
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << "}\n";
+	}
 
 	if (for_bounds_stack.size() == 0) {
+		code.quest_defns << " /* PATH 1 == for_bounds_stack.size() == 0  */" << endl;
 		// code.quest_defns << quest_decl.str();
 		code.quest_defns << "/* VideoCaptureQuestion::GenerateCodeSingleQuestion */" << endl;
 		code.quest_defns << "VideoCaptureQuestion * " << questionName_ << ";\n";
@@ -4188,6 +4253,9 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
 	}  else {
+		//code.quest_defns << " /* PATH 2 == for_bounds_stack.size() != 0  */" << endl;
+		//code.quest_defns << "/* array mode NxD: VideoCaptureQuestion::GenerateCodeSingleQuestion */" << endl;
+		code.array_quest_init_area << "/* sending quest_decl to array_quest_init_area  */\n" << quest_decl.str();
 		AbstractQuestion::PrintEvalArrayQuestion(code);
 	}
 
@@ -4401,6 +4469,14 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 	//	quest_decl << " , trigger syntax error - unhanled type";
 	//}
 	quest_decl << ", geocode_gmapv3";
+
+
+	if (for_bounds_stack.size() > 0) {
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+
+
 	quest_decl
 		<< ", QuestionAttributes("
 		<< question_attributes.hidden_

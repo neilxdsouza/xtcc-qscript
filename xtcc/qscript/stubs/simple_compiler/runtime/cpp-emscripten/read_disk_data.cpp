@@ -477,7 +477,7 @@ static yyconst flex_int16_t yy_chk[96] =
 #include "qscript_data.hpp"
 #include "question_disk_data.h"
 
-#include <iostream>
+//#include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <map>
@@ -873,7 +873,7 @@ case 8:
 YY_RULE_SETUP
 #line 69 "cpp-emscripten/read_disk_data.l"
 {
-	cout << "got NAMED_ATTRIBUTE_LIST" << endl;
+	//cout << "got NAMED_ATTRIBUTE_LIST" << endl;
 	return NAMED_ATTRIBUTE_LIST;
 }
 	YY_BREAK

@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <iosfwd>
 //#include <fstream>
-#include <iostream>
+//#include <iostream>
 #include <string>
 #include <set>
 //#include <Wt/WString>
@@ -642,8 +642,17 @@ public:
 			DataType this_stmt_type, int32_t line_number, string l_name
 			, vector<TextExpression*> text_expr_vec
 			, QuestionType l_q_type
-			//, CompoundStatement * l_enclosing_scope
-			//, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			, bool l_isStartOfBlock
+			, string l_page_name
+			);
+
+	VideoCaptureQuestion(
+			DataType this_stmt_type, int32_t line_number, string l_name
+			, vector<TextExpression*> text_expr_vec
+			, QuestionType l_q_type
+			, const vector<int32_t> & l_loop_index_values
+			, DummyArrayQuestion * l_dummy_array
 			, QuestionAttributes  l_question_attributes
 			, bool l_isStartOfBlock
 			, string l_page_name
@@ -738,6 +747,16 @@ class GeocodeGMapV3Question: public AbstractRuntimeQuestion
 			, bool l_isStartOfBlock
 			, string l_page_name
 			);
+
+	GeocodeGMapV3Question(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, const vector<int32_t> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		, string l_page_name);
 
 	virtual bool IsValid(int32_t value)
 	{

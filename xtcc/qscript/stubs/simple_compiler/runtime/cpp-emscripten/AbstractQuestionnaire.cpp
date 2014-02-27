@@ -17,7 +17,7 @@
  * =====================================================================================
  */
 
-#include <iostream>
+//#include <iostream>
 #include <sstream>
 #include <map>
 #include <fstream>
@@ -37,9 +37,9 @@ extern int32_t len_flat_file_output_buffer  ;
 extern int32_t len_xtcc_datafile_output_buffer  ;
 
 
-std::fstream flat_file;
-std::fstream xtcc_datafile;
-std::fstream qtm_disk_file;
+//std::fstream flat_file;
+//std::fstream xtcc_datafile;
+//std::fstream qtm_disk_file;
 
 extern map<string, map<int, int> > freq_count;
 
@@ -81,19 +81,19 @@ AbstractQuestionnaire::AbstractQuestionnaire (string p_jno)
 
 void AbstractQuestionnaire::print_question_messages(AbstractRuntimeQuestion * q)
 {
-	stringstream question_name;
-	question_name << q->questionName_;
-	for (int i=0; i< q->loop_index_values.size(); ++i)
-	{
-		question_name << "_" << q->loop_index_values[i];
-	}
-	for (int i=0; i< q->textExprVec_.size(); ++i)
-	{
-		messages << "<message id=\"" << question_name.str()
-			<< "_" << i << "\">"
-			<< q->textExprVec_[i]->text_
-			<< "</message>\n" << endl;
-	}
+	//stringstream question_name;
+	//question_name << q->questionName_;
+	//for (int i=0; i< q->loop_index_values.size(); ++i)
+	//{
+	//	question_name << "_" << q->loop_index_values[i];
+	//}
+	//for (int i=0; i< q->textExprVec_.size(); ++i)
+	//{
+	//	messages << "<message id=\"" << question_name.str()
+	//		<< "_" << i << "\">"
+	//		<< q->textExprVec_[i]->text_
+	//		<< "</message>\n" << endl;
+	//}
 }
 
 
@@ -387,7 +387,7 @@ void AbstractQuestionnaire::print_summary_axis (vector<qtm_data_file_ns::QtmData
 			}
 		}
 	}
-	cout << endl;
+	//cout << endl;
 }
 #endif /* 0 */
 
@@ -470,10 +470,10 @@ ComputePreviousQuestionRetVal AbstractQuestionnaire::ComputePreviousQuestion(Abs
 	}
 	if (current_question_index == -1)
 	{
-		cerr << "internal compiler error at runtime ... filename: "
-			<< __FILE__
-			<< "line no: " << __LINE__
-			<< endl;
+		//cerr << "internal compiler error at runtime ... filename: "
+		//	<< __FILE__
+		//	<< "line no: " << __LINE__
+		//	<< endl;
 	}
 	AbstractRuntimeQuestion * prev_question  = 0;
 	for (int32_t i = current_question_index-1; i >= 0; --i)
@@ -661,13 +661,13 @@ int read_a_serial_no (DIR * directory_ptr, string jno, struct AbstractQuestionna
 
 void AbstractQuestionnaire::DisplayActiveQuestions()
 {
-	for(int32_t i = 0; i<question_list.size(); ++i)
-	{
-		if (question_list[i]->isAnswered_) {
-			cout << question_list[i]->questionName_ << " ";
-		}
-	}
-	cout << endl;
+	//for(int32_t i = 0; i<question_list.size(); ++i)
+	//{
+	//	if (question_list[i]->isAnswered_) {
+	//		cout << question_list[i]->questionName_ << " ";
+	//	}
+	//}
+	//cout << endl;
 }
 
 #if 0
@@ -770,8 +770,8 @@ void AbstractQuestionnaire::do_freq_counts()
 void GetUserResponse(string & qno, int32_t & qindex)
 {
 	char newl;
-	cin >> qno;cin.get(newl);
+	//cin >> qno;cin.get(newl);
 	qindex = 0;
-	cout << "User input qno:" << qno
-		<< ", newl: " << newl << endl;
+	//cout << "User input qno:" << qno
+	//	<< ", newl: " << newl << endl;
 }

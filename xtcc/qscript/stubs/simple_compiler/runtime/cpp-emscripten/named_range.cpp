@@ -5,14 +5,15 @@
  */
 
 #include <sys/types.h>
-#include <iostream>
+//#include <iostream>
 #include <sstream>
 #include "named_range.h"
 #include "utils.h"
+#include <cstdio>
 //#include "TempNameGenerator.h"
 
-using std::cout;
-using std::endl;
+//using std::cout;
+//using std::endl;
 using std::stringstream;
 using std::string;
 

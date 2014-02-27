@@ -38,6 +38,7 @@ struct XtccSet {
 	bool contains_subset(std::set<int32_t> & set_data);
 	bool contains_value(int v);
 	string print_replicate_code(string set_name);
+	string print_replicate_code_java(string set_name);
 	int32_t GetMax();
 	bool isEmpty();
 };

@@ -76,7 +76,7 @@
 /* Line 268 of yacc.c  */
 #line 2 "cpp-emscripten/qscript_data.ypp"
 
-#include <iostream>
+//#include <iostream>
 #include <vector>
 #include <map>
 #include <sstream>

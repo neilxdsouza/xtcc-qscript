@@ -4,7 +4,7 @@
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
 #include <sstream>
-#include <iostream>
+//#include <iostream>
 #include <sys/types.h>
 #include <sys/types.h>
 #include <inttypes.h>
@@ -40,8 +40,8 @@ XtccSet& XtccSet::operator= (const XtccSet& xs1)
 
 void XtccSet::reset()
 {
-	using std::endl;
-	using std::cerr;
+	//using std::endl;
+	//using std::cerr;
 	//cerr << "XtccSet::reset() called" << endl;
 	range.clear();
 	indiv.clear();
@@ -51,7 +51,7 @@ void XtccSet::add_range(int n1, int n2)
 {
 	using std::endl;
 	using std::stringstream;
-	using std::cerr;
+	//using std::cerr;
 	//cerr << "XtccSet::add_range: n1=" << n1 << ", n2=" << n2 << endl;
 	//cerr << "range.size(): " << range.size() << endl;
 
@@ -129,8 +129,8 @@ void XtccSet::add_range(int n1, int n2)
 void XtccSet::add_indiv(int n1)
 {
 	using std::stringstream;
-	using std::cerr;
-	using std::endl;
+	//using std::cerr;
+	//using std::endl;
 	//cerr << "XtccSet::add_indiv" << endl;
 	if(exists(n1)){
 		stringstream err_msg;

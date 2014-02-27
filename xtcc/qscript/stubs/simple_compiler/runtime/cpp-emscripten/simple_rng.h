@@ -19,6 +19,7 @@
 #ifndef qscript_simple_rng_h
 #define qscript_simple_rng_h
 #include <cstdlib>
+#include <ctime>
 
 struct MyRNG
 {

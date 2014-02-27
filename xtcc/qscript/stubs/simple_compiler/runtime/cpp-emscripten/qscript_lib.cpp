@@ -87,6 +87,8 @@ int32_t load_data_from_string(const char * survey_data,
 	if (! read_disk_dataparse (scanner, qdd_map_ptr, map_n_attr_rand_order_ptr,
 				&data, &array_index_list, &randomization_order_ptr)) {
 		//return 1;
+// 26-feb-2014
+#if 0
 		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		for (map<string, question_disk_data*>:: iterator it
 				= qdd_map.begin();
@@ -104,12 +106,13 @@ int32_t load_data_from_string(const char * survey_data,
 			}
 			cout << endl;
 		}
+#endif /* 0 */
 		read_disk_data_delete_buffer(s_data, scanner);
 		read_disk_datalex_destroy(scanner);
 		printf ("Exit success: %s\n", __PRETTY_FUNCTION__);
 		return 1;
 	}  else {
-		cerr << "input datafile found had errors" << endl;
+		//cerr << "input datafile found had errors" << endl;
 		read_disk_datalex_destroy(scanner);
 		printf ("Exit failure: %s\n", __PRETTY_FUNCTION__);
 		return 0;
@@ -140,6 +143,8 @@ int32_t load_data(string jno, int32_t ser_no,
 		if (! read_disk_dataparse (scanner, qdd_map_ptr, map_n_attr_rand_order_ptr,
 					&data, &array_index_list, &randomization_order)) {
 			//return 1;
+//26-feb-2014			
+#if 0
 			map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 			for (map<string, question_disk_data*>:: iterator it
 					= qdd_map.begin();
@@ -157,11 +162,12 @@ int32_t load_data(string jno, int32_t ser_no,
 				}
 				cout << endl;
 			}
+#endif /*  0 */
 			read_disk_datalex_destroy(scanner);
 			fclose (read_disk_datain);
 			return 1;
 		} else {
-			cerr << "input datafile found had errors" << endl;
+			//cerr << "input datafile found had errors" << endl;
 			read_disk_datalex_destroy(scanner);
 			fclose (read_disk_datain);
 			return 0;
@@ -191,12 +197,12 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuest
 		const map <string, vector <int> > & p_map_randomization_order)
 {
 	map <string, question_disk_data*> & qdd_map =  * qdd_map_ptr;
-	if (qscript_debug::DEBUG_LoadData) {
-		cout << "ENTER: "
-			<< __PRETTY_FUNCTION__
-			<< __FILE__ << ", " << __LINE__ << ", "
-			<< endl;
-	}
+	//if (qscript_debug::DEBUG_LoadData) {
+	//	cout << "ENTER: "
+	//		<< __PRETTY_FUNCTION__
+	//		<< __FILE__ << ", " << __LINE__ << ", "
+	//		<< endl;
+	//}
 	
 	for (int32_t i = 0; i< p_named_attribute_list_vec.size(); ++i) {
 		const string & attribute_list_name = p_named_attribute_list_vec[i]->name;
@@ -216,18 +222,18 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuest
 
 
 		//fprintf(qscript_stdout, "searching for %s \n", q->questionDiskName_.c_str());
-		cout << "searching for " << q->questionDiskName_ << "\n";
+		//cout << "searching for " << q->questionDiskName_ << "\n";
 
 		map<string,question_disk_data*>::iterator it=  qdd_map.find (q->questionDiskName_);
 		if (  it != qdd_map.end()) {
-			cout << "found " << q->questionDiskName_ << "\n";
+			//cout << "found " << q->questionDiskName_ << "\n";
 			question_disk_data * q_disk = it->second;
 			q->input_data.erase(q->input_data.begin(), q->input_data.end());
 			if (q_disk->data.size() > 0) {
 				for (int32_t k = 0; k<q_disk->data.size(); ++k) {
-					if (qscript_debug::DEBUG_LoadData) {
-						cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
-					}
+					//if (qscript_debug::DEBUG_LoadData) {
+					//	cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+					//}
 					//fprintf(qscript_stdout, "inserting into %s %d\n", q->questionDiskName_.c_str(), q_disk->data[k]);
 					q->input_data.insert(q_disk->data[k]);
 				}

@@ -4,7 +4,7 @@
 #include "qscript_data.hpp"
 #include "question_disk_data.h"
 
-#include <iostream>
+//#include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <map>
@@ -67,7 +67,7 @@ BOUNDS {
 }
 
 named_attribute_list {
-	cout << "got NAMED_ATTRIBUTE_LIST" << endl;
+	//cout << "got NAMED_ATTRIBUTE_LIST" << endl;
 	return NAMED_ATTRIBUTE_LIST;
 }
 

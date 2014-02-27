@@ -6,7 +6,7 @@
  */
 %{
 #include <string>
-#include <iostream>
+//#include <iostream>
 #include <vector>
 #include "data_entry.hpp"
 #include "user_navigation.h"
@@ -160,6 +160,7 @@ void parse_input_data(string input_string, vector<int> * data_ptr, int & success
 	yy_delete_buffer(s_data, scanner);
 }
 
+#if 0
 user_response::UserResponseType read_data( const char * prompt, vector<int> * data_ptr)
 {
 	yyscan_t scanner;
@@ -188,6 +189,7 @@ top:
 	yy_delete_buffer(s_data, scanner);
 	return the_user_response;
 }
+#endif /* 0 */
 	
 bool verify_web_data (string p_question_data, 
 		UserNavigation p_user_navigation,
