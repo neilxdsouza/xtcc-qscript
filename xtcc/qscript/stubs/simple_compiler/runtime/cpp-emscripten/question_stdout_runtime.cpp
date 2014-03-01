@@ -430,6 +430,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
 	//my_log_from_cpp ("Entered ConstructQuestionForm");
+	printf ("Entered %s\n", __PRETTY_FUNCTION__);
 	stringstream question_json_string;
 	stringstream question_json_string2;
 	question_json_string << "[" << endl;
@@ -640,13 +641,13 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 
 	//printf ("before call to create_question_form\n");
 	//my_log_from_cpp ("before call to create_question_form");
+	printf ("question_json_string: %s\n" , question_json_string.str().c_str());
 	create_question_form (question_json_string.str().c_str(),
 				stub_json_string.str().c_str(),
 				err_json_string.str().c_str(),
 				question_json_string2.str().c_str()
 				);
 
-	printf ("question_json_string: %s\n" , question_json_string.str().c_str());
 	//printf ("after call to create_question_form\n");
 }
 
@@ -661,8 +662,13 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	)
 {
 	//cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
-	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	static int counter = 0; // for unique ids in web browser
+	printf ("Enter: %s, nest_level:%d, counter:%d\n", __PRETTY_FUNCTION__, nest_level, counter);
+	++counter;
+	printf ("q_vec.size(): %d\n",  q_vec.size());
+	for (int i=0; i < q_vec.size(); ++i) {
+		printf (" %s \n", q_vec[i]->questionName_.c_str());
+	}
 	//ClearPreviousView ();
 	//AbstractRuntimeQuestion * q= q_vec[0];
 	//vector <string> qno_and_qtxt = PrepareQuestionText (q);

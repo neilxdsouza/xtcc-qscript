@@ -340,8 +340,15 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	*/
 	program_code << "/*  " <<  __PRETTY_FUNCTION__<< "*/\n" << endl;
 
-	program_code << "if ( /* nxd */("
-		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
+	program_code << "if ( ";
+	if (program_options_ns::ncurses_flag) {
+		program_code 
+			<< "(" <<  questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl;
+	} else {
+		program_code 
+			<< "(" <<  questionName_ << "->isAnswered_ == false) ||" << endl;
+	}
+	program_code 
 		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		//<< "stopAtNextQuestion ||" << endl
@@ -356,11 +363,21 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<<     questionName_ << " -> pageName_ "
 		<< "     == p_jump_to_group_name) "
 		<< ")" << endl
-		<< " ||"  << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
-		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
-		<< questionName_ << "->isAnswered_ == false "
-		<< ")"
+		<< " ||"  << endl;
+	if (program_options_ns::ncurses_flag) {
+		program_code 
+			<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
+			<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
+			<< questionName_ << "->isAnswered_ == false "
+			<< ")";
+	} else {
+		program_code 
+			<< "( "
+			<< "   !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
+			<< questionName_ << "->isAnswered_ == false "
+			<< ")";
+	}
+	program_code 
 	        << ") {" << endl;
 	//program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
 	//	<< " ) {\n\tstopAtNextQuestion = false; "
@@ -2184,10 +2201,19 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< "//}\n"
 			<< endl;
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
-	code.program_code << "if (" << endl
-		<< "("
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
+	code.program_code << "if (" << endl;
+	if (program_options_ns::ncurses_flag) {
+		code.program_code
+			<< "("
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl;
+	} else {
+		code.program_code
+			<< "("
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->isAnswered_ == false) ||" << endl;
+	}
+	code.program_code 
 		<< " stopAtNextQuestion ||" << endl
 		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited.size() == 0) || " << endl
 		<< "  (p_navigation_mode == NAVIGATE_NEXT && " << endl
@@ -2212,30 +2238,45 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< endl
 		<< " ) "
 		<< endl
-		<< " ||"  << endl
+		<< " ||"  << endl;
 		// ============ NAVIGATE_PREVIOUS =============
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
-		<< "  && !("
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->question_attributes.isAllowBlank()) && "
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->isAnswered_ == false "
-		<< ")"
+	if (program_options_ns::ncurses_flag) {	
+		code.program_code 
+			<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
+			<< "  && !("
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->question_attributes.isAllowBlank()) && "
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->isAnswered_ == false "
+			<< ")";
+	} else {
+		code.program_code 
+			<< "( " << endl
+			<< "     !("
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->question_attributes.isAllowBlank()) && "
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->isAnswered_ == false "
+			<< ")";
+	}
+	code.program_code 
 		<< ") "
 		<< "{\n";
-	code.program_code
-		<<  "cout << \"reached here because: \" << " << endl
-		<< "\""
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
-		<< ":\" " << endl
-		<< "<< ("
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
-		<< " << endl << "
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_"
-		<<" << endl;"
-		<< endl;
+	if (qscript_debug::DEBUG_EvalArrayQuestion == 1) {
+		code.program_code
+			<<  "cout << \"reached here because: \" << " << endl
+			<< "\""
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
+			<< ":\" " << endl
+			<< "<< ("
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
+			<< " << endl << "
+			<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_"
+			<<" << endl;"
+			<< endl;
+	}
 
 	code.program_code << "label_eval_" << questionName_ << ":\n";
 	code.program_code << "if( jumpToQuestion == \"" << questionName_
@@ -4356,6 +4397,30 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 
 }
 
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_for_bounds_stack
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ 
+	cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
+		<< for_bounds_stack.size() << endl;
+}
+
+
 
 void GeocodeGMapV3Question::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -4499,7 +4564,26 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 		<< endl;
 
 
-	quest_decl << "}\n";
+	//quest_decl << "}\n";
+
+	if (array_mode) {
+		quest_decl << "question_list.push_back(" << questionName_ << "); "
+			<< questionName_ << " -> setQuestionIndexNo(our_question_index_no);"
+			<< endl;
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
+		quest_decl
+			<< questionName_ << "->array_q_ptr_ = &"
+			<< questionName_ << "_list;\n"
+			<< questionName_ << "->index_in_array_question = "
+			<< questionName_ << "_list.questionList.size() - 1;\n"
+			<< endl;
+		quest_decl << "}\n";
+	} else {
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		quest_decl << "}\n";
+	}
 
 	if (for_bounds_stack.size() == 0) {
 		// code.quest_defns << quest_decl.str();
@@ -4513,6 +4597,7 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
 	}  else {
+		code.array_quest_init_area << quest_decl.str();
 		AbstractQuestion::PrintEvalArrayQuestion(code);
 	}
 

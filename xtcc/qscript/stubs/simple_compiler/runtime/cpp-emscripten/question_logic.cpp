@@ -44,15 +44,17 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 {
 	//cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
 	//printf ("ENTER: %s\n", __PRETTY_FUNCTION__);
-	my_log_from_cpp ("eval_single_question_logic_with_input");
+	//my_log_from_cpp ("eval_single_question_logic_with_input");
 	bool all_questions_success = true;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
+		//printf ("case user_response::UserEnteredData\n");
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			AbstractRuntimeQuestion * q = q_vec[i];
 			//cout << "Looping: validating data for question:" << q->questionName_ << endl;
 #if 1
 				//cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
-				printf ("reached here, %s, %d\n", __PRETTY_FUNCTION__ ,__LINE__ );
+				//printf ("q->questionName_: %s, %s, %d\n", q->questionName_.c_str(),
+				//		__PRETTY_FUNCTION__ ,__LINE__ );
 				if (p_user_input.questionResponseDataVec_[i].length() == 0
 						&& q->question_attributes.isAllowBlank() == true ) {
 					//my_log_from_cpp ("case response length == 0 and isAllowBlank == true");
@@ -120,6 +122,7 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 			p_user_input.theUserResponse_ == user_response::UserViewedImage ||
 			p_user_input.theUserResponse_ == user_response::UserListenedToAudio
 			) {
+		//printf ("case user_response::UserViewedMedia\n");
 		//my_log_from_cpp ("eval_single_question_logic_with_input: theUserResponse_ == UserViewedImage/ UserViewedVideo/UserListenedToAudio");
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			//my_log_from_cpp ("setting isAnswered_ == true for viewed Media");
@@ -127,19 +130,21 @@ bool eval_single_question_logic_with_input (UserInput p_user_input,
 		}
 		//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserGeocodedLocation) {
-		my_log_from_cpp ("case user_response::UserGeocodedLocation");
+		//my_log_from_cpp ("case user_response::UserGeocodedLocation");
+		//printf ("case user_response::UserGeocodedLocation\n");
 		// front end checks ensure that if this question has
 		// to be answered - it is
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			q_vec[i] -> isAnswered_ = true;
 		}
 	} else if (p_user_input.theUserResponse_ == user_response::UserCapturedTime) {
+		//printf ("case user_response::UserCapturedTime\n");
 		for (int i = 0 ; i < q_vec.size(); ++ i) {
 			q_vec[i] -> isAnswered_ = true;
 		}
 	}
 	//cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
-	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
+	//printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
 	return all_questions_success;
 }
 

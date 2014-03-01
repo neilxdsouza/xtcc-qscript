@@ -198,12 +198,15 @@ void GenerateCodeJava(const string & src_file_name)
 	print_header(script, false);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
-	if (!program_options_ns::data_export_flag) {
-		compute_flat_map_code.program_code << "\n#if 0" << endl;
-	}
-	PrintComputeFlatFileMap(compute_flat_map_code);
-	if (!program_options_ns::data_export_flag) {
-		compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
+	//if (!program_options_ns::data_export_flag) {
+	//	compute_flat_map_code.program_code << "\n#if 0" << endl;
+	//}
+	//PrintComputeFlatFileMap(compute_flat_map_code);
+	//if (!program_options_ns::data_export_flag) {
+	//	compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
+	//}
+	if (program_options_ns::data_export_flag) {
+		PrintComputeFlatFileMap(compute_flat_map_code);
 	}
 	StatementCompiledCode code;
 	tree_root->GenerateJavaCode(code);
@@ -328,12 +331,16 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
-	if (!program_options_ns::data_export_flag) {
-		compute_flat_map_code.program_code << "\n#if 0" << endl;
-	}
-	PrintComputeFlatFileMap(compute_flat_map_code);
-	if (!program_options_ns::data_export_flag) {
-		compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
+	//if (!program_options_ns::data_export_flag) {
+	//	compute_flat_map_code.program_code << "\n#if 0" << endl;
+	//}
+	//PrintComputeFlatFileMap(compute_flat_map_code);
+	//if (!program_options_ns::data_export_flag) {
+	//	compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
+	//}
+
+	if (program_options_ns::data_export_flag) {
+		PrintComputeFlatFileMap(compute_flat_map_code);
 	}
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
@@ -477,7 +484,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include <Wt/WStringUtil>\n");
 	}
 #endif /* 0 */
-	fprintf(script, "#include <iostream>\n");
+	//fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
 	fprintf(script, "#include <string>\n");
 	fprintf(script, "#include <sstream>\n");
@@ -589,10 +596,12 @@ void print_header(FILE* script, bool ncurses_flag)
 	} else {
 		fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
 	}
-	fprintf(script, "extern fstream flat_file;\n");
-	fprintf(script, "extern fstream xtcc_datafile;\n");
-	fprintf(script, "extern fstream qtm_disk_file;\n");
-	fprintf(script, "extern set<string> qtm_include_files;\n");
+	if (program_options_ns :: ncurses_flag) {
+		fprintf(script, "extern fstream flat_file;\n");
+		fprintf(script, "extern fstream xtcc_datafile;\n");
+		fprintf(script, "extern fstream qtm_disk_file;\n");
+		fprintf(script, "extern set<string> qtm_include_files;\n");
+	}
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "//extern vector<int32_t> data;\n");
@@ -604,7 +613,7 @@ void print_header(FILE* script, bool ncurses_flag)
 
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	//fprintf(script, "//vector <AbstractQuestion*> question_list;\n");
-	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
+	//fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "//extern vector<question_disk_data*>  qdd_list;\n");
 	// fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
 	// 		"\t\tAbstractQuestion * & p_last_question_answered,\n"
@@ -613,20 +622,23 @@ void print_header(FILE* script, bool ncurses_flag)
 	//fprintf(script, "bool stopAtNextQuestion;\n");
 	//fprintf(script, "string jumpToQuestion;\n");
 	//fprintf(script, "int32_t jumpToIndex;\n");
-	fprintf(script, "bool write_messages_flag;\n\n");
-	fprintf(script, "bool write_data_file_flag;\n");
-	fprintf(script, "bool write_qtm_data_file_flag;\n");
-	fprintf(script, "bool write_xtcc_data_file_flag;\n");
-	fprintf(script, "bool card_start_flag;\n");
-	fprintf(script, "bool card_end_flag;\n");
-	fprintf(script, "int card_start;\n");
-	fprintf(script, "int card_end;\n");
-
-	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
-	fprintf(script, "void print_map_header(fstream & map_file);\n");
-	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
-	fprintf(script, "map<string, map<int, int> > freq_count;\n");
-	fprintf(script, "void write_data_to_disk(const vector<AbstractRuntimeQuestion*>& q_vec, string jno, int32_t ser_no);\n");
+	if ( program_options_ns::wt_flag ) {
+		fprintf(script, "bool write_messages_flag;\n\n");
+	}
+	if ( program_options_ns::ncurses_flag ) {
+		fprintf(script, "bool write_data_file_flag;\n");
+		fprintf(script, "bool write_qtm_data_file_flag;\n");
+		fprintf(script, "bool write_xtcc_data_file_flag;\n");
+		fprintf(script, "bool card_start_flag;\n");
+		fprintf(script, "bool card_end_flag;\n");
+		fprintf(script, "int card_start;\n");
+		fprintf(script, "int card_end;\n");
+		fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
+		fprintf(script, "void print_map_header(fstream & map_file);\n");
+		fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
+		fprintf(script, "map<string, map<int, int> > freq_count;\n");
+		fprintf(script, "void write_data_to_disk(const vector<AbstractRuntimeQuestion*>& q_vec, string jno, int32_t ser_no);\n");
+	}
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
 
 	// all the code generated below has been moved into the ncurses runtime

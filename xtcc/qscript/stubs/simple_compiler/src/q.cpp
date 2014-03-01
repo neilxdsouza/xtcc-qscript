@@ -4251,7 +4251,7 @@ AbstractStatement * ProcessCaptureQuestion (const string &name
 	if (qscript_parser::flagIsAForBody_) {
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
-		q = new VideoCaptureQuestion (QUESTION_TYPE, line_no
+		q = new VideoCaptureQuestion (QUESTION_ARR_TYPE, line_no
 				, nest_lev, flagIsAForBody_
 				, name, ::text_expr_vec, q_type
 				, qscript_parser::for_loop_max_counter_stack
@@ -4272,6 +4272,7 @@ AbstractStatement * ProcessCaptureQuestion (const string &name
 					qscript_parser::line_no, __LINE__, __FILE__  );
 		}
 	}
+	question_list.push_back(q);
 	++(cmpd_stmt_ptr->counterContainsQuestions_);
 	if (flag_next_question_start_of_block) {
 		q->isStartOfBlock_ = true;
@@ -4330,17 +4331,27 @@ AbstractStatement * ProcessGeocodeQuestion (const string & name, QuestionType q_
 
 	GeocodeGMapV3Question * geo_code_question = 0;
 	if (qscript_parser::flagIsAForBody_) {
-		cerr << " GEOCODE_GMAPV3 within for loops not yet implemented - exiting"
-			<< endl;
-		exit (1);
+		//cerr << " GEOCODE_GMAPV3 within for loops not yet implemented - exiting"
+		//	<< endl;
+		//exit (1);
+		geo_code_question = new GeocodeGMapV3Question (QUESTION_ARR_TYPE, line_no
+				, nest_lev, flagIsAForBody_
+				, name, ::text_expr_vec, q_type
+				, qscript_parser::for_loop_max_counter_stack
+				, cmpd_stmt_ptr
+				, av_info, question_attributes);
+		qscript_parser::delete_manually_in_cleanup.push_back(
+			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, geo_code_question));
 	} else {
 		geo_code_question = new GeocodeGMapV3Question (QUESTION_TYPE, line_no
 						, nest_lev, flagIsAForBody_
 						, name, ::text_expr_vec, q_type
 						, cmpd_stmt_ptr
 						, av_info, question_attributes);
-		question_list.push_back(geo_code_question);
+		qscript_parser::delete_manually_in_cleanup.push_back(
+				active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, geo_code_question));
 	}
+	question_list.push_back(geo_code_question);
 	++(cmpd_stmt_ptr->counterContainsQuestions_);
 	if (flag_next_question_start_of_block) {
 		geo_code_question->isStartOfBlock_ = true;

@@ -1110,8 +1110,8 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 
 
 function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
-	//my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
-	my_log ("document.forms.length: " + document.forms.length);
+	//my_log ("Entered: ui_create_question_form questions_obj_arr:" + JSON.stringify(questions_obj_arr));
+	//my_log ("document.forms.length: " + document.forms.length);
 
 	var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 	if (result == "single_question") {
@@ -1137,7 +1137,7 @@ function serialize (form, my_question_obj) {
 	global_survey_related_info.other_specify_data_arr = [];
 
 	if (my_question_obj.question_type === "geocode_gmapv3") {
-		my_log ("collecting data from geocode question");
+		//my_log ("collecting data from geocode question");
 		if (global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] === undefined) {
 			my_log ("geocoding question is blank, please geocode the location");
 		} else {
@@ -1265,7 +1265,7 @@ function btnSync() {
 
 // diplays survey title, description and logged in user on survey page
 function displayMetaData() {
-	$('#div_console_log').hide();	// hide console message 
+	//$('#div_console_log').hide();	// hide console message 
 	var projDetails = JSON.parse(window.localStorage.getItem('projDetails'));
 	var div_serial_no = document.getElementById("div_serial_no");
 

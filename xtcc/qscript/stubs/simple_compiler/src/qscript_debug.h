@@ -17,6 +17,7 @@ namespace qscript_debug{
 	extern const int32_t DEBUG_IfStatement;
 	extern const int32_t DEBUG_ForStatement;
 	extern const int32_t DEBUG_CompoundStatement;
+	extern const int32_t DEBUG_EvalArrayQuestion;
 }
 
 

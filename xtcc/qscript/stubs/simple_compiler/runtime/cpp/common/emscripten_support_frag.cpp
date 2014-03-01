@@ -79,7 +79,7 @@ void callback_ui_input (UserInput p_user_input,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level,
 		vector <string> & err_mesg_vec)
 {
-	my_log_from_cpp ("callback_ui_input in emscripten_support_frag.cpp: ");
+	//my_log_from_cpp ("callback_ui_input in emscripten_support_frag.cpp: ");
 	//cout << __PRETTY_FUNCTION__ << endl;
 	//printf ("%s\n", __PRETTY_FUNCTION__);
 	//my_log_from_cpp ("Enter callback_ui_input");
@@ -139,19 +139,19 @@ void callback_ui_input (UserInput p_user_input,
 			return;
 		}
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
-		cout << "under stdout either the user can enter data or navigation" << endl
-			<< "but under ncurses or other guis - it's possible to enter data" << endl
-			<< " AND ask to save by pressing f4, in which case we should save the data "
-			<< " and then try to validate the user input - just like we would in a normal case"
-			<< endl;
+		//cout << "under stdout either the user can enter data or navigation" << endl
+		//	<< "but under ncurses or other guis - it's possible to enter data" << endl
+		//	<< " AND ask to save by pressing f4, in which case we should save the data "
+		//	<< " and then try to validate the user input - just like we would in a normal case"
+		//	<< endl;
 		// nxd: this function needs to be cleaned up
 		//      we can easily downcast to an AbstractQuestionnaire and then there is no need for this
 		//      function to be present here
 		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
 	} else {
-		cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
+		//cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
 	}
-	printf("EXIT: %s\n", __PRETTY_FUNCTION__);
+	//printf("EXIT: %s\n", __PRETTY_FUNCTION__);
 }
 
 void question_eval_loop2 (
@@ -160,11 +160,11 @@ void question_eval_loop2 (
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	//my_log_from_cpp ("question_eval_loop2");
-	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
-	//cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
-	//cout << "arg values: " << endl;
+	//printf ("Enter: %s, nest_level: %d, last_question_visited.size(): %d\n",
+	//		__PRETTY_FUNCTION__, nest_level, last_question_visited.size());
+	// enable to DEBUG this function
+#if 0	
 	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
-		//cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
 		printf ("p_user_input.userNavigation_ == NAVIGATE_NEXT\n");
 	} else if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
 		printf ("p_user_input.userNavigation_ == NAVIGATE_PREVIOUS\n");
@@ -174,20 +174,22 @@ void question_eval_loop2 (
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 		printf ("p_user_input.theUserResponse_ == UserEnteredNavigation");
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
-		cout << "p_user_input.theUserResponse_ == UserEnteredData" << endl;
+		printf ("p_user_input.theUserResponse_ == UserEnteredData");
 	} else if (p_user_input.theUserResponse_ == user_response::UserClearedData) {
-		cout << "p_user_input.theUserResponse_ == UserClearedData" << endl;
+		printf ("p_user_input.theUserResponse_ == UserClearedData");
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
-		cout << "p_user_input.theUserResponse_ == UserSavedData" << endl;
+		printf ("p_user_input.theUserResponse_ == UserSavedData");
 	} else if (p_user_input.theUserResponse_ == user_response::NotSet) {
-		cout << "p_user_input.theUserResponse_ == NotSet" << endl;
+		printf ("p_user_input.theUserResponse_ == NotSet");
 	} else {
-		cout << "FIXME: p_user_input.theUserResponse_ == Unhandled value " << endl;
+		printf("FIXME: p_user_input.theUserResponse_ == Unhandled value ");
 	}
+#endif /* 0 */ 	
 
 
 	//cout << "p_user_input.questionResponseData_:" << p_user_input.questionResponseData_ << endl;
 
+#if 0
 	if (last_question_visited.size() > 0) {
 		//cout << "last_question_visited->questionName_:"
 		//	<<  last_question_visited->questionName_
@@ -198,14 +200,15 @@ void question_eval_loop2 (
 		//cout << "last_question_visited->questionName_: is NULL"  << endl;
 		printf ("last_question_visited->questionName_ is NULL\n");
 	}
+#endif /*  0 */
 
 	if (last_question_visited.size() > 0) {
 		//my_log_from_cpp ("last_question_visited.size() > 0");
 		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
 				//fprintf(qscript_stdout, "user_navigation == NAVIGATE_PREVIOUS unhandled\n");
-				printf("%s, %s, %d, user_navigation == NAVIGATE_PREVIOUS unhandled\n",
-						__PRETTY_FUNCTION__, __FILE__, __LINE__);
+				//printf("%s, %s, %d, user_navigation == NAVIGATE_PREVIOUS unhandled\n",
+				//		__PRETTY_FUNCTION__, __FILE__, __LINE__);
 #if 1
 				//AbstractRuntimeQuestion *target_question =
 				struct ComputePreviousQuestionRetVal prev_question_ret_val = 
@@ -239,11 +242,11 @@ void question_eval_loop2 (
 				// once we exit this major block == last_question_visited
 				// the bottom of this function will handle it
 			} else {
-				cout << "Unhandled case userNavigation_ ... exiting" << endl
-					<< __FILE__ << ","
-					<< __LINE__ << ","
-					<< __PRETTY_FUNCTION__ << ","
-					<< endl;
+				//cout << "Unhandled case userNavigation_ ... exiting" << endl
+				//	<< __FILE__ << ","
+				//	<< __LINE__ << ","
+				//	<< __PRETTY_FUNCTION__ << ","
+				//	<< endl;
 				exit(1);
 			}
 		} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
@@ -251,10 +254,6 @@ void question_eval_loop2 (
 			// by : callback_ui_input
 			// if we have reached back again here - it means it's
 			// time to get the next question
-
-
-
-
 		} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo ||
 				p_user_input.theUserResponse_ == user_response::UserViewedImage ||
 				p_user_input.theUserResponse_ == user_response::UserListenedToAudio
@@ -269,7 +268,7 @@ void question_eval_loop2 (
 				// once we exit this major block == last_question_visited
 				// the bottom of this function will handle it
 		} else {
-			cout << "Unhandled case userNavigation_ ... exiting" << endl;
+			//cout << "Unhandled case userNavigation_ ... exiting" << endl;
 			exit(1);
 		}
 	} // else {
@@ -283,20 +282,25 @@ void question_eval_loop2 (
 			dummy_group_name2);
 		//my_log_from_cpp ("Just after theQuestionnaire->eval2");
 		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
+		printf ("after theQuestionnaire->eval2: q_vec.size(): %d\n",
+				q_vec.size());
+		for (int i=0; i < q_vec.size(); ++i) {
+			printf ("q_vec[%d]: questionName_|%s|\n", i, q_vec[i]->questionName_.c_str());
+		}
 		if (q_vec.size() == 0) {
-			printf(" eval2 has returned NULL => End of qnre();\n");
+			//printf(" eval2 has returned NULL => End of qnre();\n");
 			//my_log_from_cpp(" eval2 has returned NULL => End of qnre();\n");
 			show_end_of_qnre_page();
 		} else {
-			stringstream eval2_retval_str;
-			eval2_retval_str << "q_vec.size(): " << q_vec.size() ;
-			for (int i=0; i < q_vec.size(); ++i) {
-				eval2_retval_str << q_vec[i]->questionName_;
-				for (int j=0; j < q_vec[i]->loop_index_values.size(); ++j) {
-					eval2_retval_str << "$" << q_vec[i]->loop_index_values[j];
-				}
-				eval2_retval_str << endl;
-			}
+			//stringstream eval2_retval_str;
+			//eval2_retval_str << "q_vec.size(): " << q_vec.size() ;
+			//for (int i=0; i < q_vec.size(); ++i) {
+			//	eval2_retval_str << q_vec[i]->questionName_;
+			//	for (int j=0; j < q_vec[i]->loop_index_values.size(); ++j) {
+			//		eval2_retval_str << "$" << q_vec[i]->loop_index_values[j];
+			//	}
+			//	eval2_retval_str << endl;
+			//}
 			//my_log_from_cpp(eval2_retval_str.str().c_str());
 			//printf(" eval2 has returned first q in vec: %s\n", q_vec[0]->questionName_.c_str());
 			//cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
@@ -338,6 +342,7 @@ void callback_return_serial (int serial_no, char * survey_data)
 {
 	//my_log_from_cpp ("Entered callback_return_serial:");
 	//printf ("Got a serial no from the DOM: %d, survey_data: |%s|\n", serial_no, survey_data);
+	printf ("Got a serial no from the DOM: %d\n", serial_no);
 	//TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
 	callback_get_ser_no_from_ui (serial_no, 1, survey_data);
 }
@@ -350,7 +355,7 @@ void called_from_the_dom (char * data, char * other_specify_data)
 	//printf ("data from the browser dom callback: %s\n", data);
 	//char err_mesg_buffer[4000];
 	//printf ("Enter: called_from_the_dom: data %s\n", data);
-	my_log_from_cpp ("Entered called_from_the_dom");
+	//my_log_from_cpp ("Entered called_from_the_dom");
 	//my_log_from_cpp (data);
 	string str_data (data);
 	vector <string> question_data_vec = split_on_char (data, '|');
@@ -365,54 +370,6 @@ void called_from_the_dom (char * data, char * other_specify_data)
 	//		}
 	//	}
 	//}
-#if 0
-	//printf ("data: %s\n", data);
-	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
-	printf ("last_question_visited: %s\n", q->questionName_.c_str());
-	// hard code the answers - Proof of concept testing
-	// Can we really load the next question on the interface using this callback system?
-	//q->isAnswered_ = true;
-	//q->input_data.insert (2);
-	//UserInput user_input;
-	//user_input.theUserResponse_ = user_response::UserEnteredData;
-	//user_input.questionResponseData_ = "1";
-	UserInput user_input;
-	user_input.theUserResponse_ = user_response::UserEnteredData;
-	user_input.questionResponseDataVec_.push_back(data);
-	string err_mesg;
-	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
-	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
-
-	if (valid_input) {
-		if (user_input.theUserResponse_ == user_response::UserSavedData) {
-			cerr  << "NOT YET DONE"
-				<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
-				<< endl
-				<< "invoking callback_ui_input with UserSavedData" << endl;
-			// this call will return really fast
-			//  (if you consider io fast)
-			//  but what I mean is we wont add much to the call stack
-			//callback_ui_input (user_input, q, theQuestionnaire_, 1);
-			//GetUserInput (callback_ui_input, q, theQuestionnaire);
-			//cout << "callback_ui_input has returned after UserSavedData" << endl;
-		} else {
-			cout << "reached here: "
-				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input,
-					AbstractQuestionnaire::qnre_ptr->last_question_visited,
-					l_qnre_ptr, 1);
-			cout << "callback_ui_input has returned"
-				<< __PRETTY_FUNCTION__ << endl;
-		}
-		// move all this into callback_ui_input
-		// case UserEnteredData
-	}
-	//void question_eval_loop2 (
-	//	UserInput p_user_input,
-	//	AbstractRuntimeQuestion * last_question_visited,
-	//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
-	//question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
-#endif /*  0  */
 
 	//vector <UIReturnValue> ui_question_status;
 	stringstream not_answered_question_list;
@@ -423,33 +380,6 @@ void called_from_the_dom (char * data, char * other_specify_data)
 		++i) {
 		AbstractRuntimeQuestion * q =
 				AbstractQuestionnaire::qnre_ptr->last_question_visited[i];
-#if 0
-		AbstractRuntimeQuestion * last_question_served =
-				AbstractQuestionnaire::qnre_ptr->last_question_visited[i];
-		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_served)) {
-			//AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
-			vector<int32_t> data;
-			bool isAnswered = false;
-			cout << "returned back data from question: " << nq->questionName_ << endl;
-			if (last_question_served->no_mpn == 1) {
-				UIReturnValue ret_val ;
-				ui_question_status.push_back(ret_val) ;
-			} else {
-				cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
-				UIReturnValue ret_val = handleCBDataInput(1, i);
-				ui_question_status.push_back(ret_val) ;
-			}
-		} else {
-			/*
-			string current_question_response = le_data_->text().narrow();
-			if (current_question_response !="") {
-				handleRangeQuestionData(1);
-			}
-			*/
-			cout << __PRETTY_FUNCTION__ << "Handle WLineEdit data not yet implemented" << endl;
-
-		}
-#endif /*  0  */
 		if (q->q_type == video) {
 			user_input.theUserResponse_ = user_response::UserViewedVideo;
 			//my_log_from_cpp ("UserViewedVideo"); 
@@ -462,7 +392,7 @@ void called_from_the_dom (char * data, char * other_specify_data)
 			user_input.theUserResponse_ = user_response::UserCapturedTime;
 		} else if (q->q_type == geocode_gmapv3) {
 			user_input.theUserResponse_ = user_response::UserGeocodedLocation;
-			my_log_from_cpp ("geocode_gmapv3");
+			//my_log_from_cpp ("geocode_gmapv3");
 		} else {
 
 			if (question_data_vec[i].length() > 0) {
@@ -499,7 +429,7 @@ void called_from_the_dom (char * data, char * other_specify_data)
 	}
 
 
-	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
+	//printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
 }
 
 void navigate_previous (char * data)

@@ -15,4 +15,5 @@ namespace qscript_debug
 	const int32_t DEBUG_IfStatement = 0;
 	const int32_t DEBUG_ForStatement = 0;
 	const int32_t DEBUG_CompoundStatement = 0;
+	const int32_t DEBUG_EvalArrayQuestion = 0;
 }
