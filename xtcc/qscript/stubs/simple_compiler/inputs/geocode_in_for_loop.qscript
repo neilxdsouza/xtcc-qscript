@@ -1,0 +1,26 @@
+img_capt_in_for_loop {
+
+	/*
+	stubs yn
+	"Yes" 1,
+	"No" 2;
+	*/
+
+q1	"How many room details would you like to capture"
+	sp int32_t (1-5);
+
+	int32_t i2 = 0;
+	for (i2= 0; i2 < 5; i2 = i2+1) {
+
+		if (i2 < q1) {
+
+q2			"Q2. Please locate the property on the map"
+			geocode_gmapv3 : allow_blank;
+
+q3			"Q3. How many people can this room accomodate"
+			sp int32_t (1-20);
+		} else {
+			1;
+		}
+	}
+}

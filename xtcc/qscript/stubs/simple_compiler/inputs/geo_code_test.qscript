@@ -1,6 +1,6 @@
 geo_code_test {
 
 loc	"Please locate your property on the map"
-	geocode_gmapv3;
+	geocode_gmapv3: help_popup "Please use the map below to identify your location on it" ;
 
 }

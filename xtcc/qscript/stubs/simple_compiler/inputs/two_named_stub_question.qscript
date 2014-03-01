@@ -1,0 +1,18 @@
+
+two_named_stub_question {
+
+stubs agree = 
+	"Strongly Agree" 5,
+	"Agree" 4,
+	"Neutral" 3,
+	"Disagree" 2,
+	"Strongly Disagree" 1;
+
+q1	"q1 Please state your agreement with"
+	sp int32_t agree;
+
+q2	"q2 Please state your agreement with"
+	sp int32_t agree;
+
+
+}
