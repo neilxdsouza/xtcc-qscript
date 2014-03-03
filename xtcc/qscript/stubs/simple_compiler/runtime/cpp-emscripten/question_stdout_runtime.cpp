@@ -90,7 +90,7 @@ void setup_ui (int argc, char * argv[] )
 
 vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 {
-	printf ("Enter PrepareQuestionText\n");
+	//printf ("Enter PrepareQuestionText\n");
 	//my_log_from_cpp ("Enter: PrepareQuestionText");
 	using std::string;
 	using std::stringstream;
@@ -184,6 +184,7 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 		result.push_back (question_text.str());
 		question_text.str().clear();
         }
+	//printf ("Exit PrepareQuestionText\n");
 
 	return result;
 
@@ -430,7 +431,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, const vector<string> & p_error_messages_vec)
 {
 	//my_log_from_cpp ("Entered ConstructQuestionForm");
-	printf ("Entered %s\n", __PRETTY_FUNCTION__);
+	//printf ("Entered %s\n", __PRETTY_FUNCTION__);
 	stringstream question_json_string;
 	stringstream question_json_string2;
 	question_json_string << "[" << endl;
@@ -641,7 +642,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 
 	//printf ("before call to create_question_form\n");
 	//my_log_from_cpp ("before call to create_question_form");
-	printf ("question_json_string: %s\n" , question_json_string.str().c_str());
+	//printf ("question_json_string: %s\n" , question_json_string.str().c_str());
 	create_question_form (question_json_string.str().c_str(),
 				stub_json_string.str().c_str(),
 				err_json_string.str().c_str(),
@@ -662,13 +663,13 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	)
 {
 	//cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
-	static int counter = 0; // for unique ids in web browser
-	printf ("Enter: %s, nest_level:%d, counter:%d\n", __PRETTY_FUNCTION__, nest_level, counter);
-	++counter;
-	printf ("q_vec.size(): %d\n",  q_vec.size());
-	for (int i=0; i < q_vec.size(); ++i) {
-		printf (" %s \n", q_vec[i]->questionName_.c_str());
-	}
+	//static int counter = 0; // for unique ids in web browser
+	//++counter;
+	//printf ("Enter: %s, nest_level:%d, counter:%d\n", __PRETTY_FUNCTION__, nest_level, counter);
+	//printf ("q_vec.size(): %d\n",  q_vec.size());
+	//for (int i=0; i < q_vec.size(); ++i) {
+	//	printf (" %s \n", q_vec[i]->questionName_.c_str());
+	//}
 	//ClearPreviousView ();
 	//AbstractRuntimeQuestion * q= q_vec[0];
 	//vector <string> qno_and_qtxt = PrepareQuestionText (q);
@@ -700,7 +701,9 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 
 	void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited);
 	// I couldnt be bothered to make this a virtual function
-	printf ("FIX BELOW IF NECESSARY: %s\n", __PRETTY_FUNCTION__);
+	// ============== TODO : NEED TO REVIEW THIS BELOW ==
+	//printf ("FIX BELOW IF NECESSARY: %s\n", __PRETTY_FUNCTION__);
+	// ===============TODO : NEED TO REVIEW THIS  END ==
 	//set_last_visited (theQuestionnaire, q);
 	//theQuestionnaire->q
 	//theQuestionnaire->last_question_visited = q;
@@ -714,7 +717,7 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	//static int i;
 	//i += 10;
 	ConstructQuestionForm (q_vec, p_error_messages_vec);
-	printf ("Exit: %s\n", __PRETTY_FUNCTION__);
+	//printf ("Exit: %s\n", __PRETTY_FUNCTION__);
 }
 
 int process_options(int argc, char * argv[]);

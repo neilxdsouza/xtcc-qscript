@@ -395,7 +395,7 @@ int AbstractQuestionnaire::write_data_to_buffer (const vector<AbstractRuntimeQue
 		, string jno
 		, int32_t ser_no, char * & buffer, int & n_left)
 {
-	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
+	//printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	int total = 0;
 	for (int32_t i = 0; i < named_attribute_list_vec.size(); ++i) {
 		int n_written = named_attribute_list_vec[i]->WriteNamedAttributeOrderToBuffer(buffer, n_left);
@@ -408,8 +408,8 @@ int AbstractQuestionnaire::write_data_to_buffer (const vector<AbstractRuntimeQue
 		int n_written = question_list[i]->WriteDataToBuffer(buffer, n_left);
 		total += n_written;
 	}
-	printf ("Exiting: %s|  n_written: %d\n",
-			__PRETTY_FUNCTION__, total);
+	//printf ("Exiting: %s|  n_written: %d\n",
+	//		__PRETTY_FUNCTION__, total);
 	return total;
 }
 
