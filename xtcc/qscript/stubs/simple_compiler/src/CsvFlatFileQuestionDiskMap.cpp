@@ -266,7 +266,11 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 		stringstream media_data_file_name;
 		media_data_file_name
 			<< data_file_iterator.dir_part 
-			<< q->questionName_
+			<< q->questionName_;
+		for (int i=0; i< q->loop_index_values.size(); ++i) {
+			media_data_file_name << "$" << q->loop_index_values[i];
+		}
+		media_data_file_name
 			<< "." 
 			<< data_file_iterator.filename_part
 			;
@@ -277,7 +281,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 		} else if (mcq->q_type == image_capture) {
 			output_buffer << ",\"image_capture\" : ";
 		}
-		cerr << "media_data_file_name: " << media_data_file_name << endl;
+		cerr << "media_data_file_name: " << media_data_file_name.str() << endl;
 		std::fstream media_data_file(media_data_file_name.str().c_str());
 		if (media_data_file) {
 			char buffer[257];
@@ -301,7 +305,11 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 			stringstream geocode_data_file_name;
 			geocode_data_file_name
 				<< data_file_iterator.dir_part 
-				<< q->questionName_
+				<< q->questionName_;
+			for (int i=0; i< q->loop_index_values.size(); ++i) {
+				geocode_data_file_name << "$" << q->loop_index_values[i];
+			}
+			geocode_data_file_name
 				<< "_geocode"
 				<< "." 
 				<< data_file_iterator.filename_part

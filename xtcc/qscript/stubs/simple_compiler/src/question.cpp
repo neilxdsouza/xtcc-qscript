@@ -3700,6 +3700,10 @@ void VideoCaptureQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &co
 	quest_decl << ");\n";
 	/////
 	if (array_mode) {
+		quest_decl << "question_disk_list.push_back(" << questionName_
+			<< ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
 		quest_decl << "}\n";
 	} else {
 		quest_decl << "}\n";
