@@ -3600,6 +3600,31 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 			 , l_av_info, l_question_attributes)
 { }
 
+VideoCaptureQuestion::VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_for_bounds_stack
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ 
+	//cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
+	//	<< for_bounds_stack.size() << endl;
+}
+
+
+
 void VideoCaptureQuestion:: GenerateCode(StatementCompiledCode &code)
 {
 	code.program_code << "/* START ======== VideoCaptureQuestion::GenerateCode code goes here */"
@@ -3800,8 +3825,32 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 			 , l_enclosing_scope
 			 , l_av_info, l_question_attributes)
 { 
-	cout << __PRETTY_FUNCTION__ << endl;
-	cout << "l_question_attributes.allowBlank_: " << l_question_attributes.allowBlank_ << endl;
+	// cout << __PRETTY_FUNCTION__ << endl;
+	// cout << "l_question_attributes.allowBlank_: " << l_question_attributes.allowBlank_ << endl;
+}
+
+
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
+		)
+	:
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE /* dummy */
+			 , l_for_bounds_stack
+			 , l_enclosing_scope
+			 , l_av_info, l_question_attributes)
+{ 
+	// cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
+	// 	<< for_bounds_stack.size() << endl;
 }
 
 
@@ -3892,6 +3941,10 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 	quest_decl << ");\n";
 	/////
 	if (array_mode) {
+		quest_decl << "question_disk_list.push_back(" << questionName_
+			<< ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
 		quest_decl << "}\n";
 	} else {
 		quest_decl << "}\n";

@@ -329,11 +329,14 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 			stringstream address_data_file_name;
 			address_data_file_name
 				<< data_file_iterator.dir_part 
-				<< q->questionName_
+				<< q->questionName_;
+			for (int i=0; i< q->loop_index_values.size(); ++i) {
+				address_data_file_name << "$" << q->loop_index_values[i];
+			}
+			address_data_file_name
 				<< "_address"
 				<< "." 
-				<< data_file_iterator.filename_part
-				;
+				<< data_file_iterator.filename_part ;
 			cerr << "GeocodeGMapV3Question: trying to read data from file: "
 				<< address_data_file_name.str()
 				<< endl;

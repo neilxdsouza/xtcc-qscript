@@ -1654,24 +1654,24 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 }
 
 
-////! this is only called from the runtime environment
-//GeocodeGMapV3Question::GeocodeGMapV3Question(
-//	DataType this_stmt_type, int32_t line_number
-//	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
-//	, const vector<int32_t> & l_loop_index_values
-//	, DummyArrayQuestion * l_dummy_array
-//	, QuestionAttributes  l_question_attributes
-//	, bool l_isStartOfBlock
-//	):
-//	AbstractQuestion(this_stmt_type, line_number, 0, 0
-//			, l_name, text_expr_vec
-//			, l_q_type
-//			, l_loop_index_values, l_dummy_array
-//		, l_question_attributes, l_isStartOfBlock
-//		)
-//{ 
-//
-//}
+//! this is only called from the runtime environment
+GeocodeGMapV3Question::GeocodeGMapV3Question(
+	DataType this_stmt_type, int32_t line_number
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+	, const vector<int32_t> & l_loop_index_values
+	, DummyArrayQuestion * l_dummy_array
+	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
+	):
+	AbstractQuestion(this_stmt_type, line_number, 0, 0
+			, l_name, text_expr_vec
+			, l_q_type
+			, l_loop_index_values, l_dummy_array
+		, l_question_attributes, l_isStartOfBlock
+		)
+{ 
+
+}
 
 
 
@@ -1716,6 +1716,27 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 { 
 
 }
+
+VideoCaptureQuestion::VideoCaptureQuestion(
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type
+		, const vector<int32_t> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
+		//, string l_page_name
+		)
+	: AbstractQuestion(this_stmt_type, line_number, 0, 0
+			 , l_name, text_expr_vec
+			 , l_q_type, 1, INT32_TYPE
+			 , l_loop_index_values, l_dummy_array
+			 , l_question_attributes
+			 , l_isStartOfBlock
+			 //, l_page_name
+			 )
+{ }
+
 
 
 void VideoCaptureQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)

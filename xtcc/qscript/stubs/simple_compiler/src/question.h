@@ -488,6 +488,16 @@ public:
 			, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes
 			);
+	VideoCaptureQuestion(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, vector<AbstractExpression*>& l_for_bounds_stack
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
 	// runtime
 	VideoCaptureQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -541,6 +551,16 @@ public:
 			, int32_t l_nest_level, int32_t l_for_nest_level
 			, string l_name
 			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, CompoundStatement * l_enclosing_scope
+			, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			);
+	GeocodeGMapV3Question(
+			DataType this_stmt_type, int32_t line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_name
+			, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+			, vector<AbstractExpression*>& l_for_bounds_stack
 			, CompoundStatement * l_enclosing_scope
 			, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes

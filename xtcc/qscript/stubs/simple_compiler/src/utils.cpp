@@ -370,15 +370,15 @@ struct RatingScaleInfo extract_rating_scale (string s)
 	} else {
 		rat_scale_inf.isRatingScale_ = false;
 	}
-	cout	<< __FILE__ << ", "
-		<< __LINE__ << ","
-		<< __PRETTY_FUNCTION__ << ","
-		<< "input parameter:" << s
-		<< ", RatingScaleInfo: "
-		<< ", isRatingScale_: " << rat_scale_inf.isRatingScale_
-		<< ", isReversed_: " << rat_scale_inf.isReversed_
-		<< ", ratingScaleEnd_: " << rat_scale_inf.ratingScaleEnd_
-		<< endl;
+	//cout	<< __FILE__ << ", "
+	//	<< __LINE__ << ","
+	//	<< __PRETTY_FUNCTION__ << ","
+	//	<< "input parameter:" << s
+	//	<< ", RatingScaleInfo: "
+	//	<< ", isRatingScale_: " << rat_scale_inf.isRatingScale_
+	//	<< ", isReversed_: " << rat_scale_inf.isReversed_
+	//	<< ", ratingScaleEnd_: " << rat_scale_inf.ratingScaleEnd_
+	//	<< endl;
 
 	return rat_scale_inf;
 }
