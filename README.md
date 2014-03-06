@@ -6,7 +6,9 @@ Open Source Compilers for Data Collection and Cross Tabulation
 Requirements:
 g++, flex, bison. For Mobile - emscripten and phonegap (we are using 2.7.0)
 emscripten itself requires clang .
-compilation to Wt and wxWidgets is lagging behind the mobile build
+compilation to Wt and wxWidgets is lagging behind the mobile build, and the current focus is 
+to stabilize the tablet based solution first. The project is not in the master branch -
+you will need to checkout the other-specify branch (see instructions below)
 
 Build:
 
