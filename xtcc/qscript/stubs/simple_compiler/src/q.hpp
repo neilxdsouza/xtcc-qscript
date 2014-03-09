@@ -91,7 +91,9 @@
      SETDEL = 309,
      SETADD = 310,
      UNSET = 311,
-     SETALL = 312
+     SETALL = 312,
+     MAX_LENGTH = 313,
+     MIN_LENGTH = 314
    };
 #endif
 
@@ -120,7 +122,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 124 "src/q.hpp"
+#line 126 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

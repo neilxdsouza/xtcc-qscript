@@ -4163,8 +4163,8 @@ VideoCaptureQuestion::VideoCaptureQuestion(
 			 , l_enclosing_scope
 			 , l_av_info, l_question_attributes)
 { 
-	cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
-		<< for_bounds_stack.size() << endl;
+	//cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
+	//	<< for_bounds_stack.size() << endl;
 }
 
 void VideoCaptureQuestion:: GenerateJavaCode(StatementCompiledCode &code)
@@ -4391,10 +4391,8 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 			 , l_enclosing_scope
 			 , l_av_info, l_question_attributes)
 { 
-	cout << __PRETTY_FUNCTION__ << endl;
-	cout << "l_question_attributes.allowBlank_: " << l_question_attributes.allowBlank_ << endl;
-
-
+	//cout << __PRETTY_FUNCTION__ << endl;
+	//cout << "l_question_attributes.allowBlank_: " << l_question_attributes.allowBlank_ << endl;
 }
 
 GeocodeGMapV3Question::GeocodeGMapV3Question(
@@ -4416,8 +4414,8 @@ GeocodeGMapV3Question::GeocodeGMapV3Question(
 			 , l_enclosing_scope
 			 , l_av_info, l_question_attributes)
 { 
-	cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
-		<< for_bounds_stack.size() << endl;
+	//cout << __PRETTY_FUNCTION__ << ", " << "for_bounds_stack.size(): "
+	//	<< for_bounds_stack.size() << endl;
 }
 
 
@@ -4542,15 +4540,17 @@ void GeocodeGMapV3Question:: GenerateCodeSingleQuestion(StatementCompiledCode &c
 	}
 
 
-	quest_decl
-		<< ", QuestionAttributes("
-		<< question_attributes.hidden_
-		<< ", "
-		<< question_attributes.allowBlank_
-		<< ", string(\""
-		<< question_attributes.helpText_
-		<< "\")"
-		<<  ") " ;
+	// quest_decl
+	// 	<< ", QuestionAttributes("
+	// 	<< question_attributes.hidden_
+	// 	<< ", "
+	// 	<< question_attributes.allowBlank_
+	// 	<< ", string(\""
+	// 	<< question_attributes.helpText_
+	// 	<< "\")"
+	// 	<<  ") " ;
+
+	quest_decl << "," << question_attributes.Print();
 
 	if (isStartOfBlock_) {
 		quest_decl << ", true";

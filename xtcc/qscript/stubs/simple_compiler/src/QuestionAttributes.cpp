@@ -8,19 +8,23 @@ using std::stringstream;
 
 
 void QuestionAttributes::Reset()
-{ hidden_ = false; allowBlank_ = false; helpText_ = ""; }
+{ hidden_ = false; allowBlank_ = false; helpText_ = ""; minLength_ = 0; maxLength_ = 0; }
 
 QuestionAttributes::QuestionAttributes()
-	: hidden_(false), allowBlank_(false), helpText_()
+	: hidden_(false), allowBlank_(false), helpText_(),
+	  minLength_(0), maxLength_(0)
 { }
 
-QuestionAttributes::QuestionAttributes(bool p_Hidden, bool p_allowBlank, const std::string & p_help_text  )
-	: hidden_(p_Hidden), allowBlank_(p_allowBlank), helpText_ (p_help_text)
+QuestionAttributes::QuestionAttributes(bool p_Hidden, bool p_allowBlank, const std::string & p_help_text,
+		int p_min_length, int p_max_length)
+	: hidden_(p_Hidden), allowBlank_(p_allowBlank), helpText_ (p_help_text),
+	  minLength_ (p_min_length), maxLength_ (p_max_length)
 { }
 
 string QuestionAttributes::Print()
 {
 	stringstream s;
+	s << "/* NxD -#- "<< __PRETTY_FUNCTION__ << " */";
 	s << " QuestionAttributes(";
 	if (hidden_ == false) {
 		s << "false ";
@@ -34,6 +38,8 @@ string QuestionAttributes::Print()
 		s << "true";
 	}
 	s << ", string(\""  << helpText_ << "\")";
+	s << ", " << minLength_;
+	s << ", " << maxLength_;
 
 	s << ")";
 	return s.str();
@@ -51,3 +57,6 @@ void QuestionAttributes::setHelpText(const string & p_help_text )
 bool QuestionAttributes::isAllowBlank() { return allowBlank_; }
  
 bool QuestionAttributes::isHidden() { return hidden_; }
+
+void QuestionAttributes::setMinLength(int length) { minLength_ = length; }
+void QuestionAttributes::setMaxLength(int length) { maxLength_ = length; }
