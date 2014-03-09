@@ -120,6 +120,13 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 		s << "$" << loop_index_values[i];
 	}
 	questionDiskName_ = s.str();
+	// debugging hack testcase 
+	//if (questionName_ == string("q_prop_title") ||
+	//    questionName_ == string("q_prop_qn") ||
+	//    questionName_ == string("q_prop_desc") ) {
+	//	printf ("Constructor: %s allowBlank_: %d, name: %s\n", __PRETTY_FUNCTION__, question_attributes.allowBlank_,
+	//			questionDiskName_.c_str());
+	//}
 }
 
 

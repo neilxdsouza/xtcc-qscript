@@ -539,6 +539,8 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec, cons
 		} else {
 			question_json_string << ", \"allow_blank\" : false ";
 		}
+		question_json_string << ", \"min_length\" : " << q->question_attributes.minLength_;
+		question_json_string << ", \"max_length\" : " << q->question_attributes.maxLength_;
 		question_json_string << ", \"help_text\": \"" << q->question_attributes.helpText_ << "\"";
 
 		question_json_string << ", \"question_type\":";

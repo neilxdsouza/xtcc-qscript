@@ -10,10 +10,19 @@ my_log ("Started loading our_ui.js");
 //
 
 function check_all_questions_answered_or_allow_blank() {
+	//my_log ("Enter: check_all_questions_answered_or_allow_blank() document.forms.length :" + 
+	//	document.forms.length);
 	var i = 0, len = global_survey_related_info.questions_obj_arr.length;
+	if (document.forms.length !== len) {
+		my_log ("INTERNAL ERROR: document.forms.length: " + document.forms.length +
+			" is not equal to questions_obj_arr.length: " + len );
+		my_log ("check_all_questions_answered_or_allow_blank: failed");
+		return;
+	}
+
 	var blank_questions = [];
 	for ( i =  0; i < len; ++i ) {
-		var q =  global_survey_related_info.questions_obj_arr[0];
+		var q =  global_survey_related_info.questions_obj_arr[i];
 		if (q.question_type === 'geocode_gmapv3') {
 			if (q.allow_blank === true) {
 				my_log ("q.allow_blank === true");
@@ -24,7 +33,38 @@ function check_all_questions_answered_or_allow_blank() {
 				} else {
 				}
 			}
+		} else if (q.question_type === 'rq' && q.no_mpn > 1) {
+			var input_element = document.forms[i].elements[0];
+			if ( q.allow_blank === true) {
+				my_log (" verbatim question allow_blank === true");
+			} else {
+				my_log (" verbatim question allow_blank === false");
+				my_log ("document.forms["+ i + "].elements.length: " + 
+					document.forms[i].elements.length); 
+				if (document.forms[i].elements[0].value.length === 0) {
+					blank_questions.push(q.qno);
+					document.forms[i].elements[0].classList.add ("err-inp");
+				} else {
+					if (document.forms[i].elements[0].classList.contains ("err-inp")) {
+						document.forms[i].elements[0].classList.remove ("err-inp");
+					}
+				}
+			}
+			if (q.min_length > 0) {
+				if (input_element.value.length < q.min_length) {
+					input_element.classList.add ("err-inp");
+				}
+			}
+			if (q.max_length > 0) {
+				if (input_element.value.length < q.max_length) {
+					input_element.classList.add ("err-inp");
+				}
+			}
 		}
+	}
+	my_log ("blank_questions are: ");
+	for (i=0; i < blank_questions.length; ++i) {
+		my_log (blank_questions[i]);
 	}
 	return blank_questions;
 }
@@ -566,7 +606,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		var new_question_view = "";
 		if (questions_obj_arr.length == 1 && questions_obj_arr[0].question_text_arr.length == 1) {
 			var curr_question_obj = questions_obj_arr[0];
-			new_question_view += "<div>" + questions_obj_arr[0].question_text_arr[0] + "</div>";
+			new_question_view += "<div>" + curr_question_obj.question_text_arr[0] + "</div>";
 
 			/*
 			if (questions_obj_arr[0].help_text.length > 0) {
@@ -603,15 +643,15 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 						'</div>';
 			}
 			*/
-			if (questions_obj_arr[0].help_text.length > 0) {
-					new_question_view += create_help_div_html (questions_obj_arr[0].qno, questions_obj_arr[0].help_text);
+			if (curr_question_obj.help_text.length > 0) {
+					new_question_view += create_help_div_html (curr_question_obj.qno, curr_question_obj.help_text);
 				}
 
 
-			new_question_view += "<div><form id ='id_form_" + questions_obj_arr[0].qno + "' name ='form_" + questions_obj_arr[0].qno + "' >";
+			new_question_view += "<div><form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' >";
 			//new_question_view += "<input cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></input>";
-			if (questions_obj_arr[0].no_mpn == 1) {
-				new_question_view += "<input type='number' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'";
+			if (curr_question_obj.no_mpn == 1) {
+				new_question_view += "<input type='number' id='input_" + curr_question_obj.qno + "' name='input_" + questions_obj_arr[0].qno + "'";
 
 				if (questions_obj_arr[0].current_response.length) {
 					prevValue = curr_question_obj.current_response[0];
@@ -619,7 +659,22 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				}
 				new_question_view += "></input>";
 			} else {
-				new_question_view += "<textarea cols='40' rows='8' id='input_" + questions_obj_arr[0].qno + "' name='input_" + questions_obj_arr[0].qno + "'></textarea>";
+				//new_question_view += "<textarea cols='40' rows='8' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></textarea>";
+				new_question_view += "<textarea cols='40' rows='8' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "' style='width:100%;'" ;
+				new_question_view += " placeholder ='";
+				if (curr_question_obj.allow_blank) {
+					new_question_view += " Can be skipped. ";
+				} else {
+					new_question_view += " Must be answered. ";
+				}
+				if (curr_question_obj.min_length > 0) {
+					new_question_view += " Minimum length " + curr_question_obj.min_length + ".";
+				}
+				if (curr_question_obj.max_length > 0) {
+					new_question_view += " Maximum length " + curr_question_obj.max_length + ".";
+				}
+				new_question_view += "'";
+				new_question_view += "></textarea>";
 			}
 			new_question_view += "</form></div>";
 			if (questions_obj_arr[0].no_mpn > 1) {
@@ -644,7 +699,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				}
 			}
 			
-			new_question_view = "<table>";
+			new_question_view = "<table style='width:100%;'>";
 			if(is_question_text_same) {
 				new_question_view += "<tr><th>" + questions_obj_arr[0].question_text_arr[0] + "</th></tr>";
 			}
@@ -672,7 +727,28 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				}				
 				if (questions_obj_arr[i].no_mpn > 1) {
 					//new_question_view += "<input cols='40' rows='3' value='" + prevValue + "' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
-					new_question_view += "<input value='' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
+					//new_question_view += "<input value='' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></input>";
+					//new_question_view += "<textarea cols='40' rows='5' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "'></textarea>";
+
+					///================
+					new_question_view += "<textarea cols='40' rows='8' id='input_" + curr_question_obj.qno + "' name='input_" + curr_question_obj.qno + "' style='width:100%;' " ;
+					new_question_view += " placeholder ='";
+					if (curr_question_obj.allow_blank) {
+						new_question_view += " Can be skipped. ";
+					} else {
+						new_question_view += " Must be answered. ";
+					}
+					if (curr_question_obj.min_length > 0) {
+						new_question_view += " Minimum length " + curr_question_obj.min_length + ".";
+					}
+					if (curr_question_obj.max_length > 0) {
+						new_question_view += " Maximum length " + curr_question_obj.max_length + ".";
+					}
+					new_question_view += "'";
+					new_question_view += "></textarea>";
+					//=================
+
+
 					var verbatim_fn = "";
 					verbatim_fn = global_survey_related_info.our_dir_path + "/incomplete/" +
 						//questions_obj_arr[0].qno + "." + 
@@ -1021,6 +1097,7 @@ function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
 }
 
 
+
 function get_stubs_display_view (question_obj, stubs_obj_arr) {
 	//my_log ("Enter: get_stubs_display_view: question_obj.no_mpn" + question_obj.no_mpn);
 	question_type = question_obj.question_type;
@@ -1046,6 +1123,9 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 			//my_log ("looping i = " + i);
 			if (res2.stubs[i].mask == 1) {
 				var input   = document.createElement("input");
+				var id_text = res2.name + res2.stubs[i].stub_code ;
+				//alert("id_text: " + id_text);
+				input.id  = id_text;
 				//my_log ("after document.createElement i = " + i);
 				if (question_obj.no_mpn == 1) {
 					input.type  = "radio";
@@ -1069,9 +1149,6 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 
 				//my_log ("after setting input.value i = " + i);
 				//var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
-				var id_text = res2.name + res2.stubs[i].stub_code ;
-				//alert("id_text: " + id_text);
-				input.id  = id_text;
 				//alert ("id_text:" + id_text);
 				var input_label   = document.createElement("label");
 				//input_label.innerHTML = res2.stubs[i].stub_text;
@@ -1112,6 +1189,7 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 function ui_create_question_form (questions_obj_arr, stubs_obj_arr, err_obj_arr) {
 	//my_log ("Entered: ui_create_question_form questions_obj_arr:" + JSON.stringify(questions_obj_arr));
 	//my_log ("document.forms.length: " + document.forms.length);
+	//my_log ("Entered: ui_create_question_form stubs_obj_arr:" + JSON.stringify(stubs_obj_arr));
 
 	var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
 	if (result == "single_question") {
