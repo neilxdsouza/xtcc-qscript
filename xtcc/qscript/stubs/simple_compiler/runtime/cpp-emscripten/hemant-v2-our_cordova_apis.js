@@ -122,7 +122,7 @@ function get_geolocation_info()
 //
 //
 function onResolveError(evt) {
-	my_log ( "onResolveError: filesystem entry uri failed to resolve");
+	//my_log ( "onResolveError: filesystem entry uri failed to resolve");
 }
 
 function onFileSystemSuccess (fileSystem) {
@@ -135,7 +135,7 @@ function onFileSystemSuccess (fileSystem) {
 
 
 function onResolveSuccess(fileEntry) {
-	my_log("onResolveSuccess: " + fileEntry.name);
+	//my_log("onResolveSuccess: " + fileEntry.name);
 }
 
 function fileFSError(e) {
@@ -209,7 +209,7 @@ function gotVerbatimFileEntry(fileEntry) {
 */
 
 	function gotOtherSpecifyFileEntry(fileEntry) {
-		my_log("Enter: gotOtherSpecifyFileEntry");
+		//my_log("Enter: gotOtherSpecifyFileEntry");
 		//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
 		if (global_survey_related_info.other_specify_data_file_fileEntry_arr === undefined) {
 			global_survey_related_info.other_specify_data_file_fileEntry_arr = [];
@@ -218,7 +218,7 @@ function gotVerbatimFileEntry(fileEntry) {
 	}
 
 	function gotMediaFileEntry(fileEntry) {
-		my_log("Enter: gotMediaFileEntry");
+		//my_log("Enter: gotMediaFileEntry");
 		// This should probably go - as the array is being created 
 		// int create_multiple_questions_view
 		//
@@ -309,7 +309,7 @@ function readAsText(file) {
 				alert ("Error either callback_return_serial or global_survey_related_info.serial_no is null");
 			}
 		} else {
-			my_log ("new data file");
+			//my_log ("new data file");
 			callback_return_serial (global_survey_related_info.serial_no, "");
 		}
 	};
@@ -329,34 +329,34 @@ function ourGotFileWriter (writer) {
 
 /* save_verbatim_data{{{2 */
 function save_verbatim_data(writer) {
-	my_log ("Enter : save_verbatim_data: global_survey_related_info.current_verbatim_index: " + global_survey_related_info.current_verbatim_index);
+	//my_log ("Enter : save_verbatim_data: global_survey_related_info.current_verbatim_index: " + global_survey_related_info.current_verbatim_index);
 	//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
 	//writer.write(global_survey_related_info.current_verbatim_data);
 	//writer.write(global_survey_related_info.current_verbatim_data);
 	writer.write(global_survey_related_info.verbatim_data_arr[global_survey_related_info.current_verbatim_index]);
-	my_log ("Exit : save_verbatim_data");
+	//my_log ("Exit : save_verbatim_data");
 }
 /* save_verbatim_data }}}2 */
 
 /* save_geocode_data{{{2 */
 function save_geocode_data(writer) {
-	my_log ("Enter : save_geocode_data: " );
+	//my_log ("Enter : save_geocode_data: " );
 	//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
 	//writer.write(global_survey_related_info.current_geocode_data);
 	//writer.write(global_survey_related_info.current_geocode_data);
 	writer.write(global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question]);
-	my_log ("Exit : save_geocode_data");
+	//my_log ("Exit : save_geocode_data");
 }
 /* save_geocode_data }}}2 */
 
 /* save_address_data{{{2 */
 function save_address_data(writer) {
-	my_log ("Enter : save_address_data: " );
+	//my_log ("Enter : save_address_data: " );
 	//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
 	//writer.write(global_survey_related_info.current_address_data);
 	//writer.write(global_survey_related_info.current_address_data);
 	writer.write(global_survey_related_info.geocode_addr_data_json);
-	my_log ("Exit : save_address_data");
+	//my_log ("Exit : save_address_data");
 }
 /* save_address_data }}}2 */
 
@@ -372,9 +372,9 @@ function save_verbatim_data_file_handle (fileEntry) {
 
 	/* save_media_data{{{2 */
 	function save_media_path_data(writer) {
-		my_log ("Enter : save_media_data");
+		//my_log ("Enter : save_media_data");
 		writer.write(global_survey_related_info.media_path_data);
-		my_log ("Exit : save_media_data");
+		//my_log ("Exit : save_media_data");
 	}
 	/* save_media_data }}}2 */
 
@@ -392,7 +392,7 @@ function fileFoundSuccess (file) {
 /* fileFoundSuccess }}}2 */
 
 function MakePathDir(path) {
-	my_log ("MakePathDir path: " + path);
+	//my_log ("MakePathDir path: " + path);
 	var path_array = path.split("/");
 	var i = 0;
 	var root_dir_entry = global_survey_related_info.fileSystemObject.root;
@@ -600,56 +600,56 @@ function toggle_options_panel() {
 // implment menu button
 document.addEventListener("menubutton", toggle_options_panel, false);
 
-my_log ("Finished loading our_cordova_apis.js");
+//my_log ("Finished loading our_cordova_apis.js");
 
 function capturePhoto() 
 {
-	my_log ("enter capturePhoto");
+	//my_log ("enter capturePhoto");
 	if (navigator.device.capture) {
-		my_log ("has navigator.device.capture");
+		//my_log ("has navigator.device.capture");
 		navigator.device.capture.captureImage(FileCaptureSuccess, onFail, null);
 	} else {
-		my_log ("not capture available");
+		//my_log ("not capture available");
 	}
-	my_log ("exit capturePhoto");
+	//my_log ("exit capturePhoto");
 }
 
 
 function capturePhoto2(index, qno) 
 {
-	my_log ("enter capturePhoto2, index: " + index);
+	//my_log ("enter capturePhoto2, index: " + index);
 	if (global_survey_related_info.media_path_data_arr === undefined) {
 		global_survey_related_info.media_path_data_arr = [];
 	}
 
 	var save_media_path_data2 = function (writer) {
-		my_log ("Enter : save_media_path_data2");
+		//my_log ("Enter : save_media_path_data2");
 		writer.write(global_survey_related_info.media_path_data_arr[index]);
-		my_log ("Exit : save_media_path_data2");
+		//my_log ("Exit : save_media_path_data2");
 	};
 
 
 	var CaptureSuccess = function (mediaFiles) {
-		my_log ("enter CaptureSuccess");
+		//my_log ("enter CaptureSuccess");
 		var media_file_paths = "", i=0, len = 0;
 		for (i = 0, len = mediaFiles.length; i < len; i += 1) {
 			//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
-			my_log ("filename captured: " + mediaFiles[i].fullPath);
+			//my_log ("filename captured: " + mediaFiles[i].fullPath);
 			//media_file_paths += mediaFiles[i].fullPath + '\n';
 			media_file_paths += mediaFiles[i].name + '\n';
 			//window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 			window.resolveLocalFileSystemURI(mediaFiles[i].fullPath,
 				function (fileEntry) {
-					my_log ("entered moveFile");
+					//my_log ("entered moveFile");
 					window.resolveLocalFileSystemURI(
 						"file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/",
 						function(dirEntry){
-							my_log ("moving file: " + fileEntry.name + " to " + dirEntry.fullPath);
+							//my_log ("moving file: " + fileEntry.name + " to " + dirEntry.fullPath);
 							fileEntry.moveTo(dirEntry, fileEntry.name, function() {
-								my_log("moveFile success done");
+								//my_log("moveFile success done");
 								var my_img = document.getElementById("div_capt_img_" + qno + "_" + index);
 								var image_path =  "file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/" + mediaFiles[0].name;
-								my_log ("image_path: " + image_path);
+								//my_log ("image_path: " + image_path);
 								if (my_img) {
 									//"file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/"
 									//my_img.innerHTML =  "<img src=\"" + "file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/" + mediaFiles[0].name + "\" alt=\"Smiley face\" height=\"100\" width=\"100\">";
@@ -657,7 +657,7 @@ function capturePhoto2(index, qno)
 									//my_img.innerHTML =  "<img src=\"1389939787872.jpg\" alt=\"Smiley face\" height=\"100\" width=\"100\">";
 									var rel_path = "../../../"  + global_survey_related_info.device.uuid + "/" + global_survey_related_info.job_name + "/" + window.localStorage.getItem('userid') + "/incomplete/" + mediaFiles[0].name;
 									//var rel_path = "../../../"  +  "1389939787872.jpg";
-									my_log ("rel_path: " + rel_path);
+									//my_log ("rel_path: " + rel_path);
 									my_img.innerHTML =  "<img src=\"" + rel_path + "\"  alt=\"Smiley face\" height=\"100\" width=\"100\">";
 								} else {
 									my_log ("unable to get image div to show clicked image, filename : "  + mediaFiles[0].name);
@@ -674,18 +674,18 @@ function capturePhoto2(index, qno)
 		global_survey_related_info.media_path_data_arr[index] = media_file_paths;
 		global_survey_related_info.media_fileEntry_arr[index].createWriter (save_media_path_data2, fail_to_write_file);
 
-		my_log ("exit CaptureSuccess");
+		//my_log ("exit CaptureSuccess");
 	};
 
 
 	if (navigator.device.capture) {
-		my_log ("has navigator.device.capture");
+		//my_log ("has navigator.device.capture");
 		navigator.device.capture.captureImage(
 				CaptureSuccess, onFail, null);
 	} else {
-		my_log ("not capture available");
+		//my_log ("not capture available");
 	}
-	my_log ("exit capturePhoto2");
+	//my_log ("exit capturePhoto2");
 }
 
 function captureAudio()
@@ -700,10 +700,10 @@ function captureVideo()
 
 function FileCaptureSuccess(mediaFiles)
 {
-	my_log ("enter FileCaptureSuccess");
+	//my_log ("enter FileCaptureSuccess");
 	var media_file_paths = "", i=0, len = 0;
 	for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-		my_log ("filename captured: " + mediaFiles[i].fullPath);
+		//my_log ("filename captured: " + mediaFiles[i].fullPath);
 		media_file_paths += mediaFiles[i].fullPath + '\n';
 		window.resolveLocalFileSystemURI(mediaFiles[i].fullPath, moveFile, onFail);
 	}
@@ -715,17 +715,17 @@ function FileCaptureSuccess(mediaFiles)
 
 function moveFile(fileEntry)
 {      
-	my_log ("entered moveFile");
+	//my_log ("entered moveFile");
 	//window.resolveLocalFileSystemURI("file:///storage/sdcard0/qscript", 
 	window.resolveLocalFileSystemURI(
 		"file:///sdcard/" + global_survey_related_info.our_dir_path + "/incomplete/",
 		function(dirEntry){
-			my_log ("moving file: " + fileEntry.name + " to " + dirEntry.fullPath);
+			//my_log ("moving file: " + fileEntry.name + " to " + dirEntry.fullPath);
 			fileEntry.moveTo(dirEntry, fileEntry.name, function(){my_log("moveFile success done");}, onFail);
 		}, onFail);
 }
 
 function onFail(error)
 {
-	my_log("onFail: Error occured"+ error.code);
+	//my_log("onFail: Error occured"+ error.code);
 }    

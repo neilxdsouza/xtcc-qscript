@@ -6,17 +6,22 @@ var infowindow = null ;
 // geolocation timer global variable
 var geolocationTimer = 60;
 
-my_log ("Started loading our_ui.js");
+//my_log ("Started loading our_ui.js");
 //
 
 function check_all_questions_answered_or_allow_blank() {
 	//my_log ("Enter: check_all_questions_answered_or_allow_blank() document.forms.length :" + 
 	//	document.forms.length);
 	var i = 0, len = global_survey_related_info.questions_obj_arr.length;
+	var ques_type = global_survey_related_info.questions_obj_arr[0].question_type;
+	if(ques_type == "video_capture" || ques_type == "image_capture" || ques_type == "audio_capture")
+	{
+		return [];
+	}
 	if (document.forms.length !== len) {
 		my_log ("INTERNAL ERROR: document.forms.length: " + document.forms.length +
 			" is not equal to questions_obj_arr.length: " + len );
-		my_log ("check_all_questions_answered_or_allow_blank: failed");
+		//my_log ("check_all_questions_answered_or_allow_blank: failed");
 		return;
 	}
 
@@ -25,9 +30,9 @@ function check_all_questions_answered_or_allow_blank() {
 		var q =  global_survey_related_info.questions_obj_arr[i];
 		if (q.question_type === 'geocode_gmapv3') {
 			if (q.allow_blank === true) {
-				my_log ("q.allow_blank === true");
+				//my_log ("q.allow_blank === true");
 			} else /*if (q.allow_blank === false) */ {
-				my_log ("q.allow_blank === false");
+				//my_log ("q.allow_blank === false");
 				if (global_survey_related_info.geocode_question_data[q.qno] === undefined) {
 					blank_questions.push(q.qno);
 				} else {
@@ -36,11 +41,11 @@ function check_all_questions_answered_or_allow_blank() {
 		} else if (q.question_type === 'rq' && q.no_mpn > 1) {
 			var input_element = document.forms[i].elements[0];
 			if ( q.allow_blank === true) {
-				my_log (" verbatim question allow_blank === true");
+				//my_log (" verbatim question allow_blank === true");
 			} else {
-				my_log (" verbatim question allow_blank === false");
-				my_log ("document.forms["+ i + "].elements.length: " + 
-					document.forms[i].elements.length); 
+				//my_log (" verbatim question allow_blank === false");
+				//my_log ("document.forms["+ i + "].elements.length: " + 
+				//	document.forms[i].elements.length); 
 				if (document.forms[i].elements[0].value.length === 0) {
 					blank_questions.push(q.qno);
 					document.forms[i].elements[0].classList.add ("err-inp");
@@ -53,26 +58,28 @@ function check_all_questions_answered_or_allow_blank() {
 			if (q.min_length > 0) {
 				if (input_element.value.length < q.min_length) {
 					input_element.classList.add ("err-inp");
+					blank_questions.push(q.qno);
 				}
 			}
 			if (q.max_length > 0) {
-				if (input_element.value.length < q.max_length) {
+				if (input_element.value.length > q.max_length) {
 					input_element.classList.add ("err-inp");
+					blank_questions.push(q.qno);
 				}
 			}
 		}
 	}
-	my_log ("blank_questions are: ");
-	for (i=0; i < blank_questions.length; ++i) {
+	//my_log ("blank_questions are: ");
+	/*for (i=0; i < blank_questions.length; ++i) {
 		my_log (blank_questions[i]);
-	}
+	}*/
 	return blank_questions;
 }
 
 
 var newNextQ= document.getElementById("newNextQ");
 EventUtil.addHandler (newNextQ, "click", function(event) {
-	my_log ("Enter newNextQ");
+	//my_log ("Enter newNextQ");
 	var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
 	//console.log("newNextQ called");
 	var ui_front_end_check_blank_q = check_all_questions_answered_or_allow_blank();
@@ -81,17 +88,17 @@ EventUtil.addHandler (newNextQ, "click", function(event) {
 		//my_log ("new_serialize done: " + returnValue);
 		called_from_the_dom(returnValue.join("|"));
 	} else {
-		my_log ("report errors that some questions are blank n = : " + ui_front_end_check_blank_q.length);
+		//my_log ("report errors that some questions are blank n = : " + ui_front_end_check_blank_q.length);
 	}
 });
 //my_log ("created newNextQ handler function");
 
 var prevQ= document.getElementById("prevQ");
 EventUtil.addHandler (prevQ, "click", function(event) {
-	my_log ("Enter prevQ");
+	//my_log ("Enter prevQ");
 	var navigate_previous = Module.cwrap ('navigate_previous', 'void', ['string']);
 	//console.log("prevQ called");
-	my_log ("navigate_previous: " + navigate_previous);
+	//my_log ("navigate_previous: " + navigate_previous);
 	navigate_previous ("dummy data");
 });
 //my_log ("created prevQ handler function");
@@ -165,7 +172,7 @@ function handleStartSurveyButton (event)
 		createCommonDirectories();		// create common directories
 		//all_systems_go = true;
 	} else {
-		my_log ("cordova : sanity checks failed");
+		//my_log ("cordova : sanity checks failed");
 		// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
 		// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
 		// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
@@ -378,7 +385,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			help_div.style.color = "blue";
 			var help_par = document.createElement("p");
 			help_par.innerText = questions_obj_arr[0].help_text;
-			my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
+			//my_log ("questions_obj_arr[0].help_text: " + questions_obj_arr[0].help_text);
 			help_div.appendChild(help_par);
 			new_question_view.appendChild (help_div);
 		}
@@ -413,11 +420,11 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		//my_log ("set current_geocode_question");
 		if (global_survey_related_info.geocode_question_data === undefined) {
 			global_survey_related_info.geocode_question_data = { };
-			my_log ("created global_survey_related_info.geocode_question_data object");
+			//my_log ("created global_survey_related_info.geocode_question_data object");
 		}
 		// later on - load the data from a file and pre-load it here instead of doing this
 		global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = undefined;
-		my_log ("set current_geocode_question data to undefined");
+		//my_log ("set current_geocode_question data to undefined");
 		EventUtil.addHandler (geocode_button, "click", geocodeAddress);
 		addr_div.appendChild(apt_no);
 		addr_div.appendChild(addr1);
@@ -450,7 +457,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 					geocode_capture_file_path, {create: true}, gotGeocodeFileEntry, getFileErrorHandler);
 
 		function gotAddressFileEntry(fileEntry) {
-			my_log("Enter: gotAddressFileEntry");
+			//my_log("Enter: gotAddressFileEntry");
 			if (global_survey_related_info.address_fileEntry_arr === undefined) {
 				global_survey_related_info.address_fileEntry_arr = [];
 			}
@@ -501,7 +508,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		//return function (fileEntry) {
 			
 		function gotGeocodeFileEntry(fileEntry) {
-			my_log("Enter: gotGeocodeFileEntry");
+			//my_log("Enter: gotGeocodeFileEntry");
 			if (global_survey_related_info.geocode_fileEntry_arr === undefined) {
 				global_survey_related_info.geocode_fileEntry_arr = [];
 			}
@@ -510,20 +517,20 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			function gotGeocodeFile(file) {
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {
-					my_log("geocode_capture_file_path" + geocode_capture_file_path);
-					my_log("Geocode data"+evt.target.result);
+					//my_log("geocode_capture_file_path" + geocode_capture_file_path);
+					//my_log("Geocode data"+evt.target.result);
 					if (evt.target.result.length > 0) {
 						var geocodeJsonObj = JSON.parse(evt.target.result.replace(/ _ /g, ","));
-						my_log ("geocodeJsonObj: " + geocodeJsonObj);
-						my_log ("geocodeJsonObj.d: " + geocodeJsonObj.d);
-						my_log ("geocodeJsonObj.e: " + geocodeJsonObj.e);
+						//my_log ("geocodeJsonObj: " + geocodeJsonObj);
+						//my_log ("geocodeJsonObj.d: " + geocodeJsonObj.d);
+						//my_log ("geocodeJsonObj.e: " + geocodeJsonObj.e);
 						//var google_format_marker = "(" + geocodeJsonObj.d + "," + geocodeJsonObj.e + ")";
 						var google_format_marker = new google.maps.LatLng(geocodeJsonObj.d, geocodeJsonObj.e);
 
 						//my_log("google_format_marker" + google_format_marker);
 						marker = createMarker(google_format_marker, "name", "<b>Location</b><br>"+google_format_marker);
 					} else {
-						my_log ("geocode data file was empty");
+						//my_log ("geocode data file was empty");
 					}
 				};
 				reader.readAsText(file);
@@ -542,7 +549,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		//function gotGeocodeFileEntryFunction(fileEntry) {
 		//}
 
-		my_log ("geocode_capture_file_path:" + geocode_capture_file_path);
+		//my_log ("geocode_capture_file_path:" + geocode_capture_file_path);
 		//global_survey_related_info.fileSystemObject.root.getFile(
 		//		geocode_capture_file_path, {create: true}, gotGeocodeFileEntryFunction, getFileErrorHandler);
 
@@ -808,7 +815,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 					if (global_survey_related_info.verbatim_data_file_fileEntry_arr === undefined) {
 						global_survey_related_info.verbatim_data_file_fileEntry_arr  = [];
 					} else {
-						my_log ("global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
+						//my_log ("global_survey_related_info.verbatim_data_file_fileEntry_arr.length: " + global_survey_related_info.verbatim_data_file_fileEntry_arr.length);
 					}
 					//global_survey_related_info.current_verbatim_data_file_fileEntry = fileEntry;
 					global_survey_related_info.verbatim_data_file_fileEntry_arr.push(fileEntry);
@@ -885,6 +892,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				new_html += create_help_div_html (questions_obj_arr[i].qno, questions_obj_arr[i].help_text);
 			}
 			new_html += "<button onclick='capturePhoto2("+ i + ",\"" + questions_obj_arr[i].qno + "\");'>Capture Photo</button> <br>"; 
+			//new_html += "<input type='text' id='capt_" + questions_obj_arr[i].qno + "_" +  i + "' /> <br>";
 			new_html += "<div id=\"div_capt_img_" + questions_obj_arr[i].qno + "_" +  i + "\" >Captured image will be displayed here</div>"; 
 
 			global_survey_related_info.image_div_id_arr.push("div_capt_img_" + curr_question_obj.qno+ "_" +  i);
@@ -1097,6 +1105,65 @@ function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
 }
 
 
+	function curry(fn) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		return function() {
+			var innerArgs = Array.prototype.slice.call(arguments),
+					finalArgs = args.concat(innerArgs);
+			return fn.apply(null, finalArgs);
+		};
+	}
+
+	var stub_info = {};
+
+	function mutex_callback_v2 (elem, question_name )
+	{
+		console.log ("mutex_callback: id", elem.id);
+		//var i = 0, e;
+		//for (i = 0; i < input_box_id_arr.length; ++i) {
+		//	e = document.getElementById(input_box_id_arr[i]);
+		//	if (this.id !== elem.id && e.checked ) {
+		//		e.checked = false;
+		//	}
+		//}
+		//this.checked = true;
+		var p;
+		var	e,
+			p_stub_info = stub_info[question_name];
+		//console.log ("non_mutex_ids");
+		//for (p in p_stub_info.non_mutex_ids) {
+		//	console.log (p);
+		//}
+		//console.log ("mutex_ids");
+		//for (p in p_stub_info.mutex_ids) {
+		//	console.log (p);
+		//}
+		 
+		if (elem.id in p_stub_info.mutex_ids) {
+			for (p in p_stub_info.selected_ids) {
+				e = document.getElementById(p);
+				e.checked = false;
+			}
+			p_stub_info.selected_ids = {};
+			p_stub_info.selected_ids[elem.id] = true;
+		} else {
+			// this should run only once in case the
+			// previous selection was a mutex field
+			// if our code is bugfree
+			for (p in p_stub_info.selected_ids) {
+				if (p in p_stub_info.mutex_ids) {
+					e = document.getElementById(p);
+					e.checked = false;
+					delete p_stub_info.selected_ids[p];
+				}
+			}
+			elem.checked = true;
+			p_stub_info.selected_ids[elem.id] = true;
+		}
+		console.log( "mutex_callback_v2 question_name: ", question_name); 
+	}
+
+
 
 function get_stubs_display_view (question_obj, stubs_obj_arr) {
 	//my_log ("Enter: get_stubs_display_view: question_obj.no_mpn" + question_obj.no_mpn);
@@ -1119,6 +1186,9 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 		//alert (res2.name);
 		//alert (res2.stubs);
 		var my_li = null;
+		var question_name = question_obj.qno;
+		//my_log ("question_name: " + question_name);
+		stub_info[question_name] = { mutex_ids: {}, non_mutex_ids: {}, selected_ids: {} };
 		for (var i=0; i<res2.stubs.length;  ++i) {
 			//my_log ("looping i = " + i);
 			if (res2.stubs[i].mask == 1) {
@@ -1132,6 +1202,13 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				} else {
 					input.type  = "checkbox";
 					input.style.class="custom";
+					if (res2.stubs[i].mutex === true) {
+						stub_info[question_name].mutex_ids[id_text] = true;
+					} else {
+						stub_info[question_name].non_mutex_ids[id_text] = true;
+					}
+					var mutex_callback_qn = curry (mutex_callback_v2, input, question_name);
+					input.addEventListener ("click", mutex_callback_qn, false);
 				}
 				//my_log ("created input i = " + i);
 				//input.name  = "stub_response";
@@ -1139,8 +1216,7 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				input.value = res2.stubs[i].stub_code;
 
 				// load previous button click response
-				for (var k = 0; k < question_obj.current_response.length; k++)
-				{
+				for (var k = 0; k < question_obj.current_response.length; k++) {
 					if (question_obj.current_response[k] == res2.stubs[i].stub_code) {
 						input.checked = true;
 						break;
@@ -1217,9 +1293,9 @@ function serialize (form, my_question_obj) {
 	if (my_question_obj.question_type === "geocode_gmapv3") {
 		//my_log ("collecting data from geocode question");
 		if (global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] === undefined) {
-			my_log ("geocoding question is blank, please geocode the location");
+			//my_log ("geocoding question is blank, please geocode the location");
 		} else {
-			my_log ("geocoding question has data : " + global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question]);
+			//my_log ("geocoding question has data : " + global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question]);
 		}
 	} else {
 		for (var i=0; i < form.elements.length; ++i ) {
@@ -1308,7 +1384,7 @@ function new_serialize () {
 
 
 	for (i = 0; i < global_survey_related_info.verbatim_data_arr.length; ++i) {
-		my_log ("global_survey_related_info.verbatim_data_arr.length: " + global_survey_related_info.verbatim_data_arr.length);
+		//my_log ("global_survey_related_info.verbatim_data_arr.length: " + global_survey_related_info.verbatim_data_arr.length);
 		//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 		global_survey_related_info.current_verbatim_index = i;
 		global_survey_related_info.verbatim_data_file_fileEntry_arr [i].createWriter (save_verbatim_data,
@@ -1324,7 +1400,7 @@ function new_serialize () {
 					fail_to_write_file);
 		} else if (global_survey_related_info.geocode_fileEntry_arr.length === 0) {
 		} else {
-			my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
+			//my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
 		}
 	}
 
@@ -1368,7 +1444,7 @@ document.addEventListener ("deviceready", displayMetaData, false);
 function fnMoveFiles() {
     //get hold of the first file
     var dirPath = global_survey_related_info.our_dir_fullPath + "/complete";
-    my_log ("fnMoveFiles: " + dirPath);
+    //my_log ("fnMoveFiles: " + dirPath);
     window.resolveLocalFileSystemURI(dirPath, onSuccessResolutionOfDir, onErrorResolutionOfDir);
     //move it
     //come back to this folder and try moving the next file
@@ -1392,7 +1468,7 @@ function onErrorResolutionOfDir(err) {
 function onDirectoryReadSuccess(dirEntries) {
     var i, fl, len;
     len = dirEntries.length;
-    my_log ("onDirectoryReadSuccess, len: " + len);
+    //my_log ("onDirectoryReadSuccess, len: " + len);
 
     if (len > 0) {
 	uploadNotification.init(len);
@@ -1632,7 +1708,7 @@ var infowindow = null ;
 
 
 function initialize_gmap() {
-	my_log ("Enter: initialize_gmap");
+	//my_log ("Enter: initialize_gmap");
 	if (global_survey_related_info.geocode_question_data === undefined) {
 		global_survey_related_info.geocode_question_data = {};
 	}
@@ -1640,7 +1716,7 @@ function initialize_gmap() {
 	if (window.google) {
 		geocoder = new google.maps.Geocoder();
 
-		my_log ("Reached here");
+		//my_log ("Reached here");
 		var latlng = new google.maps.LatLng(-34.397, 150.644);
 		var mapOptions = {
 			//zoom: 8,
@@ -1657,7 +1733,7 @@ function initialize_gmap() {
 		if (map_canvas) {
 			map = new google.maps.Map(map_canvas, mapOptions);
 		} else {
-			my_log ("unable to get element map_canvas: hence cannot create map");
+			//my_log ("unable to get element map_canvas: hence cannot create map");
 		}
 		google.maps.event.addListener(map, 'click', function() {
 			if (infowindow) {
@@ -1674,19 +1750,19 @@ function initialize_gmap() {
 		});
 
 	} else {
-		my_log ("does not have window.google");
+		//my_log ("does not have window.google");
 	}
 
 	infowindow = new google.maps.InfoWindow(
 		{ 
 		size: new google.maps.Size(150,50)
 		});
-	my_log("Exit: initialize_gmap");
+	//my_log("Exit: initialize_gmap");
 }
 
 	// A function to create the marker and set up the event window function 
 function createMarker(latlng, name, html) {
-	my_log ("Enter createMarker" + latlng + ", name:" + name + ", html");
+	//my_log ("Enter createMarker" + latlng + ", name:" + name + ", html");
 	var contentString = html;
 	if (marker) {
 		marker.setMap(null);
@@ -1698,7 +1774,7 @@ function createMarker(latlng, name, html) {
 		zIndex: Math.round(latlng.lat()*-100000)<<5
 		});
 	google.maps.event.addListener(marker, 'click', function() {
-		my_log ("click function of map triggered");
+		//my_log ("click function of map triggered");
 		//var comma_replaced_latng = latlng.replace(/,/g, " _ ");
 		var comma_replaced_latng = latlng;
 		comma_replaced_latng = JSON.stringify(latlng);
@@ -1711,7 +1787,7 @@ function createMarker(latlng, name, html) {
 		infowindow.open(map,marker);
 	});
 	google.maps.event.trigger(marker, 'click');
-	my_log ("Exiting createMarker");
+	//my_log ("Exiting createMarker");
 	return marker;
 }
 
@@ -1719,23 +1795,23 @@ function createMarker(latlng, name, html) {
 
 
 function geocodeAddress() {
-	my_log ("Enter geocodeAddress");
+	//my_log ("Enter geocodeAddress");
 	var apt_no =  document.getElementById('apt_no');
 	var addr1 =  document.getElementById('addr1');
 	var addr2 =  document.getElementById('addr2');
 	var city =  document.getElementById('city');
 	var pin =  document.getElementById('pin');
 	if (addr1) {
-		my_log ("addr1: " + addr1.value);
+		//my_log ("addr1: " + addr1.value);
 	}
 	if (addr2) {
-		my_log ("addr2: " + addr2.value);
+		//my_log ("addr2: " + addr2.value);
 	}
 	if (city) {
-		my_log ("city: " + city.value);
+		//my_log ("city: " + city.value);
 	}
 	if (pin) {
-		my_log ("pin: " + pin.value);
+		//my_log ("pin: " + pin.value);
 	}
 
 	//var address = document.getElementById('addr1').value +  "," +
@@ -1752,13 +1828,13 @@ function geocodeAddress() {
 		" , \"pin\" : \"" + pin.value + "\" " + 
 		"}";
 	global_survey_related_info.geocode_addr_data_json = data_address.replace(/,/g, " _ ");
-	my_log ("address: " + address);
+	//my_log ("address: " + address);
 
 
 	geocoder.geocode( { 'address': address}, function(results, status) {
-		my_log ("doing the geo-coding right now");
+		//my_log ("doing the geo-coding right now");
 		if (status == google.maps.GeocoderStatus.OK) {
-			my_log ("position/location: " + results[0].geometry.location);
+			//my_log ("position/location: " + results[0].geometry.location);
 			//oldpos: var geocode_data = results[0].geometry.location;
 			//oldpos: global_survey_related_info.geocode_question_data[global_survey_related_info.current_geocode_question] = geocode_data;
 			//oldpos: map.setCenter(results[0].geometry.location);
@@ -1774,16 +1850,16 @@ function geocodeAddress() {
 			//	infowindow.open(map,marker);
 			//});
 			//google.maps.event.trigger(marker, 'click');
-			my_log("geocoder callback function has finished");
+			//my_log("geocoder callback function has finished");
 
 		} else {
-			my_log('Geocode was not successful for the following reason: ' + status);
+			//my_log('Geocode was not successful for the following reason: ' + status);
 		}
 	});
-	my_log ("Exit geocodeAddress");
+	//my_log ("Exit geocodeAddress");
 }
 
 //google.maps.event.addDomListener(window, 'load', initialize);
 
 
-my_log ("Finished loading our_ui.js");
+//my_log ("Finished loading our_ui.js");
