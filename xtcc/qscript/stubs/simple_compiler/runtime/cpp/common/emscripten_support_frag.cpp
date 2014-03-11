@@ -282,11 +282,11 @@ void question_eval_loop2 (
 			dummy_group_name2);
 		//my_log_from_cpp ("Just after theQuestionnaire->eval2");
 		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
-		printf ("after theQuestionnaire->eval2: q_vec.size(): %d\n",
-				q_vec.size());
-		for (int i=0; i < q_vec.size(); ++i) {
-			printf ("q_vec[%d]: questionName_|%s|\n", i, q_vec[i]->questionName_.c_str());
-		}
+		//printf ("after theQuestionnaire->eval2: q_vec.size(): %d\n",
+		//		q_vec.size());
+		//for (int i=0; i < q_vec.size(); ++i) {
+		//	printf ("q_vec[%d]: questionName_|%s|\n", i, q_vec[i]->questionName_.c_str());
+		//}
 		if (q_vec.size() == 0) {
 			//printf(" eval2 has returned NULL => End of qnre();\n");
 			//my_log_from_cpp(" eval2 has returned NULL => End of qnre();\n");
@@ -342,7 +342,7 @@ void callback_return_serial (int serial_no, char * survey_data)
 {
 	//my_log_from_cpp ("Entered callback_return_serial:");
 	//printf ("Got a serial no from the DOM: %d, survey_data: |%s|\n", serial_no, survey_data);
-	printf ("Got a serial no from the DOM: %d\n", serial_no);
+	//printf ("Got a serial no from the DOM: %d\n", serial_no);
 	//TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
 	callback_get_ser_no_from_ui (serial_no, 1, survey_data);
 }

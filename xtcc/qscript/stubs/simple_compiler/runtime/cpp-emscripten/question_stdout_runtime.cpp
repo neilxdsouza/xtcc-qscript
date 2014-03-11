@@ -113,7 +113,11 @@ vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 			//	len_qno += 4;
 			//}
 			//len_qno += 1; // for the "."
-			question_no  << "$" << q->loop_index_values[i] ;
+			// =============
+			// NOTE : $ seems to be causing a problem with 
+			// jquery - our help popup stopped working
+			//question_no  << "$" << q->loop_index_values[i] ;
+			question_no  << "-" << q->loop_index_values[i] ;
 		}
 	}
 	result.push_back (question_no.str());
