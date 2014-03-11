@@ -907,6 +907,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			new_html += "<div id=\"div_capt_img_" + questions_obj_arr[i].qno + "_" +  i + "\" >Captured image will be displayed here</div>"; 
 
 			global_survey_related_info.image_div_id_arr.push("div_capt_img_" + curr_question_obj.qno+ "_" +  i);
+			global_survey_related_info.image_caption_id_arr.push("capt_" + curr_question_obj.qno + "_" + i);
 			//alert(global_survey_related_info.image_div_id_arr[i]);
 		}
 		var new_question_view = document.getElementById("new_question_view");
@@ -962,6 +963,10 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 					function gotImageCaptionFile(file) {
 						var reader = new FileReader();
 						reader.onloadend = function(evt) {
+							var caption_input_box = document.getElementById( global_survey_related_info.image_caption_id_arr[index]);
+							if (caption_input_box && evt.target.result!="") {
+								caption_input_box.value = evt.target.result;
+							}
 							my_log ("Read image caption data: " + evt.target.result);
 							//my_log ("global_survey_related_info.current_image_index: " + global_survey_related_info.current_image_index);
 							//my_log ("gotVerbatimFile index: " + index);
