@@ -6,7 +6,7 @@ var infowindow = null ;
 // geolocation timer global variable
 var geolocationTimer = 60;
 
-//my_log ("Started loading our_ui.js");
+my_log ("Started loading our_ui.js");
 //
 
 function check_all_questions_answered_or_allow_blank() {
@@ -21,7 +21,7 @@ function check_all_questions_answered_or_allow_blank() {
 	if (document.forms.length !== len) {
 		my_log ("INTERNAL ERROR: document.forms.length: " + document.forms.length +
 			" is not equal to questions_obj_arr.length: " + len );
-		//my_log ("check_all_questions_answered_or_allow_blank: failed");
+		my_log ("check_all_questions_answered_or_allow_blank: failed");
 		return;
 	}
 
@@ -172,7 +172,7 @@ function handleStartSurveyButton (event)
 		createCommonDirectories();		// create common directories
 		//all_systems_go = true;
 	} else {
-		//my_log ("cordova : sanity checks failed");
+		my_log ("cordova : sanity checks failed");
 		// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
 		// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
 		// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
@@ -305,6 +305,12 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		global_survey_related_info.image_div_id_arr = [];
 	}
 	global_survey_related_info.image_div_id_arr = [];
+	if (global_survey_related_info.image_caption_id_arr === undefined) {
+		global_survey_related_info.image_caption_id_arr = [];
+	}
+	global_survey_related_info.image_caption_id_arr = [];
+
+	// =========================
 
 	if (global_survey_related_info.address_fileEntry_arr === undefined) {
 		// 1st time creation - this is useless, just 
@@ -858,15 +864,16 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		new_question_view.innerHTML = new_html;
 	}
 	else if (questions_obj_arr[0].question_type == 'image_capture') {
+		my_log ('case image_capture');
 		if (global_survey_related_info.media_fileEntry_arr === undefined) {
 			global_survey_related_info.media_fileEntry_arr = [];
 		}
 		global_survey_related_info.media_fileEntry_arr = [];
-		// the 1st 3 lines below are redundant arent they?
-		//if (global_survey_related_info.media_fileEntry_arr === undefined) {
-		//	global_survey_related_info.media_fileEntry_arr = [];
-		//}
-		//global_survey_related_info.media_fileEntry_arr = [];
+		
+		if (global_survey_related_info.media_caption_fileEntry_arr === undefined) {
+			global_survey_related_info.media_caption_fileEntry_arr = [];
+		}
+		global_survey_related_info.media_caption_fileEntry_arr = [];
 		/*
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
 		my_log ("media_capture_file_path: " + media_capture_file_path);
@@ -878,12 +885,14 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		var new_question_view = document.getElementById("new_question_view");
 		new_question_view.innerHTML = new_html;
 		*/
-		var new_html = "", media_capture_file_path =[], i=0;
+		var new_html = "", media_capture_file_path =[], media_caption_file_path = [], i=0;
 		media_capture_file_path.length = 0;
+		media_caption_file_path.length = 0; 
 		for (i = 0; i < questions_obj_arr.length; ++i) {
 			var curr_question_obj = questions_obj_arr[i];
 			//global_survey_related_info.media_fileEntry_arr  = [];
 			media_capture_file_path[i] = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[i].qno + "." + global_survey_related_info.our_file_name + ".dat";
+			media_caption_file_path[i] = global_survey_related_info.our_dir_path + "/incomplete/" + "caption_" +  questions_obj_arr[i].qno + "." + global_survey_related_info.our_file_name + ".dat";
 			//global_survey_related_info.fileSystemObject.root.getFile(
 			//		media_capture_file_path, {create: true}, gotMediaFileEntry, getFileErrorHandler);
 			new_html += "<p>Please click a photo</p>";
@@ -892,7 +901,9 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				new_html += create_help_div_html (questions_obj_arr[i].qno, questions_obj_arr[i].help_text);
 			}
 			new_html += "<button onclick='capturePhoto2("+ i + ",\"" + questions_obj_arr[i].qno + "\");'>Capture Photo</button> <br>"; 
-			//new_html += "<input type='text' id='capt_" + questions_obj_arr[i].qno + "_" +  i + "' /> <br>";
+			new_html += "<form id ='id_form_" + curr_question_obj.qno + "' name ='form_" + curr_question_obj.qno + "' >";
+			new_html += "<input type='text' id='capt_" + questions_obj_arr[i].qno + "_" +  i + "' placeholder='Caption for image' /> <br>";
+			new_html += "</form>";
 			new_html += "<div id=\"div_capt_img_" + questions_obj_arr[i].qno + "_" +  i + "\" >Captured image will be displayed here</div>"; 
 
 			global_survey_related_info.image_div_id_arr.push("div_capt_img_" + curr_question_obj.qno+ "_" +  i);
@@ -940,6 +951,55 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 				function_result_arr[i],
 				getFileErrorHandler);
 		}// load the older images clicked 
+
+		//this is the code for repopulating the image captions on revisiting
+		var function_load_media_caption_arr = [];
+		my_log ("media_caption_file_path.length: " + media_caption_file_path.length);
+		for (var i = 0; i < media_caption_file_path.length; ++i) {
+			function_load_media_caption_arr[i] = function (index) {
+				return function (fileEntry) {
+					//my_log ("gotVerbatimFileEntry index: " + index);
+					function gotImageCaptionFile(file) {
+						var reader = new FileReader();
+						reader.onloadend = function(evt) {
+							my_log ("Read image caption data: " + evt.target.result);
+							//my_log ("global_survey_related_info.current_image_index: " + global_survey_related_info.current_image_index);
+							//my_log ("gotVerbatimFile index: " + index);
+							//var image_div_box = document.getElementById( global_survey_related_info.image_div_id_arr[index]);
+							//if (image_div_box && evt.target.result!="") {
+							//	var rel_path = "../../../"  + global_survey_related_info.device.uuid + "/" + global_survey_related_info.job_name + "/" + window.localStorage.getItem('userid') + "/incomplete/" + evt.target.result;
+							//	image_div_box.innerHTML = "<img src=\"" + rel_path + "\"  alt=\"Smiley face\" height=\"100\" width=\"100\">";
+							//}
+						//	console.log(evt.target.result);
+						};
+						reader.readAsText(file);
+					}
+					//if (global_survey_related_info.media_caption_fileEntry_arr === undefined) {
+					//	global_survey_related_info.media_caption_fileEntry_arr = [];
+					//}
+					global_survey_related_info.media_caption_fileEntry_arr.push(fileEntry);
+					fileEntry.file(gotImageCaptionFile, getFileErrorHandler);
+					//my_log ("Exit global_survey_related_info.media_caption_fileEntry_arr.length: " + global_survey_related_info.media_caption_fileEntry_arr.length);
+				};
+			} (i);
+
+
+			my_log ("creating image_caption_file handle: i " + i);
+			global_survey_related_info.current_image_index = i;
+			global_survey_related_info.fileSystemObject.root.getFile(
+				media_caption_file_path[i], {create: true},
+				//gotVerbatimFileEntry,
+				function_load_media_caption_arr[i],
+				getFileErrorHandler);
+		}
+		// END load the image captions clicked 
+		// 
+		/*
+		*/
+
+
+
+
 	}
 	else if (questions_obj_arr[0].question_type == 'audio_capture') {
 		var media_capture_file_path = global_survey_related_info.our_dir_path + "/incomplete/" + questions_obj_arr[0].qno + "." + global_survey_related_info.our_file_name + ".dat";
@@ -1104,6 +1164,7 @@ function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
 	}
 }
 
+	/*
 
 	function curry(fn) {
 		var args = Array.prototype.slice.call(arguments, 1);
@@ -1162,6 +1223,7 @@ function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
 		}
 		console.log( "mutex_callback_v2 question_name: ", question_name); 
 	}
+	*/
 
 
 
@@ -1186,9 +1248,9 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 		//alert (res2.name);
 		//alert (res2.stubs);
 		var my_li = null;
-		var question_name = question_obj.qno;
+		//var question_name = question_obj.qno;
 		//my_log ("question_name: " + question_name);
-		stub_info[question_name] = { mutex_ids: {}, non_mutex_ids: {}, selected_ids: {} };
+		//stub_info[question_name] = { mutex_ids: {}, non_mutex_ids: {}, selected_ids: {} };
 		for (var i=0; i<res2.stubs.length;  ++i) {
 			//my_log ("looping i = " + i);
 			if (res2.stubs[i].mask == 1) {
@@ -1202,13 +1264,14 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				} else {
 					input.type  = "checkbox";
 					input.style.class="custom";
-					if (res2.stubs[i].mutex === true) {
-						stub_info[question_name].mutex_ids[id_text] = true;
-					} else {
-						stub_info[question_name].non_mutex_ids[id_text] = true;
-					}
-					var mutex_callback_qn = curry (mutex_callback_v2, input, question_name);
-					input.addEventListener ("click", mutex_callback_qn, false);
+					//if (res2.stubs[i].mutex === true) {
+					//	stub_info[question_name].mutex_ids[id_text] = true;
+					//} else {
+					//	stub_info[question_name].non_mutex_ids[id_text] = true;
+					//}
+					//var mutex_callback_qn = curry (mutex_callback_v2, input, question_name);
+					//input.addEventListener ("click", mutex_callback_qn, false);
+					//input.addEventListener ("tap", mutex_callback_qn, false);
 				}
 				//my_log ("created input i = " + i);
 				//input.name  = "stub_response";
@@ -1216,7 +1279,8 @@ function get_stubs_display_view (question_obj, stubs_obj_arr) {
 				input.value = res2.stubs[i].stub_code;
 
 				// load previous button click response
-				for (var k = 0; k < question_obj.current_response.length; k++) {
+				for (var k = 0; k < question_obj.current_response.length; k++)
+				{
 					if (question_obj.current_response[k] == res2.stubs[i].stub_code) {
 						input.checked = true;
 						break;
@@ -1347,6 +1411,9 @@ function serialize (form, my_question_obj) {
 						//global_survey_related_info.verbatim_data_arr.push(quoted_verbatim);
 						global_survey_related_info.verbatim_data_arr.push(the_verbatim_data);
 					}
+				} else if (my_question_obj.question_type === "image_capture") {
+					var the_caption_data = field.value;
+					global_survey_related_info.image_caption_data_arr.push(the_caption_data);
 				}
 			break;
 			}
@@ -1370,6 +1437,7 @@ function new_serialize () {
 		global_survey_related_info.verbatim_data_arr = [];
 	}
 	global_survey_related_info.verbatim_data_arr = [];
+	global_survey_related_info.image_caption_data_arr = [];
 
 	var form_data_arr = [];
 	var i = 0;
@@ -1400,9 +1468,20 @@ function new_serialize () {
 					fail_to_write_file);
 		} else if (global_survey_related_info.geocode_fileEntry_arr.length === 0) {
 		} else {
-			//my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
+			my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
 		}
 	}
+
+	// write image caption data if any
+	my_log ("global_survey_related_info.image_caption_data_arr.length: " + global_survey_related_info.image_caption_data_arr.length);
+	for (i = 0; i < global_survey_related_info.image_caption_data_arr.length; ++i) {
+		//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
+		global_survey_related_info.current_image_caption_index = i;
+		global_survey_related_info.media_caption_fileEntry_arr [i].createWriter (save_image_caption_data,
+						fail_to_write_file);
+	}
+	/*
+	*/
 
 	//my_log("Exit: new_serialize");
 	return form_data_arr;
@@ -1733,7 +1812,7 @@ function initialize_gmap() {
 		if (map_canvas) {
 			map = new google.maps.Map(map_canvas, mapOptions);
 		} else {
-			//my_log ("unable to get element map_canvas: hence cannot create map");
+			my_log ("unable to get element map_canvas: hence cannot create map");
 		}
 		google.maps.event.addListener(map, 'click', function() {
 			if (infowindow) {
@@ -1750,7 +1829,7 @@ function initialize_gmap() {
 		});
 
 	} else {
-		//my_log ("does not have window.google");
+		my_log ("does not have window.google");
 	}
 
 	infowindow = new google.maps.InfoWindow(
@@ -1853,7 +1932,7 @@ function geocodeAddress() {
 			//my_log("geocoder callback function has finished");
 
 		} else {
-			//my_log('Geocode was not successful for the following reason: ' + status);
+			my_log('Geocode was not successful for the following reason: ' + status);
 		}
 	});
 	//my_log ("Exit geocodeAddress");
@@ -1862,4 +1941,4 @@ function geocodeAddress() {
 //google.maps.event.addDomListener(window, 'load', initialize);
 
 
-//my_log ("Finished loading our_ui.js");
+my_log ("Finished loading our_ui.js");
