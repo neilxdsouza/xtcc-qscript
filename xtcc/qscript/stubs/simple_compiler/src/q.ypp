@@ -177,6 +177,8 @@
 %token SETADD
 %token UNSET
 %token SETALL
+%token MAX_LENGTH 
+%token MIN_LENGTH 
 
 
 %type <expr> expression
@@ -795,6 +797,14 @@ attribute: HIDDEN {
 	| HELP_POPUP TEXT {
 		// just parse in this branch - we can safely ignore the help text
 		//question_attributes.setHelpText($2);
+	}
+	| MIN_LENGTH INUMBER {
+		// just parse in this branch - we can safely ignore the help text
+		//question_attributes.setMinLength($2);
+	}
+	| MAX_LENGTH INUMBER {
+		// just parse in this branch - we can safely ignore the help text
+		//question_attributes.setMaxLength($2);
 	}
 	;
 

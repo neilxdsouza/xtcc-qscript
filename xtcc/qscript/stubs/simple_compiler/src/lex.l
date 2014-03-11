@@ -482,7 +482,19 @@ randomize {
 	return RANDOMIZE;
 }
 
+min_length {
+	if (qscript_parser::show_lex_error_context)
+		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+	qscript_parser::lex_location.IncrementColumn(yyleng);
+	return MIN_LENGTH;
+} 
 
+max_length {
+	if (qscript_parser::show_lex_error_context)
+		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+	qscript_parser::lex_location.IncrementColumn(yyleng);
+	return MAX_LENGTH;
+}
 
 fix	{
 		if (qscript_parser::show_lex_error_context)

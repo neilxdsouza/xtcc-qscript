@@ -226,7 +226,12 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 				stringstream verb_file_name;
 				verb_file_name
 					<< data_file_iterator.dir_part 
-					<< q->questionName_ << "." 
+					<< q->questionName_;
+				for (int i=0; i< q->loop_index_values.size(); ++i) {
+					verb_file_name << "$" << q->loop_index_values[i];
+				}
+				verb_file_name 
+					<< "." 
 					//<< jno << "_" << ser_no 
 					<< data_file_iterator.filename_part
 					//<< ".dat" 
