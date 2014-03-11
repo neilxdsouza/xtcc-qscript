@@ -228,7 +228,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 					<< data_file_iterator.dir_part 
 					<< q->questionName_;
 				for (int i=0; i< q->loop_index_values.size(); ++i) {
-					verb_file_name << "$" << q->loop_index_values[i];
+					verb_file_name << "-" << q->loop_index_values[i];
 				}
 				verb_file_name 
 					<< "." 
@@ -273,7 +273,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 			<< data_file_iterator.dir_part 
 			<< q->questionName_;
 		for (int i=0; i< q->loop_index_values.size(); ++i) {
-			media_data_file_name << "$" << q->loop_index_values[i];
+			media_data_file_name << "-" << q->loop_index_values[i];
 		}
 		media_data_file_name
 			<< "." 
@@ -312,7 +312,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 				<< data_file_iterator.dir_part 
 				<< q->questionName_;
 			for (int i=0; i< q->loop_index_values.size(); ++i) {
-				geocode_data_file_name << "$" << q->loop_index_values[i];
+				geocode_data_file_name << "-" << q->loop_index_values[i];
 			}
 			geocode_data_file_name
 				<< "_geocode"
@@ -344,7 +344,7 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 				<< data_file_iterator.dir_part 
 				<< q->questionName_;
 			for (int i=0; i< q->loop_index_values.size(); ++i) {
-				address_data_file_name << "$" << q->loop_index_values[i];
+				address_data_file_name << "-" << q->loop_index_values[i];
 			}
 			address_data_file_name
 				<< "_address"
