@@ -360,6 +360,14 @@ function save_address_data(writer) {
 }
 /* save_address_data }}}2 */
 
+/* save_image_caption_data{{{2 */
+function save_image_caption_data(writer) {
+	//my_log ("Enter : save_image_caption_data: global_survey_related_info.current_image_caption_index: " + global_survey_related_info.current_image_caption_index);
+	writer.write(global_survey_related_info.image_caption_data_arr[global_survey_related_info.current_image_caption_index]);
+	//my_log ("Exit : save_image_caption_data");
+}
+/* save_image_caption_data }}}2 */
+
 /* save_verbatim_data_file_handle {{{2 */
 function save_verbatim_data_file_handle (fileEntry) {
 	//my_log ("Enter : save_verbatim_data_file_handle");
