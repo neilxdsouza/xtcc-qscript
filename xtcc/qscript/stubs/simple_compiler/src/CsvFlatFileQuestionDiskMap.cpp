@@ -47,6 +47,10 @@ void csv_escape (string & sample_string)
 	cerr << "EXIT " <<  __PRETTY_FUNCTION__ << "n_rplc: " << n_rplc << "str: " << sample_string << endl;
 }
 
+
+
+
+
 string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn, AbstractQuestion * q)
 {
 	stringstream output_buffer;
@@ -57,16 +61,25 @@ string print_data_as_csv (const set<int32_t> & the_input_data, const int no_mpn,
 		++n_inputs
 		) {
 		const int & code = *it;
-		output_buffer << "," << code;
+		NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q);
+		if (nq) {
+			string stub_text = nq->nr_ptr->get_stub_text_from_stub_code(code);
+			output_buffer << ",\"" << stub_text << "|" << code << "\"";
+		} else {
+			output_buffer << "," << code;
+		}
 	}
 
-	stringstream complete_name ;
-	complete_name << q->questionName_;
-	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
-		complete_name << "_" << q->loop_index_values[i] + 1;
-	}
+	// uncomment this if you need below marked ---***----
+	// stringstream complete_name ;
+	// complete_name << q->questionName_;
+	// for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
+	// 	complete_name << "_" << q->loop_index_values[i] + 1;
+	// }
+	// uncomment this if you need below marked ---***----
 
 	for (int i=0; i < no_mpn - n_inputs; ++i) {
+		// ---***---
 		//output_buffer << "," << complete_name.str();
 		output_buffer << "," ;
 	}
@@ -79,7 +92,7 @@ void CsvFlatFileQuestionDiskMap::write_csv_header (std::stringstream & output_bu
 	stringstream complete_name ;
 	complete_name << q->questionName_;
 	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
-		complete_name << "_" << q->loop_index_values[i] + 1;
+		complete_name << "[" << q->loop_index_values[i] /* + 1  */ << "]";
 	}
 	if (GeocodeGMapV3Question * gq = dynamic_cast<GeocodeGMapV3Question*> (q)) {
 		output_buffer
@@ -95,16 +108,21 @@ void CsvFlatFileQuestionDiskMap::write_csv_header (std::stringstream & output_bu
 					<< ", " << complete_name.str();
 			} else {
 				for (int32_t i = 0; i < q->no_mpn; ++i) {
-					output_buffer << "," << complete_name.str() << "_" << i + 1;
+					output_buffer << "," << complete_name.str() << "-Resp-" << i + 1;
 				}
 			}
 		}
 	} else if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q)) {
-		for (int32_t i = 0; i < q->no_mpn; ++i) {
-			output_buffer << "," << complete_name.str() << "_" << i + 1;
+		if (q->no_mpn == 1) {
+			output_buffer << "," << complete_name.str();
+		} else {
+			for (int32_t i = 0; i < q->no_mpn; ++i) {
+				output_buffer << "," << complete_name.str() << "-Resp-" << i + 1;
+			}
 		}
 	} else if (VideoCaptureQuestion * vq = dynamic_cast<VideoCaptureQuestion*> (q)) {
 			output_buffer << "," << complete_name.str();
+			output_buffer << "," << "caption_" << complete_name.str();
 	} else {
 		output_buffer << "," << "unhandled question type";
 	}
@@ -294,6 +312,37 @@ void CsvFlatFileQuestionDiskMap::write_data (std::stringstream & output_buffer, 
 			string entire_text;
 			while (media_data_file) {
 				media_data_file.getline (buffer, 255);
+				entire_text += string(buffer);
+			}
+			output_buffer << entire_text ;
+		} else {
+			//output_buffer << complete_name;
+			output_buffer << "{ }";
+		}
+		// ============ output caption text
+		output_buffer << ",\"media_caption\" : ";
+		stringstream media_caption_data_file_name;
+		media_caption_data_file_name
+			<< data_file_iterator.dir_part 
+			<< "caption_"
+			<< q->questionName_;
+		for (int i=0; i< q->loop_index_values.size(); ++i) {
+			media_caption_data_file_name << "-" << q->loop_index_values[i];
+		}
+		media_caption_data_file_name 
+			<< "." 
+			<< data_file_iterator.filename_part
+			;
+		cerr << "trying to open media_caption_data_file: " 
+			<< media_caption_data_file_name.str()
+			<< endl;
+		std::fstream media_caption_data_file(media_caption_data_file_name.str().c_str());
+		if (media_caption_data_file) {
+			char buffer[257];
+			buffer[255]=buffer[256]=0;
+			string entire_text;
+			while (media_caption_data_file) {
+				media_caption_data_file.getline (buffer, 255);
 				entire_text += string(buffer);
 			}
 			output_buffer << entire_text ;

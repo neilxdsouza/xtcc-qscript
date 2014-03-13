@@ -59,6 +59,7 @@ struct named_range: public AbstractStatement
 		stubs = l_stubs;
 		name = l_name;
 	}
+	string get_stub_text_from_stub_code(int code);
 	~named_range();
 	named_range(named_range & nr);
 };

@@ -105,3 +105,16 @@ named_range::named_range(DataType l_type, int32_t l_line_number
 		//	<< "maxCode_: " << maxCode_ 
 		//	<< endl;
 	}
+
+
+string named_range::get_stub_text_from_stub_code(int code)
+{
+	string ret_val = "";
+	for (int i=0; i< stubs.size(); ++i) {
+		if (stubs[i].code == code) {
+			ret_val = stubs[i].stub_text;
+			break;
+		}
+	}
+	return ret_val;
+}
