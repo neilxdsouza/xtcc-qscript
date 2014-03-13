@@ -19,9 +19,9 @@ function check_all_questions_answered_or_allow_blank() {
 		return [];
 	}
 	if (document.forms.length !== len) {
-		my_log ("INTERNAL ERROR: document.forms.length: " + document.forms.length +
-			" is not equal to questions_obj_arr.length: " + len );
-		my_log ("check_all_questions_answered_or_allow_blank: failed");
+		//my_log ("INTERNAL ERROR: document.forms.length: " + document.forms.length +
+		//	" is not equal to questions_obj_arr.length: " + len );
+		//my_log ("check_all_questions_answered_or_allow_blank: failed");
 		return;
 	}
 
@@ -172,7 +172,7 @@ function handleStartSurveyButton (event)
 		createCommonDirectories();		// create common directories
 		//all_systems_go = true;
 	} else {
-		my_log ("cordova : sanity checks failed");
+		//my_log ("cordova : sanity checks failed");
 		// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
 		// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
 		// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
@@ -864,7 +864,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		new_question_view.innerHTML = new_html;
 	}
 	else if (questions_obj_arr[0].question_type == 'image_capture') {
-		my_log ('case image_capture');
+		//my_log ('case image_capture');
 		if (global_survey_related_info.media_fileEntry_arr === undefined) {
 			global_survey_related_info.media_fileEntry_arr = [];
 		}
@@ -955,7 +955,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 
 		//this is the code for repopulating the image captions on revisiting
 		var function_load_media_caption_arr = [];
-		my_log ("media_caption_file_path.length: " + media_caption_file_path.length);
+		//my_log ("media_caption_file_path.length: " + media_caption_file_path.length);
 		for (var i = 0; i < media_caption_file_path.length; ++i) {
 			function_load_media_caption_arr[i] = function (index) {
 				return function (fileEntry) {
@@ -967,7 +967,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 							if (caption_input_box && evt.target.result!="") {
 								caption_input_box.value = evt.target.result;
 							}
-							my_log ("Read image caption data: " + evt.target.result);
+							//my_log ("Read image caption data: " + evt.target.result);
 							//my_log ("global_survey_related_info.current_image_index: " + global_survey_related_info.current_image_index);
 							//my_log ("gotVerbatimFile index: " + index);
 							//var image_div_box = document.getElementById( global_survey_related_info.image_div_id_arr[index]);
@@ -989,7 +989,7 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			} (i);
 
 
-			my_log ("creating image_caption_file handle: i " + i);
+			//my_log ("creating image_caption_file handle: i " + i);
 			global_survey_related_info.current_image_index = i;
 			global_survey_related_info.fileSystemObject.root.getFile(
 				media_caption_file_path[i], {create: true},
@@ -1473,12 +1473,12 @@ function new_serialize () {
 					fail_to_write_file);
 		} else if (global_survey_related_info.geocode_fileEntry_arr.length === 0) {
 		} else {
-			my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
+			//my_log ("unhandled case geocode question - we are not handling multiple geocode questions in 1 page");
 		}
 	}
 
 	// write image caption data if any
-	my_log ("global_survey_related_info.image_caption_data_arr.length: " + global_survey_related_info.image_caption_data_arr.length);
+	//my_log ("global_survey_related_info.image_caption_data_arr.length: " + global_survey_related_info.image_caption_data_arr.length);
 	for (i = 0; i < global_survey_related_info.image_caption_data_arr.length; ++i) {
 		//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 		global_survey_related_info.current_image_caption_index = i;
@@ -1817,7 +1817,7 @@ function initialize_gmap() {
 		if (map_canvas) {
 			map = new google.maps.Map(map_canvas, mapOptions);
 		} else {
-			my_log ("unable to get element map_canvas: hence cannot create map");
+			//my_log ("unable to get element map_canvas: hence cannot create map");
 		}
 		google.maps.event.addListener(map, 'click', function() {
 			if (infowindow) {
@@ -1834,7 +1834,7 @@ function initialize_gmap() {
 		});
 
 	} else {
-		my_log ("does not have window.google");
+		//my_log ("does not have window.google");
 	}
 
 	infowindow = new google.maps.InfoWindow(
@@ -1937,7 +1937,7 @@ function geocodeAddress() {
 			//my_log("geocoder callback function has finished");
 
 		} else {
-			my_log('Geocode was not successful for the following reason: ' + status);
+			//my_log('Geocode was not successful for the following reason: ' + status);
 		}
 	});
 	//my_log ("Exit geocodeAddress");
