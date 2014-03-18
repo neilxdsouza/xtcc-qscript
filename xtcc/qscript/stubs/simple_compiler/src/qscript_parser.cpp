@@ -371,6 +371,7 @@ void print_header(FILE* script, bool ncurses_flag)
 
 
 	fprintf(script, "int ser_no = 0;\n");
+	fprintf(script, "string ser_no_str;\n");
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
 	fprintf(script, "FILE * qscript_stdout = 0;\n");
@@ -818,10 +819,11 @@ const char * file_exists_check_code()
 	"\t\t\t\tif (new_potential_data_file_path.length() == 0) {\n"
 	"\t\t\t\t\tbreak;\n"
 	"\t\t\t\t} \n"
-	"\t\t\t\tload_data_from_path (new_potential_data_file_path);\n"
+	"\t\t\t\t load_data_from_path (new_potential_data_file_path);\n"
+	"\t\t\t\t ser_no_str = extract_serial_no_from_file_path (new_potential_data_file_path);\n"
 	"\t\t\t\t merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, named_attribute_list_vec);\n"
 	"\t\t\t} else {\n"
-	"\t\t\t\tser_no = read_a_serial_no();\n"
+	"\t\t\t\t ser_no = read_a_serial_no();\n"
 	"\t\t\t\tfprintf(qscript_stdout, \"Read Serial no: %d\\n\", ser_no);\n"
 	"\t\t\t\tif (ser_no == 0) {\n"
 	"\t\t\t\t\tbreak;\n"
@@ -3953,7 +3955,7 @@ void print_write_csv_data_to_disk(FILE *script)
 	fprintf(script, "		first_time = false;\n");
 	fprintf(script, "	}\n");
 	fprintf(script, "\n");
-	fprintf(script, "	csv_flat_file_output_buffer_str << ser_no;\n");
+	fprintf(script, "	csv_flat_file_output_buffer_str << \"\\\"\" <<ser_no_str << \"\\\"\";\n");
 
 
 

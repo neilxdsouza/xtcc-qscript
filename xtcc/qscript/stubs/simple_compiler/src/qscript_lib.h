@@ -26,6 +26,7 @@ void print_process_edit_and_qax (string jno
 		, vector <string> recode_questions_list
 		, vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map
 		);
+string extract_serial_no_from_file_path(string path);
 
 qtm_data_file_ns::QtmDataDiskMap*
 GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,

@@ -57,9 +57,43 @@ void clear_previous_data()
 	map_rand_order.clear();
 }
 
+string extract_serial_no_from_file_path(string path)
+{
+	string r_val;
+	string::size_type pos = path.rfind ("/");
+	if (pos != string::npos) {
+		string part1 = path.substr(pos+1);
+		string ::size_type pos_dat  = part1.find (".dat");
+		cerr
+			<< __PRETTY_FUNCTION__
+			<< ", serial_no_part part1: " << part1
+			<< endl;
+		if (pos_dat != string::npos) {
+			r_val = part1.substr(0, pos_dat );
+		} else {
+			r_val = part1;
+			cerr
+				<< __PRETTY_FUNCTION__
+				<< ", could not find .dat in part1: " << part1
+				<< endl;
+		}
+		cerr
+			<< __PRETTY_FUNCTION__
+			<< ", serial_no_part: " << r_val
+			<< endl;
+		return r_val;
+	} else {
+		cerr << " could not find '/' in " << path << endl;
+		return r_val;
+	}
+}
+
 int32_t load_data_from_path(string path)
 {
-	printf ("Enter: %s, path: %s\n", __PRETTY_FUNCTION__, path.c_str());
+	//printf ("Enter: %s, path: %s\n", __PRETTY_FUNCTION__, path.c_str());
+	cerr << "Enter: " << __PRETTY_FUNCTION__ << ", path: " <<  path << endl;
+	string s = extract_serial_no_from_file_path (path);
+	
 	clear_previous_data();
 	read_disk_datain = fopen(path.c_str(), "rb");
 	read_disk_data_init();
