@@ -290,6 +290,16 @@ function create_help_div_html (qno, help_text) {
     return new_question_view;
 }
 
+function keyboardFix() {
+    // fix for Android Keyboad GO button
+    var allForms = document.getElementsByTagName("form");
+    for (var i = 0; i < allForms.length; i++) {
+        allForms[i].setAttribute("data-ajax", "false");
+        allForms[i].setAttribute("onsubmit", "return false;");
+    }
+}
+
+
 function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_obj_arr) 
 {
 	//for verbatim questions
@@ -510,8 +520,8 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 			//		address_capture_file_path, {create: true}, gotAddressFileEntryFunction, getFileErrorHandler);
 
 		//Now extract the lat long and place the marker on google map
-		//var gotGeocodeFileEntryFunction = function () {
-		//return function (fileEntry) {
+		//var gotGeocodeFileEntryFunction = function () 
+		//return function (fileEntry) 
 			
 		function gotGeocodeFileEntry(fileEntry) {
 			//my_log("Enter: gotGeocodeFileEntry");
@@ -1119,6 +1129,9 @@ function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr, err_o
 		$( '#new_question_view' ).trigger( 'create' );
 		//my_log ("Exit: create_multiple_questions_view");
 	}
+
+	keyboardFix();
+
 	$( '#new_question_view' ).trigger( 'create' );
 
 	window.scrollTo(0, 0);		// scroll to top
@@ -1478,7 +1491,7 @@ function new_serialize () {
 	}
 
 	// write image caption data if any
-	my_log ("global_survey_related_info.image_caption_data_arr.length: " + global_survey_related_info.image_caption_data_arr.length);
+	//my_log ("global_survey_related_info.image_caption_data_arr.length: " + global_survey_related_info.image_caption_data_arr.length);
 	for (i = 0; i < global_survey_related_info.image_caption_data_arr.length; ++i) {
 		//global_survey_related_info.current_verbatim_data_file_fileEntry.createWriter (save_verbatim_data, fail_to_write_file);
 		global_survey_related_info.current_image_caption_index = i;
